@@ -2,6 +2,8 @@
 
 The game opens straight into free play with a short greeting from Pip. An instructor can use these four phases without changing the game.
 
+Before a classroom demo, open the `···` settings menu and choose the **Game level** that fits the group. Kindergarten - Elementary level uses slow IF/THEN explanations and avoids assuming programming vocabulary. Middle - Highschool introduces coding words after the plain-language idea. College adds more precise implementation detail.
+
 1. **Quick introduction — 1 minute.** Explain that Pip is a virtual pet who can help us notice how programs make decisions. Wait for his first idle lesson. Ask: “How does the game know whether Pip is being held?”
 2. **Free play — 4 minutes.** Click his head, pick him up, move him in different directions, put him down, and offer a treat. Pause to read bubbles; hovering keeps them visible. Visit Knowledge to read one code example. Pet and feed him twice to discover variables and functions.
 3. **One adventure — 3–5 minutes.** Start Berry Detective for conditions, Loop Garden for repetition/debugging, or the Pop Quiz to revisit encountered concepts. There is no time pressure. Bring earned treats back to Pip.
@@ -27,3 +29,5 @@ The game opens straight into free play with a short greeting from Pip. An instru
 Pip queues new home lessons so they do not interrupt one another. A lesson joins Knowledge when it appears. You may need to let the current bubble finish or click it to revisit it before the next queued discovery appears. Closing menus resumes home animation and the lesson queue.
 
 Suggested reflection: “If you wanted Pip to wear a party hat only when he is happy AND you have won a game, what two checks would you combine?”
+
+Use **Reset progress** from the settings menu when you want the next group to start from zero. It clears unlocked lessons, treats, scores, and care counts while keeping the selected level and comfort settings.

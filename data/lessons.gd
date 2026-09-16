@@ -2,6 +2,22 @@ extends RefCounted
 ## Every quiz question belongs to one discoverable lesson. Snippets are
 ## simplified GDScript versions of the behavior in hamster.gd / save_data.gd.
 
+const LEVELS = ["kindergarten", "middle", "college"]
+const LEVEL_LABELS = {
+	"kindergarten":"Kindergarten - Elementary level",
+	"middle":"Middle - Highschool",
+	"college":"College"
+}
+const LEVEL_SHORT = {
+	"kindergarten":"Starter learner",
+	"middle":"Growing coder",
+	"college":"College detail"
+}
+const LEVEL_DESCRIPTIONS = {
+	"kindergarten":"Pip explains slowly with IF ___ THEN ___ examples, plain words, and extra hints.",
+	"middle":"Pip uses beginner coding words, then immediately connects them to the game action.",
+	"college":"Pip adds more precise programming vocabulary and mentions the Godot-style logic underneath."
+}
 const ORDER = ["idle", "events", "variables", "boolean", "vectors", "gravity", "condition", "functions", "loops", "timer", "and", "repeat"]
 const DATA = {
 	"idle": {
@@ -89,6 +105,77 @@ const DATA = {
 		"question":"The target is 4 steps away. How many times should move_one_stone_right() run?", "choices":["4 times", "1 time", "5 times"], "answer":0,
 		"why":"Each repetition moves one stone, so four repetitions move four stones."}
 }
+
+const IF_THEN = {
+	"idle":"IF I am being held THEN I dangle. ELSE I rest and breathe.",
+	"events":"IF your click lands on my head THEN the game runs pet().",
+	"variables":"IF you pet me THEN happiness becomes the old number plus 8.",
+	"boolean":"IF is_held is true THEN I follow your hand. IF it is false THEN I stand on my own.",
+	"vectors":"IF the mouse moves right THEN my x number grows. IF it moves down THEN my y number grows.",
+	"gravity":"IF you let go in the air THEN gravity pulls me down until the floor stops me.",
+	"condition":"IF I am hungry enough AND you have a treat THEN I can eat.",
+	"functions":"IF the game calls feed(kind) THEN it runs the snack recipe for that treat.",
+	"loops":"IF the chew loop has more repeats left THEN I chew again.",
+	"timer":"IF my quiet timer reaches its target THEN I clean my face.",
+	"and":"IF is_berry is true AND is_red is true THEN the find goes in the basket.",
+	"repeat":"IF repeat is 4 THEN the marker takes 4 steps."
+}
+
+const SIMPLE_WORDS = {
+	"idle":"A condition is just a yes-or-no question the game asks.",
+	"events":"An event means something happened, like a click.",
+	"variables":"A variable is a labeled box that stores a number or word.",
+	"boolean":"A boolean is a tiny switch with only true or false.",
+	"vectors":"A Vector2 is two position numbers: x and y.",
+	"gravity":"Velocity means speed and direction. Gravity changes the downward speed.",
+	"condition":"A condition is a check. The answer is true or false.",
+	"functions":"A function is a named recipe the game can reuse.",
+	"loops":"A loop repeats the same step instead of writing it many times.",
+	"timer":"A timer counts time until something should happen.",
+	"and":"AND means both checks must be true.",
+	"repeat":"A repeat count tells a loop how many times to run."
+}
+
+const COLLEGE_NOTES = {
+	"idle":"This is state-based animation selection: is_held controls which branch mutates the current animation state.",
+	"events":"This uses input handling: a mouse event is filtered by hit area, then dispatches the pet interaction.",
+	"variables":"This is bounded state mutation: happiness is incremented and clamped so the invariant 0 <= happiness <= 100 holds.",
+	"boolean":"is_held is a boolean state flag used by movement, animation, and input flow.",
+	"vectors":"Position is represented by a 2D vector. The held critter interpolates toward the pointer to create soft motion.",
+	"gravity":"The falling behavior integrates velocity over time, then resolves contact with the floor using a damped bounce.",
+	"condition":"Feeding is gated by compound conditions, so inventory and fullness must both allow the action.",
+	"functions":"feed(kind) abstracts repeated snack behavior behind one callable routine with a treat-type parameter.",
+	"loops":"The chew animation is a finite repeated sequence. A loop expresses repeated work without duplicating code.",
+	"timer":"The timer accumulates delta time, making the behavior frame-rate independent.",
+	"and":"Logical AND shortens a decision that needs multiple true predicates before accepting an item.",
+	"repeat":"The loop count is an input-controlled parameter; debugging means comparing expected and observed state."
+}
+
+static func normalize_level(level: String) -> String:
+	return level if level in LEVELS else "kindergarten"
+
+static func level_label(level: String) -> String:
+	return LEVEL_LABELS[normalize_level(level)]
+
+static func level_description(level: String) -> String:
+	return LEVEL_DESCRIPTIONS[normalize_level(level)]
+
+static func entry(key: String, level: String = "kindergarten") -> Dictionary:
+	var lesson = DATA[key].duplicate(true)
+	var normalized = normalize_level(level)
+	if normalized == "kindergarten":
+		lesson.bubble = IF_THEN[key] + " " + SIMPLE_WORDS[key]
+		lesson.body = IF_THEN[key] + "\n\n" + SIMPLE_WORDS[key] + " You can read it like a normal sentence before you read it like code.\n\n" + lesson.body
+		lesson.why = SIMPLE_WORDS[key] + " " + lesson.why
+	elif normalized == "middle":
+		lesson.bubble = IF_THEN[key] + " In code, this is " + lesson.tag.to_lower() + " controlling what happens next."
+		lesson.body = IF_THEN[key] + "\n\nNow connect that sentence to the code below. The words after IF are the check. The indented lines are the action that runs when the check passes.\n\n" + lesson.body
+		lesson.why = "Think about which check is true. " + lesson.why
+	else:
+		lesson.bubble = IF_THEN[key] + " " + COLLEGE_NOTES[key]
+		lesson.body = lesson.body + "\n\nCollege note: " + COLLEGE_NOTES[key]
+		lesson.why = COLLEGE_NOTES[key] + " " + lesson.why
+	return lesson
 
 static func quiz_pool(discovered: Array) -> Array:
 	var pool: Array = []

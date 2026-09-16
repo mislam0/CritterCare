@@ -207,13 +207,24 @@ func run() -> void:
 	game._run_loop()
 	game.close_modal()
 	check(not game.loop_running, "Closing a mini game cancels its active animation")
+	check(Lessons.entry("timer", "kindergarten").bubble.begins_with("IF my quiet timer reaches its target THEN"), "Starter level uses IF THEN teaching language")
+	check(Lessons.entry("timer", "college").body.contains("College note:"), "College level adds advanced lesson notes")
 	game.open_settings()
 	await snap("11-settings")
-	game.close_modal()
+	game.progress.game_level = "middle"
+	game.progress.discovered = ["idle", "boolean"]
+	game.progress.inventory.berry = 42
+	game.progress.games_won = 5
+	game.progress.scores = [{"mode":"Test", "score":100}]
+	game._reset_progress()
+	check(game.progress.discovered.is_empty(), "Reset progress clears discovered lessons")
+	check(game.progress.inventory.berry == 6 and game.progress.games_won == 0, "Reset progress restores starter inventory and counters")
+	check(game.progress.game_level == "middle", "Reset progress keeps selected game level")
 	# Persistence round trip, limits, and corrupt-file fallback.
 	var record = SaveData.new()
 	record.save_path = "user://crittercare_verify_data.json"
 	record.discovered = ["idle", "boolean"]
+	record.game_level = "college"
 	record.inventory.berry = 17
 	record.reward("Test", 90, 1, 2)
 	record.reward("Test2", 100, 1, 2)
@@ -224,6 +235,7 @@ func run() -> void:
 	loaded.save_path = record.save_path
 	loaded.load_progress()
 	check(loaded.inventory.berry == 21 and loaded.discovered == record.discovered, "Treats and Knowledge survive a save/reload")
+	check(loaded.game_level == "college", "Game level survives a save/reload")
 	check(loaded.scores.size() == 3 and loaded.scores[0].score == 100, "Local top three scores persist in ranked order")
 	var bad = FileAccess.open(record.save_path, FileAccess.WRITE)
 	bad.store_string("{broken save")

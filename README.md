@@ -4,13 +4,21 @@ A complete, offline 2D pet-care game that teaches beginner programming through p
 
 ![CritterCare home screen](docs/preview.png)
 
+## Project abstract
+
+CritterCare is developed with the free, open-source Godot Engine. It uses 2D graphics, GDScript game logic, animated pet interactions, short programming lessons, quizzes and mini-games, pet statistics such as fullness and happiness, menus, HUD elements, a local save system, and a browser export that can be uploaded to itch.io. The game teaches programming by connecting each player action to the logic behind it.
+
+The teaching focus is variables, boolean logic, if-then-else conditionals, loops, and input/output. Pip explains these ideas through interactions: fullness and happiness act as variables, held/not-held state is a boolean, feeding uses conditions, chewing and Loop Garden show repetition, and clicks or button presses demonstrate input and output. The settings menu includes a **Game level** dropdown for **Kindergarten - Elementary level**, **Middle - Highschool**, and **College**, changing how slowly Pip explains ideas, how much terminology he uses, and how much detail appears in bubbles, Knowledge entries, quizzes, and mini-game feedback.
+
 ## Play immediately
 
 1. **Extract the entire `CritterCare` folder** from the ZIP. Do not run it inside the ZIP preview.
 2. Open **Godot 4.7.2**, choose **Import**, and select `CritterCare/project.godot`.
-3. Choose **Import & Edit**. Let Godot finish importing the bundled fonts and sounds, then press **F5** (Run Project) or just clck the play button top right.
+3. Choose **Import & Edit**. Let Godot finish importing the bundled fonts and sounds, then press **F5** (Run Project).
 
 This is a standard GDScript project. You do not need .NET, additional downloads, an account, or an internet connection to play locally. The main scene is already configured. This release targets **Godot 4.7.2**, using the Compatibility renderer. Godot 3 is not supported.
+
+An “older Godot version” message on the previous project described its saved engine version; it did not by itself mean the game was broken. This project now records **4.7**, which is how Godot stores the major/minor project compatibility marker. The bundled Web export templates are specifically **4.7.2**. Import this updated folder instead of the previous download.
 
 On Windows, you can also drag `project.godot` into Godot's Project Manager. Open the complete extracted folder, since the scene needs its `scripts`, `data`, and `assets` folders.
 
@@ -33,11 +41,13 @@ On Windows, you can also drag `project.godot` into Godot's Project Manager. Open
 
 Pip breathes, blinks, looks toward the pointer, washes his face, reacts happily, chews snacks, dangles, leans in all four movement directions, falls, and settles after a landing. The animations are built from vector shapes and damped springs, so there is no sprite-sheet dependency. This is an animated spring-based ragdoll, implemented in GDScript; it does not require a physics-joint rig.
 
-The `···` button opens sound and gentler-movement settings. Gentler movement reduces swaying and breathing and removes landing bounce.
+The `···` button opens sound, gentler-movement, game-level, and reset settings. Gentler movement reduces swaying and breathing and removes landing bounce. **Reset progress** starts from zero by clearing discoveries, treats, scores, and care counts while keeping comfort settings and the selected game level.
 
 ## Care, rewards, and learning
 
 You start with **6 berries, 3 sunflower seeds, and 2 carrot nibbles**. Fullness and happiness gently decrease while the home screen is active. Petting adds 8 happiness, capped at 100. Feeding checks fullness and your inventory before spending a treat. A mini-game win builds appetite by lowering fullness by 12, so you can bring the new snacks back to Pip.
+
+There is no death, no game-over state, no real-money store, and no offline deterioration. Needs and animations pause in menus. A game result can change needs and inventory when you finish it.
 
 | Adventure | How to play | Winning reward |
 | --- | --- | --- |
@@ -47,13 +57,13 @@ You start with **6 berries, 3 sunflower seeds, and 2 carrot nibbles**. Fullness 
 
 Quizzes explain mistakes, identify the correct answer, and lock each choice after it is submitted. Rewards are applied once per completed win. The game keeps your top three winning scores on this device; there is no online leaderboard. Loop Garden scores start at 100 and decrease by 5 per extra attempt, with a minimum winning score of 60. Other game scores are the percentage of correct answers.
 
-**12 discoveries** cover if/else, events, variables, booleans, 2D positions, gravity, conditions, functions, loops, timers, AND logic, and repeat counts/debugging. Lessons appear in readable bubbles after related interactions. New bubbles wait their turn. An entry unlocks when its bubble is actually displayed or the relevant mini-game explanation appears. The book does not reveal unseen entries. Repeated interactions can offer reminders.
+**12 discoveries** cover if/else, events, variables, booleans, 2D positions, gravity, conditions, functions, loops, timers, AND logic, and repeat counts/debugging. Lessons appear in readable bubbles after related interactions. Kindergarten/Elementary mode starts with plain `IF ___ THEN ___` sentences, such as “IF my quiet timer reaches its target THEN I clean my face,” before naming the programming idea. Middle/Highschool mode connects that sentence to code structure. College mode adds more precise implementation notes. New bubbles wait their turn. An entry unlocks when its bubble is actually displayed or the relevant mini-game explanation appears. The book does not reveal unseen entries. Repeated interactions can offer reminders.
 
 GDScript snippets in the book are deliberately simplified teaching examples of the implemented logic. They are not standalone scripts to paste directly into a scene.
 
 ## Saved progress
 
-The game automatically saves inventory, needs, discoveries, care counts, wins, local scores, and settings. Saves happen after important actions, every 30 seconds, and on focus loss/close. Live animation poses and unfinished mini-game rounds are not saved; Pip returns to his resting place when the game starts again.
+The game automatically saves inventory, needs, discoveries, care counts, wins, local scores, sound, gentler movement, and the selected game level. Saves happen after important actions, every 30 seconds, and on focus loss/close. Live animation poses and unfinished mini-game rounds are not saved; Pip returns to his resting place when the game starts again.
 
 The save is `user://crittercare_save.json`. On Windows, this is normally:
 
@@ -77,7 +87,7 @@ The browser build saves in that browser's storage for the game page. Browser and
 | `scripts/ui.gd` | Shared UI styles, typography, and layout helpers |
 | `scripts/icon.gd` | Original vector icons and mini-game objects |
 | `scripts/save_data.gd` | Persistence, needs, inventory validation, and scoring |
-| `data/lessons.gd` | Every lesson, example, quiz question, and explanation |
+| `data/lessons.gd` | Every lesson, level-specific explanation, quiz question, and feedback style |
 | `assets/` | Included fonts, licenses, app icon, and original sound effects |
 | `tests/verify.gd` | Repeatable integration checks |
 | `docs/WORKSHOP.md` | A short workshop flow and concept discovery guide |

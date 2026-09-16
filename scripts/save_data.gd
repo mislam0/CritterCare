@@ -11,6 +11,7 @@ var feed_count: int = 0
 var games_won: int = 0
 var sound: bool = true
 var calm: bool = false
+var game_level: String = "kindergarten"
 var scores: Array = []
 var save_path: String = SAVE_PATH
 
@@ -37,6 +38,8 @@ func load_progress() -> void:
 	games_won = maxi(0, int(parsed.get("games_won", 0)))
 	sound = bool(parsed.get("sound", true))
 	calm = bool(parsed.get("calm", false))
+	var parsed_level = str(parsed.get("game_level", "kindergarten"))
+	game_level = parsed_level if parsed_level in ["kindergarten", "middle", "college"] else "kindergarten"
 	if parsed.get("scores") is Array:
 		for entry in parsed.scores:
 			if entry is Dictionary and entry.get("mode") is String and entry.get("score") is float:
@@ -45,13 +48,34 @@ func load_progress() -> void:
 		scores = scores.slice(0, 3)
 
 func write() -> Error:
-	var payload = {"version":1, "discovered":discovered, "inventory":inventory, "fullness":fullness, "happiness":happiness, "pet_count":pet_count, "feed_count":feed_count, "games_won":games_won, "sound":sound, "calm":calm, "scores":scores}
+	var payload = {"version":2, "discovered":discovered, "inventory":inventory, "fullness":fullness, "happiness":happiness, "pet_count":pet_count, "feed_count":feed_count, "games_won":games_won, "sound":sound, "calm":calm, "game_level":game_level, "scores":scores}
 	var file = FileAccess.open(save_path + ".tmp", FileAccess.WRITE)
 	if file == null:
 		return FileAccess.get_open_error()
 	file.store_string(JSON.stringify(payload, "\t"))
 	file.close()
 	return DirAccess.rename_absolute(save_path + ".tmp", save_path)
+
+func reset_progress(keep_preferences: bool = true) -> void:
+	var old_sound = sound
+	var old_calm = calm
+	var old_level = game_level
+	discovered = []
+	inventory = {"berry": 6, "seed": 3, "carrot": 2}
+	fullness = 64.0
+	happiness = 72.0
+	pet_count = 0
+	feed_count = 0
+	games_won = 0
+	scores = []
+	if keep_preferences:
+		sound = old_sound
+		calm = old_calm
+		game_level = old_level
+	else:
+		sound = true
+		calm = false
+		game_level = "kindergarten"
 
 func unlock(key: String) -> bool:
 	if discovered.has(key):

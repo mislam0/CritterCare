@@ -55,6 +55,7 @@ static func label(parent: Node, value: String, rect: Rect2, size: int = 20, colo
 	l.position = rect.position
 	l.size = rect.size
 	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	l.clip_text = true
 	l.add_theme_font_size_override("font_size", size)
 	if size >= 23:
 		l.add_theme_font_override("font", HEADING_FONT)

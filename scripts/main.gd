@@ -81,7 +81,7 @@ func _ready() -> void:
 	if progress.discovered.size() > 0:
 		_say("Welcome back!", "Your treats and discoveries are right where you left them. Shall we learn something little today?", 6.0)
 	else:
-		_say("Hello, I'm Pip!", "A little pet. A little play. A little programming! Click my head to pet me, or hold and drag to pick me up.", 7.0)
+		_say("Hello, I'm Pip!", "A little pet. A little play. A little programming! I will teach at " + Lessons.level_label(progress.game_level) + ". Click my head to pet me, or hold and drag to pick me up.", 7.0)
 
 func _build_home() -> void:
 	var logo = TextureRect.new()
@@ -268,7 +268,7 @@ func learn(key: String) -> void:
 		speech_life = 0
 
 func _show_lesson(key: String, is_new: bool = true) -> void:
-	var lesson = Lessons.DATA[key]
+	var lesson = _lesson(key)
 	var newly_unlocked = progress.unlock(key)
 	_say(("NEW DISCOVERY · " if newly_unlocked else "LITTLE REMINDER · ") + lesson.tag, lesson.bubble, 13.0)
 	speech_key = key
@@ -286,6 +286,21 @@ func _say(title: String, words: String, duration: float = 8.0) -> void:
 	speech_key = ""
 	speech_life = duration
 	speech.visible = true
+
+func _lesson(key: String) -> Dictionary:
+	return Lessons.entry(key, progress.game_level)
+
+func _level_prompt() -> String:
+	return Lessons.LEVEL_SHORT[Lessons.normalize_level(progress.game_level)] + ": " + Lessons.level_description(progress.game_level)
+
+func _by_level(kid: String, middle: String, college: String) -> String:
+	match Lessons.normalize_level(progress.game_level):
+		"middle":
+			return middle
+		"college":
+			return college
+		_:
+			return kid
 
 func _toast(message: String) -> void:
 	toast_label.text = message
@@ -373,7 +388,7 @@ func _feed(kind: String) -> void:
 		open_feed()
 
 func open_knowledge(selected: String = "") -> void:
-	_screen("knowledge", "The little book of discoveries", "%d / %d lessons discovered · learn by doing, then revisit it here." % [progress.discovered.size(), Lessons.ORDER.size()])
+	_screen("knowledge", "The little book of discoveries", "%d / %d lessons discovered · %s" % [progress.discovered.size(), Lessons.ORDER.size(), _level_prompt()])
 	if progress.discovered.is_empty():
 		_add_icon(overlay, "book", Rect2(579, 276, 120, 120))
 		UI.label(overlay, "Your story starts with a little curiosity", Rect2(200, 421, 880, 44), 27, UI.INK, true)
@@ -394,17 +409,22 @@ func open_knowledge(selected: String = "") -> void:
 	for key in Lessons.ORDER:
 		if not progress.discovered.has(key):
 			continue
-		var b = UI.button(list, Lessons.DATA[key].title, Rect2(0, 0, 285, 50), func(): open_knowledge(key), key == selected)
+		var b = UI.button(list, _lesson(key).title, Rect2(0, 0, 285, 50), func(): open_knowledge(key), key == selected)
 		b.custom_minimum_size = Vector2(285, 52)
 		b.add_theme_font_size_override("font_size", 17)
 		if key == selected:
 			_reveal_journal_entry(scroll, b)
-	var lesson = Lessons.DATA[selected]
+	var lesson = _lesson(selected)
 	UI.panel(overlay, Rect2(486, 224, 642, 478), Color("f5f3e9"), 20)
 	UI.label(overlay, lesson.tag + "  /  " + lesson.trigger, Rect2(511, 239, 590, 28), 14, UI.GREEN)
 	UI.label(overlay, lesson.title, Rect2(511, 276, 590, 48), 29)
-	var body = UI.label(overlay, lesson.body, Rect2(513, 334, 583, 195), 18)
-	body.name = "JournalBody"
+	var body_scroll = ScrollContainer.new()
+	body_scroll.name = "JournalBody"
+	body_scroll.position = Vector2(513, 334)
+	body_scroll.size = Vector2(583, 195)
+	body_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	overlay.add_child(body_scroll)
+	var body = UI.label(body_scroll, lesson.body, Rect2(0, 0, 560, 350), 18)
 	body.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	body.add_theme_constant_override("line_spacing", -2)
 	UI.code(overlay, lesson.code, Rect2(511, 541, 592, 118), 17)
@@ -416,7 +436,7 @@ func _reveal_journal_entry(scroll: ScrollContainer, entry: Button) -> void:
 		scroll.ensure_control_visible(entry)
 
 func open_games() -> void:
-	_screen("games", "Play a little. Learn a lot.", "Three little adventures · no time pressure · every win brings treats home.")
+	_screen("games", "Play a little. Learn a lot.", "Three little adventures · no time pressure · " + _level_prompt())
 	var cards = [
 		["berry", "Berry Detective", "Sort a basket using if / else\nand AND rules.", "10 finds · win with 7 correct", "+5 berries  +2 seeds"],
 		["paw", "Loop Garden", "Help a little marker cross the\nstepping stones with a loop.", "3 gardens · retry as you learn", "+4 berries  +3 seeds  +1 carrot"],
@@ -454,10 +474,10 @@ func start_quiz() -> void:
 	_quiz_question()
 
 func _quiz_question() -> void:
-	_screen("quiz", "Pip's Pop Quiz", "Only your discovered lessons · question %d of %d" % [quiz_index+1, quiz_keys.size()])
+	_screen("quiz", "Pip's Pop Quiz", "Only your discovered lessons · question %d of %d · %s" % [quiz_index+1, quiz_keys.size(), Lessons.LEVEL_SHORT[Lessons.normalize_level(progress.game_level)]])
 	answer_locked = false
 	quiz_answer_buttons.clear()
-	var lesson = Lessons.DATA[quiz_keys[quiz_index]]
+	var lesson = _lesson(quiz_keys[quiz_index])
 	UI.label(overlay, lesson.tag, Rect2(173, 222, 925, 27), 14, UI.GREEN)
 	UI.label(overlay, lesson.question, Rect2(173, 262, 924, 86), 28)
 	var options: Array = []
@@ -471,7 +491,10 @@ func _quiz_question() -> void:
 		b.add_theme_font_size_override("font_size", 20)
 		b.set_meta("correct", option.correct)
 		quiz_answer_buttons.append(b)
-	game_feedback = UI.label(overlay, "Take your time. Think about what you and Pip tried together.", Rect2(174, 573, 932, 66), 19, UI.MUTED)
+	game_feedback = UI.label(overlay, _by_level(
+		"Take your time. Read the answer like a story: IF something happens THEN the game reacts.",
+		"Take your time. Pick the answer that matches the condition and result you saw in the game.",
+		"Take your time. Match the observed game behavior to the programming concept and state change."), Rect2(174, 573, 932, 66), 19, UI.MUTED)
 	next_button = UI.button(overlay, "Next question  →" if quiz_index < quiz_keys.size()-1 else "See how you did  →", Rect2(794, 656, 312, 51), _next_quiz, true)
 	next_button.disabled = true
 	UI.label(overlay, "%d correct so far" % quiz_score, Rect2(174, 660, 580, 40), 17, UI.MUTED)
@@ -487,7 +510,10 @@ func _answer_quiz(correct: bool, explanation: String) -> void:
 		if b.get_meta("correct"):
 			b.add_theme_stylebox_override("disabled", UI.style(Color("dcebd2"), 15, Color("8ba67a")))
 			b.add_theme_color_override("font_disabled_color", UI.GREEN)
-	game_feedback.text = ("You got it! " if correct else "A little learning moment. ") + explanation
+	game_feedback.text = _by_level(
+		("Yes! " if correct else "Not yet, but this is how we learn. ") + explanation,
+		("Correct. " if correct else "Debug moment. ") + explanation,
+		("Correct. " if correct else "Incorrect, but useful feedback. ") + explanation)
 	game_feedback.add_theme_color_override("font_color", UI.GREEN if correct else UI.ORANGE)
 	next_button.disabled = false
 	_play_sound("correct" if correct else "try")
@@ -526,7 +552,10 @@ func _sort_question() -> void:
 	UI.panel(overlay, Rect2(154, 234, 401, 339), Color("e9efdf"), 20)
 	UI.label(overlay, "THE BASKET RULE", Rect2(178, 256, 350, 29), 14, UI.GREEN)
 	UI.code(overlay, "if %s:\n    basket()\nelse:\n    leave_it()" % rule, Rect2(176, 305, 356, 136), 18)
-	UI.label(overlay, "Both checks must be true." if sort_rule_and else "A berry passes. Other finds do not.", Rect2(179, 461, 351, 77), 20)
+	UI.label(overlay, _by_level(
+		"IF it is a red berry THEN basket." if sort_rule_and else "IF it is a berry THEN basket.",
+		"Both checks must be true." if sort_rule_and else "A berry passes. Other finds do not.",
+		"Both predicates must evaluate true." if sort_rule_and else "The is_berry predicate decides the branch."), Rect2(179, 461, 351, 77), 20)
 	UI.panel(overlay, Rect2(580, 234, 545, 339), Color("f5eddf"), 20)
 	var kind: String = sort_items[sort_index]
 	_add_icon(overlay, kind, Rect2(797, 264, 112, 112))
@@ -536,7 +565,10 @@ func _sort_question() -> void:
 	quiz_answer_buttons.clear()
 	quiz_answer_buttons.append(UI.button(overlay, "Into the basket", Rect2(604, 498, 244, 51), func(): _answer_sort(true), true))
 	quiz_answer_buttons.append(UI.button(overlay, "Leave it", Rect2(862, 498, 239, 51), func(): _answer_sort(false)))
-	game_feedback = UI.label(overlay, "Read the rule on every round. The rule changes halfway through!", Rect2(174, 587, 932, 61), 19, UI.MUTED)
+	game_feedback = UI.label(overlay, _by_level(
+		"Read it as IF ___ THEN ___. IF the find matches the rule THEN put it in the basket.",
+		"Read the condition each round. The rule changes halfway through, so the true/false answer can change.",
+		"Evaluate the predicate each round. Halfway through, the rule becomes a compound AND expression."), Rect2(174, 587, 932, 61), 19, UI.MUTED)
 	next_button = UI.button(overlay, "Next find  →" if sort_index < 9 else "Open your basket  →", Rect2(799, 660, 307, 51), _next_sort, true)
 	next_button.disabled = true
 	UI.label(overlay, "7 / 10 correct earns the reward", Rect2(174, 664, 600, 39), 17, UI.MUTED)
@@ -554,10 +586,19 @@ func _answer_sort(chose_basket: bool) -> void:
 		sort_score += 1
 	for b in quiz_answer_buttons:
 		b.disabled = true
-	var explanation = "is_berry = %s" % ("true" if is_berry else "false")
+	var explanation = _by_level(
+		"is_berry means 'is this a berry?' The answer is %s" % ("true" if is_berry else "false"),
+		"is_berry = %s" % ("true" if is_berry else "false"),
+		"is_berry evaluates to %s" % ("true" if is_berry else "false"))
 	if sort_rule_and:
-		explanation += ", is_red = %s" % ("true" if is_red else "false")
-	game_feedback.text = ("Good detective work! " if correct else "Let's check it together. ") + explanation + (". The rule passes: basket!" if passes else ". The rule fails: leave it.")
+		explanation += _by_level(
+			", and is_red means 'is it red?' That answer is %s" % ("true" if is_red else "false"),
+			", is_red = %s" % ("true" if is_red else "false"),
+			", is_red evaluates to %s" % ("true" if is_red else "false"))
+	game_feedback.text = ("Good detective work! " if correct else "Let's check it together. ") + explanation + _by_level(
+		". IF the rule is true THEN basket. Here it is %s." % ("true" if passes else "false"),
+		". The rule passes: basket!" if passes else ". The rule fails: leave it.",
+		". The branch result is basket." if passes else ". The branch result is leave_it().")
 	game_feedback.add_theme_color_override("font_color", UI.GREEN if correct else UI.ORANGE)
 	next_button.disabled = false
 	# Discovery occurs when the explanatory feedback is actually visible.
@@ -606,7 +647,10 @@ func _loop_garden() -> void:
 	loop_code_label = UI.code(overlay, "", Rect2(549, 467, 552, 104), 19)
 	_update_loop_code()
 	loop_buttons.append(UI.button(overlay, "Run my loop  →", Rect2(178, 536, 312, 52), _run_loop, true))
-	game_feedback = UI.label(overlay, "Count from START to the star. Try any count, watch what happens, then adjust it.", Rect2(178, 606, 920, 61), 19, UI.MUTED)
+	game_feedback = UI.label(overlay, _by_level(
+		"Count from START to the star. IF the number is right THEN the marker lands on the star.",
+		"Choose the repeat count, run it, then debug by comparing where it stopped.",
+		"Set the loop parameter, execute it, then compare expected position with actual position."), Rect2(178, 606, 920, 61), 19, UI.MUTED)
 	next_button = UI.button(overlay, "Next garden  →" if loop_round < 2 else "Collect your treats  →", Rect2(788, 675, 312, 47), _next_loop, true)
 	next_button.visible = false
 
@@ -630,17 +674,26 @@ func _run_loop() -> void:
 	loop_marker.position.x = 258
 	for b in loop_buttons:
 		b.disabled = true
-	game_feedback.text = "Running your loop... one repeat, one step."
+	game_feedback.text = _by_level(
+		"Running your loop... IF there is another repeat left THEN take one step.",
+		"Running your loop... each repeat runs move_one_stone_right() once.",
+		"Executing loop body... each iteration advances the marker by one state.")
 
 func _finish_loop_run() -> void:
 	loop_running = false
 	var reached = loop_step == loop_targets[loop_round]
 	if reached:
-		game_feedback.text = "%d repeats = %d steps. You reached the star!" % [loop_count, loop_step]
+		game_feedback.text = _by_level(
+			"IF repeat is %d THEN I take %d steps. You reached the star!" % [loop_count, loop_step],
+			"%d repeats = %d steps. You reached the star!" % [loop_count, loop_step],
+			"%d iterations produced %d position updates. Target reached." % [loop_count, loop_step])
 		next_button.visible = true
 		_play_sound("correct")
 	else:
-		game_feedback.text = "You moved %d steps. The star is %d steps away. Change the repeat count and try again!" % [loop_step, loop_targets[loop_round]]
+		game_feedback.text = _by_level(
+			"You moved %d steps, but the star is %d steps away. IF the number is wrong THEN try a new number!" % [loop_step, loop_targets[loop_round]],
+			"You moved %d steps. The star is %d steps away. Change the repeat count and try again!" % [loop_step, loop_targets[loop_round]],
+			"Observed %d iterations, expected %d. Adjust the loop count and rerun." % [loop_step, loop_targets[loop_round]])
 		for b in loop_buttons:
 			b.disabled = false
 		_play_sound("try")
@@ -688,20 +741,50 @@ func _result(mode: String, points: int, won: bool, berries: int, seeds: int, car
 
 func open_settings() -> void:
 	_screen("settings", "Make yourself comfortable", "A calm place to play, learn, and care for a tiny friend.")
-	UI.panel(overlay, Rect2(151, 231, 978, 131), Color("eef0e5"), 20)
-	UI.label(overlay, "Little sound effects", Rect2(181, 247, 625, 38), 25)
-	UI.label(overlay, "Soft clicks, happy chimes, and tiny footsteps.", Rect2(182, 294, 649, 36), 19, UI.MUTED)
-	UI.button(overlay, "Sound: " + ("on" if progress.sound else "off"), Rect2(878, 269, 215, 50), func():
+	UI.panel(overlay, Rect2(151, 221, 978, 109), Color("eef0e5"), 20)
+	UI.label(overlay, "Little sound effects", Rect2(181, 232, 625, 35), 24)
+	UI.label(overlay, "Soft clicks, happy chimes, and tiny footsteps.", Rect2(182, 276, 649, 30), 18, UI.MUTED)
+	UI.button(overlay, "Sound: " + ("on" if progress.sound else "off"), Rect2(878, 251, 215, 50), func():
 		progress.sound = not progress.sound
 		_save()
 		open_settings())
-	UI.panel(overlay, Rect2(151, 380, 978, 131), Color("f3eddf"), 20)
-	UI.label(overlay, "Gentler movement", Rect2(181, 396, 625, 38), 25)
-	UI.label(overlay, "Less swinging and breathing motion, with no landing bounce.", Rect2(182, 443, 658, 36), 19, UI.MUTED)
-	UI.button(overlay, "Gentle: " + ("on" if progress.calm else "off"), Rect2(878, 418, 215, 50), func():
+	UI.panel(overlay, Rect2(151, 344, 978, 109), Color("f3eddf"), 20)
+	UI.label(overlay, "Gentler movement", Rect2(181, 355, 625, 35), 24)
+	UI.label(overlay, "Less swinging and breathing motion, with no landing bounce.", Rect2(182, 399, 658, 30), 18, UI.MUTED)
+	UI.button(overlay, "Gentle: " + ("on" if progress.calm else "off"), Rect2(878, 374, 215, 50), func():
 		progress.calm = not progress.calm
 		pip.calm = progress.calm
 		_save()
 		open_settings())
-	UI.label(overlay, "Progress saves automatically on this device.\nPip's needs pause while you're away or in a menu. There is no game over.", Rect2(180, 541, 920, 75), 20, UI.MUTED, true)
-	UI.label(overlay, "Keyboard helpers: P pet · F feed · M mini games · K knowledge · Esc close\nUse Tab and Enter to move through and activate buttons.", Rect2(180, 637, 920, 58), 16, UI.GREEN, true)
+	UI.panel(overlay, Rect2(151, 467, 978, 118), Color("e8edde"), 20)
+	UI.label(overlay, "Game level", Rect2(181, 478, 310, 35), 24)
+	UI.label(overlay, Lessons.level_description(progress.game_level), Rect2(182, 522, 610, 42), 17, UI.MUTED)
+	var picker = OptionButton.new()
+	picker.position = Vector2(730, 501)
+	picker.size = Vector2(363, 50)
+	picker.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	picker.add_theme_font_override("font", UI.FONT)
+	picker.add_theme_font_size_override("font_size", 18)
+	for level in Lessons.LEVELS:
+		picker.add_item(Lessons.LEVEL_LABELS[level])
+	picker.selected = maxi(0, Lessons.LEVELS.find(progress.game_level))
+	picker.item_selected.connect(func(index: int):
+		progress.game_level = Lessons.LEVELS[index]
+		_save()
+		_toast("Game level: " + Lessons.level_label(progress.game_level))
+		open_settings())
+	overlay.add_child(picker)
+	UI.panel(overlay, Rect2(151, 599, 978, 70), Color("f5e7e5"), 20)
+	UI.label(overlay, "Reset progress", Rect2(181, 607, 320, 30), 22)
+	UI.label(overlay, "Start from zero: clears discoveries, treats, scores, and care counts.", Rect2(182, 638, 604, 24), 16, UI.MUTED)
+	UI.button(overlay, "Reset progress", Rect2(878, 609, 215, 47), _reset_progress)
+	UI.label(overlay, "Progress saves automatically on this device. Keyboard helpers: P pet · F feed · M mini games · K knowledge · Esc close.", Rect2(180, 687, 920, 39), 16, UI.GREEN, true)
+
+func _reset_progress() -> void:
+	progress.reset_progress(true)
+	pip.calm = progress.calm
+	_save()
+	close_modal()
+	speech_queue.clear()
+	_say("Fresh start!", "Progress is back to zero, but your settings stayed. I will keep teaching at " + Lessons.level_label(progress.game_level) + ".", 8.0)
+	_refresh_home()

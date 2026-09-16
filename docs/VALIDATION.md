@@ -2,7 +2,7 @@
 
 Updated and tested with **Godot 4.7.2 stable** (`4.7.2.stable.official.ed1daf0bf`), standard GDScript, using the Compatibility renderer on Linux. The deliverables include the editable Godot project and a prebuilt itch.io Web ZIP. A standalone desktop executable and a published game page are not included.
 
-The 4.7.2 rendered integration run completed **89 checks with 0 failures**. The headless run completed **82 checks with 0 failures**; the extra checks in the rendered run exercise real pointer coordinates and window resizing. A separate clean project import succeeded without a pre-existing editor cache. The earlier 4.5.2 release also passed these gameplay checks; this document describes the updated 4.7.2 release.
+The latest 4.7.2 headless integration run completed **88 checks with 0 failures**. The checks cover gameplay logic, saves, reset behavior, game-level persistence, and level-specific lesson text. A rendered pointer/window pass was attempted in this environment, but the virtual display could not start because its Xvfb server requires `/usr/bin/xkbcomp`, which is unavailable here. Earlier rendered screenshots remain in the QA folder from the previous 4.7.2 build, but this update's new settings layout should be visually checked on a machine with a normal display.
 
 ## What was checked
 
@@ -20,10 +20,13 @@ The 4.7.2 rendered integration run completed **89 checks with 0 failures**. The 
 - Loop Garden was tested with an incorrect repeat count, a corrected count, all three successful gardens, a single completion reward, and early exit.
 - Winning builds appetite for the new treats.
 - Inventory, Knowledge, and ranked local top-three scores survive save/reload.
+- The selected Game level survives save/reload.
+- Reset progress clears discovered lessons, treats, scores, wins, and care counters while preserving the selected Game level.
+- Kindergarten - Elementary lessons use IF/THEN teaching language, and College lessons include advanced notes.
 - Malformed JSON falls back to fresh defaults without a crash.
 - All 12 journal bodies fit above their code examples. Every learning bubble's title and body fit their allocated space.
 
-Screenshots were inspected for the home screen, carried hamster, empty and populated Knowledge book, treat pouch, game selection, quiz, result, Berry Detective, Loop Garden, and settings. The home screen was also inspected at the minimum supported **960 × 600** window size; the design canvas is **1280 × 800**.
+Earlier screenshots were inspected for the home screen, carried hamster, empty and populated Knowledge book, treat pouch, game selection, quiz, result, Berry Detective, Loop Garden, and settings. The home screen was also inspected at the minimum supported **960 × 600** window size; the design canvas is **1280 × 800**. Recheck the settings screen after importing this updated build because it now includes Game level and Reset progress controls.
 
 ## Browser export validation
 
