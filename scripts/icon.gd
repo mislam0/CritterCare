@@ -11,12 +11,33 @@ func _draw() -> void:
 	var green = Color("65845b")
 	var ink = Color("426d53")
 	match kind:
+		"basket":
+			draw_arc(Vector2(0,-4),16,PI,TAU,25,Color("b58750"),4,true)
+			draw_colored_polygon(PackedVector2Array([Vector2(-23,-7),Vector2(23,-7),Vector2(17,21),Vector2(-17,21)]),Color("c99a5e"))
+			for x in [-10,0,10]:
+				draw_line(Vector2(x,-4),Vector2(x,18),Color("efd3a0"),3,true)
+			draw_line(Vector2(-23,-7),Vector2(23,-7),Color("efd3a0"),4,true)
+		"leaf":
+			draw_colored_polygon(PackedVector2Array([Vector2(-19,8),Vector2(-15,-12),Vector2(17,-20),Vector2(19,5),Vector2(0,19)]),Color("799568"))
+			draw_line(Vector2(-17,18),Vector2(12,-13),Color("c6d8a5"),3,true)
+		"golden_seed":
+			draw_circle(Vector2.ZERO,23,Color(1.0,0.85,0.3,0.25))
+			draw_colored_polygon(PackedVector2Array([Vector2(0,-22),Vector2(14,-3),Vector2(13,12),Vector2(0,21),Vector2(-13,12),Vector2(-14,-3)]),Color("dbb250"))
+			draw_line(Vector2(0,-14),Vector2(0,15),Color("fff1af"),3,true)
 		"berry":
 			for p in [Vector2(-8, 2), Vector2(8, 2), Vector2(0, 13)]:
 				draw_circle(p, 10, Color("bc637a"))
 				draw_circle(p+Vector2(-3, -3), 2, Color("efabb6"))
 			draw_line(Vector2(0, -3), Vector2(3, -17), green, 3, true)
 			draw_colored_polygon(PackedVector2Array([Vector2(1,-9), Vector2(15,-17),Vector2(17,-7),Vector2(3,-3)]), green)
+		"coin", "shop":
+			draw_circle(Vector2.ZERO,21,Color("d8ae53"))
+			draw_arc(Vector2.ZERO,16,0,TAU,40,Color("fff0be"),2,true)
+			draw_line(Vector2(0,-9),Vector2(0,9),Color("fff0be"),4,true)
+		"spoiled_berry":
+			draw_circle(Vector2.ZERO,19,Color("8d798b"))
+			for spot in [Vector2(-6,-5),Vector2(7,3),Vector2(-3,11)]:
+				draw_circle(spot,4,Color("cecca8"))
 		"seed":
 			draw_colored_polygon(PackedVector2Array([Vector2(0,-22),Vector2(14,-3),Vector2(13,12),Vector2(0,21),Vector2(-13,12),Vector2(-14,-3)]), Color("a28b5e"))
 			draw_line(Vector2(0,-16),Vector2(0,16),Color("ede0bc"),3,true)

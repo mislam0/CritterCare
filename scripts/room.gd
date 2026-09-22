@@ -1,5 +1,21 @@
 extends Node2D
 ## Original vector room art. Change these colors to redecorate Pip's room.
+var cosmetic_items: Dictionary = {}
+const CosmeticArt = preload("res://scripts/cosmetic_art.gd")
+
+func set_cosmetics(items: Dictionary) -> void:
+	cosmetic_items = items.duplicate()
+	for child in get_children():
+		remove_child(child)
+		child.queue_free()
+	if items.has("light"):
+		var art = CosmeticArt.new()
+		art.kind = "lantern"
+		art.position = Vector2(885, 424)
+		art.scale = Vector2.ONE * 1.2
+		add_child(art)
+	queue_redraw()
+
 const UI = preload("res://scripts/ui.gd")
 
 func ellipse(center: Vector2, radii: Vector2, color: Color) -> void:
@@ -18,11 +34,22 @@ func leaf(p: Vector2, angle: float, color: Color, length: float = 22.0) -> void:
 
 func _draw() -> void:
 	draw_rect(Rect2(0, 0, 1280, 800), Color("f7f3e9"))
-	draw_style_box(UI.style(Color("dce5d0"), 28), Rect2(40, 138, 1200, 525))
+	var wall = cosmetic_items.get("wall", "")
+	var wall_color = {"peach_wall":Color("edcdb7"), "night_wall":Color("b9b6d1")}.get(wall,Color("dce5d0"))
+	draw_style_box(UI.style(wall_color, 28), Rect2(40, 138, 1200, 525))
 	# A very light wallpaper pattern.
 	for x in range(75, 1230, 43):
 		for y in range(172, 495, 44):
 			draw_circle(Vector2(x + (12 if y % 2 == 0 else 0), y), 1.4, Color(0.47, 0.58, 0.40, 0.15))
+	if wall == "night_wall":
+		for x in range(360,900,72):
+			draw_line(Vector2(x,169),Vector2(x,177),Color("fff1ce"),2,true)
+			draw_line(Vector2(x-4,173),Vector2(x+4,173),Color("fff1ce"),2,true)
+	if cosmetic_items.has("garland"):
+		draw_line(Vector2(353,191),Vector2(924,191),Color("718568"),2,true)
+		for i in range(12):
+			var x = 359+i*46
+			draw_colored_polygon(PackedVector2Array([Vector2(x,192),Vector2(x+30,192),Vector2(x+15,220)]),[Color("c4819a"),Color("e5bd72"),Color("83afc3")][i%3])
 	var floor_style = UI.style(Color("e8d9be"), 0)
 	floor_style.corner_radius_bottom_left = 28
 	floor_style.corner_radius_bottom_right = 28
@@ -36,9 +63,9 @@ func _draw() -> void:
 		draw_line(Vector2(x-30, 608), Vector2(x-55, 661), Color("ddcbb0"), 1.5)
 	# Woven play mat.
 	ellipse(Vector2(644, 591), Vector2(310, 49), Color(0.35, 0.35, 0.23, 0.08))
-	ellipse(Vector2(640, 585), Vector2(303, 46), Color("b6c29a"))
-	ellipse(Vector2(640, 582), Vector2(290, 40), Color("edf0d8"))
-	ellipse(Vector2(640, 582), Vector2(266, 32), Color("dee6c6"))
+	ellipse(Vector2(640, 585), Vector2(303, 46), _rug_color(0))
+	ellipse(Vector2(640, 582), Vector2(290, 40), _rug_color(1))
+	ellipse(Vector2(640, 582), Vector2(266, 32), _rug_color(2))
 	for x in range(397, 900, 19):
 		draw_line(Vector2(x, 571), Vector2(x+4, 591), Color(0.51, 0.61, 0.39, 0.12), 1.1, true)
 	# Right window: a quiet miniature landscape.
@@ -81,3 +108,7 @@ func _draw() -> void:
 	draw_style_box(UI.style(Color("b9bc9e"), 16), Rect2(891, 560, 67, 29))
 	ellipse(Vector2(924, 562), Vector2(34, 10), Color("e7e4cc"))
 	ellipse(Vector2(924, 562), Vector2(26, 6), Color("a39d7d"))
+
+func _rug_color(index: int) -> Color:
+	var palettes = {"rose_mat":["bb7c94","f3dbe1","e5b9c8"], "blue_mat":["749daf","dcecf0","b6d8e3"]}
+	return Color(palettes.get(cosmetic_items.get("rug", ""), ["b6c29a","edf0d8","dee6c6"])[index])
