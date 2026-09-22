@@ -4,6 +4,10 @@ extends Node2D
 
 signal interacted(action: String)
 
+const CosmeticArt = preload("res://scripts/cosmetic_art.gd")
+var costumes: Node2D
+var cosmetic_items: Dictionary = {}
+
 const FLOOR_Y = 516.0
 const GRAVITY = 1400.0
 var is_held: bool = false
@@ -34,6 +38,30 @@ var last_pointer = Vector2.ZERO
 
 func _ready() -> void:
 	last_pointer = get_global_mouse_position()
+	set_cosmetics(cosmetic_items)
+
+func set_cosmetics(items: Dictionary) -> void:
+	cosmetic_items = items.duplicate()
+	if is_instance_valid(costumes):
+		remove_child(costumes)
+		costumes.queue_free()
+	costumes = Node2D.new()
+	add_child(costumes)
+	for slot in items:
+		var art = CosmeticArt.new()
+		art.kind = items[slot]
+		art.position = {"head":Vector2(0,-109), "neck":Vector2(0,25), "face":Vector2(0,-46)}.get(slot, Vector2.ZERO)
+		art.scale = Vector2.ONE * (2.25 if slot == "face" else 1.65)
+		costumes.add_child(art)
+	_update_costume_pose()
+
+func _update_costume_pose() -> void:
+	if not is_instance_valid(costumes):
+		return
+	var breath = sin(clock * 2.3) * (0.012 if not calm else 0.005)
+	costumes.position = Vector2(0, -breath * 30)
+	costumes.rotation = angle * (0.45 if calm else 1.0)
+	costumes.scale = Vector2(1 + squish + breath, 1 - squish - breath)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if blocked:
@@ -71,6 +99,8 @@ func hit_test(point: Vector2) -> bool:
 	# Transform back through the drawn body's rotation, then include ears,
 	# paws and tail as well as the main silhouette. Grabbing any part works.
 	point = point.rotated(-angle * (0.45 if calm else 1.0))
+	if cosmetic_items.has("head") and Rect2(-56, -161, 112, 67).has_point(point):
+		return true
 	if pow(point.x / 98.0, 2) + pow((point.y + 14) / 123.0, 2) <= 1.0:
 		return true
 	for center in [Vector2(-58, -96), Vector2(58, -96), Vector2(-43, 75), Vector2(43, 75), Vector2(77, 47)]:
@@ -191,6 +221,7 @@ func _physics_process(delta: float) -> void:
 		f.p.y -= delta * 40
 		f.life -= delta
 	floaties = floaties.filter(func(f): return f.life > 0)
+	_update_costume_pose()
 	queue_redraw()
 
 func ellipse(center: Vector2, radii: Vector2, color: Color, outline: Color = Color.TRANSPARENT, width: float = 2.4) -> void:

@@ -15,11 +15,18 @@ const LEVEL_SHORT = {
 }
 const LEVEL_DESCRIPTIONS = {
 	"kindergarten":"Pip explains slowly with IF ___ THEN ___ examples, plain words, and extra hints.",
-	"middle":"Pip uses beginner coding words, then immediately connects them to the game action.",
-	"college":"Pip adds more precise programming vocabulary and mentions the Godot-style logic underneath."
+	"middle":"Start easy. Unlock two more stages with OR, NOT, comparisons, and reusable recipes.",
+	"college":"Start easy. Unlock all four stages, including lists, nested loops, and boundary checks."
 }
-const ORDER = ["idle", "events", "variables", "boolean", "vectors", "gravity", "condition", "functions", "loops", "timer", "and", "repeat"]
+const ORDER = ["idle", "events", "variables", "boolean", "vectors", "gravity", "condition", "functions", "loops", "timer", "and", "repeat", "or", "not", "comparison", "step_size", "elif", "parameters", "accumulator", "grouping", "lists", "nested", "limits", "picnic"]
 const DATA = {
+	"picnic": {
+		"tag":"INPUT & OUTPUT", "title":"Catch a snack with Pip", "trigger":"Play Picnic Catch",
+		"bubble":"IF you move the mouse or press a direction THEN my basket moves. IF it catches a snack THEN our snack count goes up by one. Your action is the input; my movement and our changing count are the output!",
+		"body":"Input means an action you give the game, such as moving the mouse, dragging a finger, or pressing Right. Output means the response you see: Pip moves his basket.\n\nA condition is a yes-or-no check. IF a snack reaches the basket THEN add one to snacks. A variable is a named place that remembers a value; snacks remembers our count. A streak counts catches in a row. Missing a snack restarts the current streak, but keeps the snacks already collected.\n\nCatch 10 snacks to finish. There is no countdown or lost life. You earn 20 gold, plus 2 for each catch in your best streak. Later stages introduce golden seeds (+2 gold) and leaves to let fall. Your moves control the basket, so try a different position and watch what changes!",
+		"code":"if snack_caught:\n    snacks += 1\n    streak += 1",
+		"question":"Your basket catches a snack. What happens to the snack count?", "choices":["It increases by one", "It goes back to zero", "It never changes"], "answer":0,
+		"why":"Catching a snack makes the check true, so the game adds one to the stored snack count."},
 	"idle": {
 		"tag":"IF / ELSE", "title":"A tiny decision", "trigger":"Watch Pip idle",
 		"bubble":"If I'm being held, I dangle. Else, I can relax! An if / else chooses which behavior runs.",
@@ -103,10 +110,22 @@ const DATA = {
 		"body":"A repeat count controls how often a loop runs. In Loop Garden, one repetition moves the marker one stepping stone to the right.\n\nCount the steps from the start to the target, choose that repeat count, then run it. If the result is wrong, change the count and try again. That's debugging!",
 		"code":"for step in range(repeats):\n    move_one_stone_right()",
 		"question":"The target is 4 steps away. How many times should move_one_stone_right() run?", "choices":["4 times", "1 time", "5 times"], "answer":0,
-		"why":"Each repetition moves one stone, so four repetitions move four stones."}
+		"why":"Each repetition moves one stone, so four repetitions move four stones."},
+	"or": {"tag": "OR LOGIC", "title": "At least one yes", "trigger": "More ways to decide", "bubble": "IF a find is a berry OR it is red THEN basket. OR needs at least one yes.", "body": "OR joins two yes-or-no checks. One true check is enough; two true checks also pass. A blue berry passes because it is a berry. A red button passes because it is red. A gray pebble fails both checks.", "code": "if is_berry or is_red:\n    basket()", "question": "The rule is berry OR red. Does a red button pass?", "choices": ["Yes: the red check is true", "No: both checks must be true", "Only if it becomes a berry"], "answer": 0, "why": "OR needs at least one true check. The red button passes the red check."},
+	"not": {"tag": "NOT LOGIC", "title": "Turn a check around", "trigger": "More ways to decide", "bubble": "IF a berry is NOT red THEN basket. NOT turns true into false and false into true.", "body": "NOT reverses a yes-or-no answer. For a blue berry, is_red is false, so not is_red is true. For a red berry, not is_red is false. In this game, AND still requires the find to be a berry, too.", "code": "if is_berry and not is_red:\n    basket()", "question": "Which find passes berry AND NOT red?", "choices": ["A blue berry", "A red berry", "A gray pebble"], "answer": 0, "why": "The blue berry passes is_berry. Its red check is false, so NOT red is true."},
+	"comparison": {"tag": "COMPARISONS", "title": "Compare two numbers", "trigger": "More ways to decide", "bubble": "IF fullness is less than 95 THEN there is room for a snack. The < sign means less than.", "body": "A comparison checks two values and gives true or false. < means less than, > means greater than, and == asks whether values are equal. At 94, fullness < 95 is true. At exactly 95 it is false. An equals sign by itself stores a value; two equals signs compare values.", "code": "can_snack = fullness < 95\nat_target = position == target", "question": "Fullness is exactly 95. Is fullness < 95 true?", "choices": ["No: 95 is not less than 95", "Yes: equal means less than", "Only on a sunny day"], "answer": 0, "why": "Less than does not include equal. At exactly 95 the check is false."},
+	"step_size": {"tag": "VARIABLE UPDATES", "title": "A bigger step", "trigger": "More ways to decide", "bubble": "IF one repeat adds 2 THEN three repeats add 6. A variable remembers the new number each time.", "body": "A loop can change a stored number by more than one. Start at 1 and add 2 on each repeat: 3, 5, 7. Three repeats reach 7. Count the changes, not just the destination number. The garden labels show the value after each repeat.", "code": "position = 1\nfor step in range(3):\n    position += 2", "question": "Start at 1. Add 2 on each of 3 repeats. Where do you finish?", "choices": ["7", "3", "6"], "answer": 0, "why": "The stored value goes 1, 3, 5, 7. The starting value matters too."},
+	"elif": {"tag": "ELIF CHOICES", "title": "Try the next question", "trigger": "Little recipes", "bubble": "IF it is a red berry THEN snack. ELSE IF it is another berry THEN save it. ELSE leave it.", "body": "ELIF is short for else if: otherwise, check another condition. The game checks in order and runs only the first matching choice. A red berry is also a berry, but the first choice already matched, so it does not run the next choice.", "code": "if is_red_berry: snack()\nelif is_berry: save_it()\nelse: leave_it()", "question": "A red berry matches the first AND second checks. What runs?", "choices": ["Only the first choice: snack", "Both snack and save", "Only the last choice: leave"], "answer": 0, "why": "An IF / ELIF / ELSE chain runs the first matching choice and skips the rest."},
+	"parameters": {"tag": "FUNCTION INPUTS", "title": "Choose the recipe input", "trigger": "Little recipes", "bubble": "IF I call add_seeds(2) THEN the recipe adds 2 seeds. The number is an input to a reusable recipe.", "body": "A function is a named recipe. A parameter is a named input the recipe uses. add_seeds(amount) uses the value passed as amount. Calling add_seeds(2) adds two; calling add_seeds(3) adds three. You reuse the recipe with different inputs.", "code": "func add_seeds(amount):\n    total += amount\n# add_seeds(2) adds two", "question": "What changes when we call add_seeds(3) instead of add_seeds(2)?", "choices": ["The amount added by the same recipe", "The game forgets the recipe", "Nothing can change"], "answer": 0, "why": "The parameter amount receives 3, so the same recipe now adds 3 seeds."},
+	"accumulator": {"tag": "RUNNING TOTALS", "title": "Keep adding to a total", "trigger": "Little recipes", "bubble": "IF a loop repeats THEN add this batch to total. An accumulator is a number that keeps a running total.", "body": "An accumulator remembers a running total. Start total at zero before the loop. Each repeat adds the next batch. With three seeds per batch and four repeats, the total becomes 3, 6, 9, 12. Resetting total inside the loop would lose earlier batches.", "code": "total = 0\nfor batch in range(4):\n    total += 3", "question": "Four repeats each add 3 seeds to a total that starts at 0. What is the total?", "choices": ["12", "3", "4"], "answer": 0, "why": "The total keeps earlier additions: 3 + 3 + 3 + 3 = 12."},
+	"grouping": {"tag": "GROUPED LOGIC", "title": "Keep checks together", "trigger": "Code explorer", "bubble": "IF (berry OR seed) AND NOT spoiled THEN basket. Parentheses keep the food checks together.", "body": "Parentheses mark a group to check together. First ask whether the find is a berry or a seed. Then require that it is not spoiled. A fresh seed passes both parts. A spoiled berry fails the fresh check even though it is a berry.", "code": "if (is_berry or is_seed) \\\n        and not is_spoiled:\n    basket()", "question": "The rule is (berry OR seed) AND NOT spoiled. Does a spoiled berry pass?", "choices": ["No: NOT spoiled is false", "Yes: all berries pass", "Yes: parentheses ignore spoilage"], "answer": 0, "why": "The food group is true, but the freshness check is false. AND needs both parts."},
+	"lists": {"tag": "LISTS", "title": "Keep values in order", "trigger": "Code explorer", "bubble": "IF I need the first list item THEN I use index 0. A list keeps several values in order.", "body": "A list, called an Array in GDScript, stores several values in order. An index names a position in the list. Counting indexes starts at zero. In [2, 3, 2], index 0 gives 2 and index 1 gives 3. Our three gardens use these entries to choose the inner repeat count.", "code": "steps = [2, 3, 2]\nfirst = steps[0] # 2\nsecond = steps[1] # 3", "question": "steps is [2, 3, 2]. What value is steps[1]?", "choices": ["3: the second item", "2: the first item", "1: the index itself"], "answer": 0, "why": "Index 0 is first; index 1 is second. The second value is 3."},
+	"nested": {"tag": "NESTED LOOPS", "title": "A repeat inside a repeat", "trigger": "Code explorer", "bubble": "IF the outer loop repeats THEN run the whole inner loop again. Two groups of three steps make six steps.", "body": "A nested loop is a loop inside another loop. Every outer repeat starts the whole inner loop again. Two outer repeats with three inner repeats each give six steps: 3, then 3 more. The garden shows each inner step before starting the next group.", "code": "for group in range(2):\n    for step in range(3):\n        move_one_step()", "question": "An outer loop repeats 2 times. Its inner loop repeats 3 times each. How many steps?", "choices": ["6", "5", "3"], "answer": 0, "why": "Each outer repeat runs all three inner steps: 2 groups times 3 steps = 6."},
+	"limits": {"tag": "BOUNDARY CHECKS", "title": "Check the edge", "trigger": "Code explorer", "bubble": "IF fullness reaches 95 THEN skip the snack. A boundary is the exact point where a rule changes.", "body": "A boundary is a limit where a decision changes. Test just below the limit, exactly at it, and just above it. For fullness < 95, 94 passes, 95 fails, and 96 fails. Testing these edge cases helps find mistakes before players encounter them.", "code": "# fullness < 95\n# 94: true; 95: false\n# 96: false", "question": "Which set best checks the edge of the rule fullness < 95?", "choices": ["94, 95, and 96", "10, 20, and 30", "Only 0"], "answer": 0, "why": "94, 95, and 96 test below, at, and above the boundary where the answer changes."}
 }
 
 const IF_THEN = {
+	"picnic":"IF you move the mouse or press a direction THEN my basket moves. IF it catches a snack THEN add one to our count.",
 	"idle":"IF I am being held THEN I dangle. ELSE I rest and breathe.",
 	"events":"IF your click lands on my head THEN the game runs pet().",
 	"variables":"IF you pet me THEN happiness becomes the old number plus 8.",
@@ -118,10 +137,22 @@ const IF_THEN = {
 	"loops":"IF the chew loop has more repeats left THEN I chew again.",
 	"timer":"IF my quiet timer reaches its target THEN I clean my face.",
 	"and":"IF is_berry is true AND is_red is true THEN the find goes in the basket.",
-	"repeat":"IF repeat is 4 THEN the marker takes 4 steps."
+	"repeat":"IF repeat is 4 THEN the marker takes 4 steps.",
+	"or": "IF a find is a berry OR it is red THEN basket. OR needs at least one yes.",
+	"not": "IF a berry is NOT red THEN basket. NOT turns true into false and false into true.",
+	"comparison": "IF fullness is less than 95 THEN there is room for a snack. The < sign means less than.",
+	"step_size": "IF one repeat adds 2 THEN three repeats add 6. A variable remembers the new number each time.",
+	"elif": "IF it is a red berry THEN snack. ELSE IF it is another berry THEN save it. ELSE leave it.",
+	"parameters": "IF I call add_seeds(2) THEN the recipe adds 2 seeds. The number is an input to a reusable recipe.",
+	"accumulator": "IF a loop repeats THEN add this batch to total. An accumulator is a number that keeps a running total.",
+	"grouping": "IF (berry OR seed) AND NOT spoiled THEN basket. Parentheses keep the food checks together.",
+	"lists": "IF I need the first list item THEN I use index 0. A list keeps several values in order.",
+	"nested": "IF the outer loop repeats THEN run the whole inner loop again. Two groups of three steps make six steps.",
+	"limits": "IF fullness reaches 95 THEN skip the snack. A boundary is the exact point where a rule changes."
 }
 
 const SIMPLE_WORDS = {
+	"picnic":"Input means your action. Output means what the game does because of it. A variable remembers a value, like our snack count!",
 	"idle":"A condition is just a yes-or-no question the game asks.",
 	"events":"An event means something happened, like a click.",
 	"variables":"A variable is a labeled box that stores a number or word.",
@@ -133,10 +164,22 @@ const SIMPLE_WORDS = {
 	"loops":"A loop repeats the same step instead of writing it many times.",
 	"timer":"A timer counts time until something should happen.",
 	"and":"AND means both checks must be true.",
-	"repeat":"A repeat count tells a loop how many times to run."
+	"repeat":"A repeat count tells a loop how many times to run.",
+	"or": "",
+	"not": "",
+	"comparison": "",
+	"step_size": "",
+	"elif": "",
+	"parameters": "",
+	"accumulator": "",
+	"grouping": "",
+	"lists": "",
+	"nested": "",
+	"limits": ""
 }
 
 const COLLEGE_NOTES = {
+	"picnic":"The game checks whether a snack crosses the basket's height within its width. Each snack counts once; reaching 10 ends the round. The changing snack count is stored in a variable.",
 	"idle":"This is state-based animation selection: is_held controls which branch mutates the current animation state.",
 	"events":"This uses input handling: a mouse event is filtered by hit area, then dispatches the pet interaction.",
 	"variables":"This is bounded state mutation: happiness is incremented and clamped so the invariant 0 <= happiness <= 100 holds.",
@@ -148,7 +191,18 @@ const COLLEGE_NOTES = {
 	"loops":"The chew animation is a finite repeated sequence. A loop expresses repeated work without duplicating code.",
 	"timer":"The timer accumulates delta time, making the behavior frame-rate independent.",
 	"and":"Logical AND shortens a decision that needs multiple true predicates before accepting an item.",
-	"repeat":"The loop count is an input-controlled parameter; debugging means comparing expected and observed state."
+	"repeat":"The loop count is an input-controlled parameter; debugging means comparing expected and observed state.",
+	"or": "OR needs at least one true check. The red button passes the red check.",
+	"not": "The blue berry passes is_berry. Its red check is false, so NOT red is true.",
+	"comparison": "Less than does not include equal. At exactly 95 the check is false.",
+	"step_size": "The stored value goes 1, 3, 5, 7. The starting value matters too.",
+	"elif": "An IF / ELIF / ELSE chain runs the first matching choice and skips the rest.",
+	"parameters": "The parameter amount receives 3, so the same recipe now adds 3 seeds.",
+	"accumulator": "The total keeps earlier additions: 3 + 3 + 3 + 3 = 12.",
+	"grouping": "The food group is true, but the freshness check is false. AND needs both parts.",
+	"lists": "Index 0 is first; index 1 is second. The second value is 3.",
+	"nested": "Each outer repeat runs all three inner steps: 2 groups times 3 steps = 6.",
+	"limits": "94, 95, and 96 test below, at, and above the boundary where the answer changes."
 }
 
 static func normalize_level(level: String) -> String:
@@ -162,6 +216,8 @@ static func level_description(level: String) -> String:
 
 static func entry(key: String, level: String = "kindergarten") -> Dictionary:
 	var lesson = DATA[key].duplicate(true)
+	if key in ["or", "not", "comparison", "step_size", "elif", "parameters", "accumulator", "grouping", "lists", "nested", "limits"]:
+		return lesson
 	var normalized = normalize_level(level)
 	if normalized == "kindergarten":
 		lesson.bubble = IF_THEN[key] + " " + SIMPLE_WORDS[key]
@@ -169,7 +225,7 @@ static func entry(key: String, level: String = "kindergarten") -> Dictionary:
 		lesson.why = SIMPLE_WORDS[key] + " " + lesson.why
 	elif normalized == "middle":
 		lesson.bubble = IF_THEN[key] + " In code, this is " + lesson.tag.to_lower() + " controlling what happens next."
-		lesson.body = IF_THEN[key] + "\n\nNow connect that sentence to the code below. The words after IF are the check. The indented lines are the action that runs when the check passes.\n\n" + lesson.body
+		lesson.body = IF_THEN[key] + "\n\nRead the plain words first, then follow the code one line at a time. Each line describes a check, a stored value, or an action.\n\n" + lesson.body
 		lesson.why = "Think about which check is true. " + lesson.why
 	else:
 		lesson.bubble = IF_THEN[key] + " " + COLLEGE_NOTES[key]

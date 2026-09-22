@@ -4,7 +4,7 @@
 
 1. Create or edit your game project on itch.io.
 2. Set **Kind of project** to **HTML Game**.
-3. Upload **CritterCare-itchio.zip**. Use the standalone download or the identical copy in the Godot project's `builds/` folder.
+3. Upload **CritterCare-itchio-v1.3.0.zip** (the versioned download) or **CritterCare-itchio.zip** from this project’s `builds/` folder. Use the standalone download or the identical copy in the Godot project's `builds/` folder.
 4. Mark that upload **This file will be played in the browser**.
 5. Choose **Embed in page**, with a **960 × 600** viewport, and enable the fullscreen button. The game also fits a 1280 × 800 canvas.
 6. Turn off **Click to Play** if you want the game to begin loading immediately when the page opens. Leave it on if you prefer an explicit launch button.
@@ -63,6 +63,12 @@ Open **http://127.0.0.1:8000/** in a browser. Press **Ctrl+C** in the terminal t
 
 ## Quick check on the itch.io preview
 
-Pet Pip, hold and drag him, drop him, feed one treat, and complete a mini game. Open Knowledge, reload the page, and check that the discovered lesson and inventory persist. Try the fullscreen button and return to the embedded view. Sound should begin after interacting.
+On a fresh save, follow the green-arrow tutorial: pet Pip, hold and drag him, drop him, feed one treat, and visit the highlighted menus. On an existing save, use Settings → Replay tutorial. Complete or skip the tour, reload, and confirm it stays completed. Use Reset progress on a disposable test save to verify that the tour restarts. Then complete a mini game. Open Knowledge, reload the page, and check that the discovered lesson and inventory persist. Play Picnic Catch with mouse and arrow keys, test Pause / Resume and switching tabs, complete a round, then reload to check the gold and personal best. Try the fullscreen button and return to the embedded view. Sound should begin after interacting.
 
 References: [itch.io HTML5 games](https://itch.io/docs/creators/html5) · [Godot 4.7 Web exports](https://docs.godotengine.org/en/4.7/tutorials/export/exporting_for_web.html)
+
+## Updating an existing page
+
+Replace the previous browser upload with this release's `CritterCare-itchio.zip` and save the itch.io page. Reload the embedded game. The home-screen footer should read **v1.3.0 · Guided first play**; if a different version appears, check that the new upload is the one selected for browser play and refresh the page. The top display is only your gold balance; Shop is at the bottom right. New saves open the green-arrow tutorial; existing players can choose Settings → Replay tutorial. The normal Godot project ZIP is for editing/F5 and is not the file to upload as a browser game.
+
+No progress reset is needed for this update. Keep the same itch.io project so existing browser saves remain associated with the same game page.

@@ -56,6 +56,10 @@ static func label(parent: Node, value: String, rect: Rect2, size: int = 20, colo
 	l.size = rect.size
 	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	l.clip_text = true
+	# A clipped label needs room for at least one complete font line.
+	var font = HEADING_FONT if size >= 23 else FONT
+	while size > 10 and font.get_height(size) > rect.size.y - 1:
+		size -= 1
 	l.add_theme_font_size_override("font_size", size)
 	if size >= 23:
 		l.add_theme_font_override("font", HEADING_FONT)
@@ -83,6 +87,29 @@ static func button(parent: Node, value: String, rect: Rect2, action: Callable, p
 	b.pressed.connect(action)
 	parent.add_child(b)
 	return b
+
+static func paragraph(parent: Node, value: String, font_size: int = 18, color: Color = INK) -> Label:
+	# Container-managed text grows vertically and is never clipped to a fixed height.
+	var l = Label.new()
+	l.size = Vector2(560, 40)
+	l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	l.vertical_alignment = VERTICAL_ALIGNMENT_TOP
+	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	l.add_theme_font_size_override("font_size", font_size)
+	l.add_theme_color_override("font_color", color)
+	parent.add_child(l)
+	l.text = value
+	return l
+
+static func scroll_text(parent: Node, value: String, rect: Rect2, font_size: int = 18, color: Color = INK) -> Label:
+	var scroll = ScrollContainer.new()
+	scroll.position = rect.position
+	scroll.size = rect.size
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.focus_mode = Control.FOCUS_ALL
+	parent.add_child(scroll)
+	return paragraph(scroll, value, font_size, color)
 
 static func code(parent: Node, text: String, rect: Rect2, font_size: int = 19) -> Label:
 	panel(parent, rect, Color("edf0e6"), 14)
