@@ -19,7 +19,7 @@ const STEPS = [
 	{"id":"settings", "title":"Make yourself comfy", "words":"Click the three dots at the top right. Settings lets you choose your Game level, sound, gentler movement, and more."},
 	{"id":"level", "title":"Choose your Game level", "words":"Everyone starts with easy lessons. Higher Game levels unlock more concepts as you progress. Keep this level or choose another. You can replay this tour in Settings anytime."},
 	{"id":"games", "title":"Time to play and learn", "words":"Click Games / Quizzes. Complete activities to earn gold and treats. Pip explains each activity before you begin, with hints when you need help."},
-	{"id":"activities", "title":"You're ready to explore!", "words":"Sort finds in Berry Detective, repeat steps in Loop Garden, or try a quiz. Picnic Catch is a playful snack hunt. Finish this tour, or click the highlighted Picnic Catch to start!"}
+	{"id":"activities", "title":"You're ready to explore!", "words":"Sort finds, repeat steps, or try a quiz. Logic Lab lets you build a program for Pip! Picnic Catch is a snack hunt. Finish the tour, or click the highlighted Picnic Catch to start!"}
 ]
 
 var game

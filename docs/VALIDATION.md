@@ -1,10 +1,10 @@
 # Validation
 
-Release **1.3.0 · Guided first play** uses **Godot 4.7.2 stable** (`4.7.2.stable.official.ed1daf0bf`), standard GDScript, and the Compatibility renderer. The editable project and itch.io build share one source tree.
+Release **1.4.0 · Pip's Logic Lab** uses **Godot 4.7.2 stable** (`4.7.2.stable.official.ed1daf0bf`), standard GDScript, and the Compatibility renderer. The editable project and itch.io build share one source tree.
 
 ## Current checks
 
-The Linux integration suite passed **290 headless checks** and **303 rendered checks**, with **zero failures**. The rendered run includes actual mouse input and captures the home screen, Shop categories, customized room and Pip, stage selection, new lessons, all added sorting/loop stages, quiz/results, Knowledge, and settings. A 960 × 600 window was also captured. The games menu includes the new Picnic Catch entry and retains the best-score display. Speech fit checks use the actual visible-line count, including Godot theme line spacing. The previous font-height-only check missed a clipped final line; this release fixes that calculation and paginates the complete text.
+The Linux integration suite passed **317 headless checks** and **330 rendered checks**, with **zero failures**. The rendered run includes actual mouse input and captures the home screen, Shop categories, customized room and Pip, stage selection, new lessons, all added sorting/loop stages, quiz/results, Knowledge, and settings. A 960 × 600 window was also captured. The games menu includes the new Picnic Catch entry and retains the best-score display. Speech fit checks use the actual visible-line count, including Godot theme line spacing. The previous font-height-only check missed a clipped final line; this release fixes that calculation and paginates the complete text.
 
 - Original petting, carrying, releasing, soft landings, feeding, needs, and lesson discovery still work.
 - All three game levels start at First steps. Kindergarten stays there, Middle–Highschool caps at Little recipes, and College reaches Code explorer.
@@ -26,13 +26,13 @@ The Linux integration suite passed **290 headless checks** and **303 rendered ch
 ## Shop access and dialogue regression checks
 
 - The header is a noninteractive GOLD balance; clicking it does not open Shop. The bottom Shop button remains visible and clickable at 1280 × 800 and 960 × 600, including with zero gold. Native tests use actual pointer input at both sizes.
-- Every one of the 24 authored lessons is checked at all three explanation levels. Every displayed line fits at font size 18, and concatenating all pages reproduces the original text exactly.
+- Every one of the 33 authored lessons is checked at all three explanation levels. Every displayed line fits at font size 18, and concatenating all pages reproduces the original text exactly.
 - A much longer explanation also preserves its final sentence. Next and Back work, waiting does not dismiss an unfinished page, and Done advances the queued lesson.
 - Speech controls stay inside the room when Pip is moved to its corners or middle.
 - Knowledge displays the exact captured explanation under Pip says. It remains available after a game-level change and a save/reload. Read with Pip replays the saved text.
 - The full Knowledge page, including its code example, is reachable by scrolling. Guided lesson and mini-game feedback areas also scroll instead of clipping long content.
 - Reset clears saved dialogue. Existing discoveries from saves without recorded dialogue receive a full fallback explanation, without requiring a reset.
-- The visible home-screen version marker identifies this release as v1.3.0.
+- The visible home-screen version marker identifies this release as v1.4.0.
 
 ## Picnic Catch
 
@@ -55,11 +55,25 @@ The Linux integration suite passed **290 headless checks** and **303 rendered ch
 - Replay does not reset care or inventory. A full pet, ongoing chewing, or empty pouch gives the feeding step a Next option. Shop browsing requires no purchases. Reset clears completion again.
 - Needs and ordinary queued dialogue wait during the tour. Normal keyboard focus is restored afterward. A test caught a focus-restoration hang caused by freed menu nodes; stable instance IDs and weak references now handle rebuilt menus safely.
 
+## Logic Lab acceptance checks
+
+The separate Logic Lab suite passed **113 headless checks** and **115 rendered checks**, with zero failures. The rendered run exercises real pointer clicks and dragging, captures the editor and completed puzzles, and checks a 960 × 600 window.
+
+- All nine challenge solutions and each authored starting visit execute successfully. Wrong instruction order, incorrect repeat counts, reversed branches, OR instead of AND, undefined function calls, skipped function calls, and incorrect nested groups produce specific retryable feedback.
+- Different valid solutions are accepted for movement, repeated addition, and parameter calls. The list puzzle requires visiting its values as well as reaching the target.
+- Empty programs, unknown blocks, blocks outside the challenge tray, and more than five blocks are rejected. Execution is bounded and starting situations are not mutated.
+- Clicking or dragging adds blocks; arrows and row dragging reorder them; removing a block closes the gap. Run locks editing; Pause freezes execution; Step runs one action; Stop preserves the editable program. Closing the activity stops playback.
+- First completions pay exactly 25 gold and 2 berries. All nine completions pay 225 gold total. Replays and duplicate completion calls cannot pay again. Practice failures do not spend real inventory or money. Lab completion does not substitute for curriculum badges.
+- Encountered lesson text and the complete last successful walkthrough appear in Knowledge. The new questions join only the corresponding stage's discovered quiz pool.
+- Lab completion, gold, and dialogue survive save/reload. Version-6 saves retain their coins and purchases and start with no lab records. Reset clears the lab with other progress and restarts the tutorial while preserving the selected Game level.
+- All levels start with the same first card. Kindergarten is capped at three lab cards, Middle at seven, and College at nine. Later cards also require the prior lab card and the matching curriculum stage.
+- Visual testing caught clipped two-line block labels; adjusted card height and line spacing now display them completely. Both 1280 × 800 and 960 × 600 layouts were inspected.
+
 ## Web export
 
-The bundled official matching single-thread Web templates are used by the existing export helper. The updated game was exported successfully with the command-line wrapper. The final browser ZIP was checked for archive integrity, `index.html` at its root, nonempty engine/game files, and license notices. New curriculum and customization scripts are included in the same export as the rest of the game.
+The bundled official matching single-thread Web templates are used by the existing export helper. The updated game was exported successfully with the command-line wrapper. The final browser ZIP was checked for archive integrity, `index.html` at its root, nonempty engine/game files, and license notices. Logic Lab content, editor, execution, save changes, and lessons are included in the same export as the rest of the game.
 
-**Browser gameplay is not verified for this update.** Native rendering and a successful export do not establish browser save/reload, audio, iframe, or fullscreen behavior. Use the preview checklist in [ITCH_IO.md](ITCH_IO.md) on your itch.io page before publishing.
+**Browser gameplay is not verified for this update.** The browser test launcher was blocked by this execution environment before it could open the game. Native rendering and a successful export do not establish browser save/reload, audio, iframe, or fullscreen behavior. Use the preview checklist in [ITCH_IO.md](ITCH_IO.md) on your itch.io page before publishing.
 
 ## Scope
 

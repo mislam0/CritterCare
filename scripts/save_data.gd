@@ -4,6 +4,8 @@ extends RefCounted
 const SAVE_PATH = "user://crittercare_save.json"
 const Shop = preload("res://data/shop.gd")
 const Curriculum = preload("res://data/curriculum.gd")
+const Lab = preload("res://data/logic_lab.gd")
+var lab_completed: Array = []
 var coins: int = 0
 var owned: Array = []
 var equipped: Dictionary = {}
@@ -35,6 +37,11 @@ func load_progress() -> void:
 	var parsed = parser.data
 	if not parsed is Dictionary:
 		return
+	lab_completed.clear()
+	if parsed.get("lab_completed") is Array:
+		for id in parsed.lab_completed:
+			if id is String and Lab.index_of(id) >= 0 and not lab_completed.has(id):
+				lab_completed.append(id)
 	discovered.clear()
 	pip_quotes.clear()
 	scores.clear()
@@ -92,7 +99,7 @@ func load_progress() -> void:
 		scores = scores.slice(0, 3)
 
 func write() -> Error:
-	var payload = {"version":6, "discovered":discovered, "pip_quotes":pip_quotes, "inventory":inventory, "fullness":fullness, "happiness":happiness, "pet_count":pet_count, "feed_count":feed_count, "games_won":games_won, "picnic_best":picnic_best, "picnic_rounds":picnic_rounds, "tutorial_completed":tutorial_completed, "sound":sound, "calm":calm, "game_level":game_level, "scores":scores, "coins":coins, "owned":owned, "equipped":equipped, "stage_badges":stage_badges, "practice_stage":practice_stage}
+	var payload = {"version":7, "lab_completed":lab_completed, "discovered":discovered, "pip_quotes":pip_quotes, "inventory":inventory, "fullness":fullness, "happiness":happiness, "pet_count":pet_count, "feed_count":feed_count, "games_won":games_won, "picnic_best":picnic_best, "picnic_rounds":picnic_rounds, "tutorial_completed":tutorial_completed, "sound":sound, "calm":calm, "game_level":game_level, "scores":scores, "coins":coins, "owned":owned, "equipped":equipped, "stage_badges":stage_badges, "practice_stage":practice_stage}
 	var file = FileAccess.open(save_path + ".tmp", FileAccess.WRITE)
 	if file == null:
 		return FileAccess.get_open_error()
@@ -101,6 +108,7 @@ func write() -> Error:
 	return DirAccess.rename_absolute(save_path + ".tmp", save_path)
 
 func reset_progress(keep_preferences: bool = true) -> void:
+	lab_completed = []
 	var old_sound = sound
 	var old_calm = calm
 	var old_level = game_level
@@ -134,6 +142,15 @@ func unlock(key: String) -> bool:
 	if discovered.has(key):
 		return false
 	discovered.append(key)
+	return true
+
+func complete_lab(id: String) -> bool:
+	var index = Lab.index_of(id)
+	if lab_completed.has(id) or not Lab.is_unlocked(index,unlocked_stage(),lab_completed):
+		return false
+	lab_completed.append(id)
+	award_coins(25)
+	reward("Logic Lab",100,2,0)
 	return true
 
 func unlocked_stage() -> int:
