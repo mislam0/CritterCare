@@ -10,6 +10,10 @@ const Shop = preload("res://data/shop.gd")
 const CosmeticArt = preload("res://scripts/cosmetic_art.gd")
 const Picnic = preload("res://scripts/picnic.gd")
 const Tutorial = preload("res://scripts/tutorial.gd")
+const Lab = preload("res://data/logic_lab.gd")
+const LabScreen = preload("res://scripts/logic_lab_screen.gd")
+var lab_screen
+var lab_index: int = 0
 var tutorial
 var picnic
 var picnic_count: Label
@@ -114,7 +118,7 @@ func _ready() -> void:
 	if not progress.tutorial_completed:
 		start_tutorial()
 	elif progress.discovered.size() > 0:
-		_say("Welcome back!", "Your discoveries and purchases are saved. Visit Shop at the bottom to dress me up, or try Picnic Catch in Games / Quizzes!")
+		_say("Welcome back!", "Your discoveries and purchases are saved. Try Pip's Logic Lab in Games / Quizzes: build a little program, then watch me follow your instructions!")
 	else:
 		_say("Hello, I'm Pip!", "Click my head to pet me, or hold and drag to pick me up. Play games for coins, then tap Shop for hats and room decorations!")
 
@@ -157,7 +161,7 @@ func _build_home() -> void:
 	shop_nav.name = "ShopNav"
 	_style_shop_button(shop_nav)
 	UI.label(ui, "CLICK to pet  ·  HOLD + DRAG to carry  ·  ESC to return home", Rect2(70, 774, 845, 21), 12, UI.MUTED)
-	UI.label(ui, "v%s · Guided first play" % ProjectSettings.get_setting("application/config/version"), Rect2(926, 774, 306, 21), 12, UI.MUTED)
+	UI.label(ui, "v%s · Pip's Logic Lab" % ProjectSettings.get_setting("application/config/version"), Rect2(926, 774, 306, 21), 12, UI.MUTED)
 	# Speech is created last so it floats above the room's labels.
 	speech = UI.panel(ui, Rect2(410, 181, 460, 205), UI.CREAM, 22, true)
 	speech.name = "PipSpeech"
@@ -462,6 +466,8 @@ func _play_sound(kind: String) -> void:
 		audio.play()
 
 func _screen(id: String, title: String, subtitle: String) -> Control:
+	if is_instance_valid(lab_screen):
+		lab_screen.stop()
 	if is_instance_valid(picnic):
 		picnic.stop()
 	if is_instance_valid(overlay):
@@ -488,6 +494,8 @@ func _screen(id: String, title: String, subtitle: String) -> Control:
 	return overlay
 
 func close_modal() -> void:
+	if is_instance_valid(lab_screen):
+		lab_screen.stop()
 	if is_instance_valid(picnic):
 		picnic.stop()
 	if is_instance_valid(overlay):
@@ -647,13 +655,16 @@ func open_games() -> void:
 		note = "You are at this level's final stage. Replay for practice, treats, and coins."
 	if stage > 0 and _stage_quiz_pool(stage).size() < 3:
 		note = "Play both games to meet this stage's ideas before taking its quiz."
-	UI.panel(overlay, Rect2(151, 618, 977, 78), Color("f5e5b7"), 18)
-	_add_icon(overlay, "basket", Rect2(167, 632, 48, 48))
-	UI.label(overlay, "NEW · Picnic Catch", Rect2(233, 623, 585, 31), 23)
-	UI.label(overlay, "A play break with Pip · catch snacks, build streaks, earn gold", Rect2(234, 657, 588, 25), 15, UI.GREEN)
-	var picnic_button = UI.button(overlay, "Play Picnic Catch", Rect2(850, 634, 259, 45), start_picnic, true)
+	UI.panel(overlay, Rect2(151, 618, 478, 78), Color("f5e5b7"), 18)
+	UI.label(overlay, "Picnic Catch", Rect2(169, 623, 228, 31), 23)
+	UI.label(overlay, "Catch snacks. Earn gold.", Rect2(170, 657, 226, 25), 15, UI.GREEN)
+	var picnic_button = UI.button(overlay, "Play Picnic Catch", Rect2(406, 634, 206, 45), start_picnic, true)
 	picnic_button.name = "PlayPicnic"
 	picnic_button.tooltip_text = "Bonus activity · optional for stage badges"
+	UI.panel(overlay, Rect2(642,618,486,78), Color("e0eadb"),18)
+	UI.label(overlay,"Pip's Logic Lab",Rect2(660,623,244,31),23)
+	UI.label(overlay,"Build blocks. Run your program.",Rect2(661,657,249,25),14,UI.GREEN)
+	UI.button(overlay,"Open Logic Lab",Rect2(922,634,189,45),open_logic_lab,true).name = "PlayLogicLab"
 	var best: Array[String] = []
 	for record in progress.scores:
 		best.append("%s %d%%" % [record.mode, record.score])
@@ -663,9 +674,72 @@ func open_games() -> void:
 
 func _stage_quiz_pool(stage: int) -> Array:
 	var keys = progress.discovered.filter(func(key):
-		return Lessons.DATA.has(key) and (key in Curriculum.STAGES[stage].keys if stage > 0 else (Lessons.ORDER.find(key) < 12 or key == "picnic")))
+		return Lessons.DATA.has(key) and ((key in Curriculum.STAGES[stage].keys if stage > 0 else (Lessons.ORDER.find(key) < 12 or key == "picnic")) or Lab.lesson_stage(key) == stage))
 	keys.shuffle()
 	return keys.slice(0, 5)
+
+func open_logic_lab() -> void:
+	_tutorial_notice("start_activity")
+	_screen("lab_menu","Pip's Logic Lab","Build a program, predict what it does, then run it with Pip. No timer, and mistakes cost nothing.")
+	UI.label(overlay,"%d / %d programs solved · +25 gold and +2 berries for each first solution" % [progress.lab_completed.size(),Lab.CHALLENGES.size()],Rect2(155,218,967,34),20,UI.GREEN)
+	UI.label(overlay,"Start with the first card. Later cards also follow your Game level and unlocked learning stages.",Rect2(155,254,967,27),16,UI.MUTED)
+	for i in range(Lab.CHALLENGES.size()):
+		var mission: Dictionary = Lab.CHALLENGES[i]
+		var unlocked = Lab.is_unlocked(i,progress.unlocked_stage(),progress.lab_completed)
+		var completed = progress.lab_completed.has(mission.id)
+		var x = 151+(i%3)*330
+		var y = 294+floori(float(i)/3)*144
+		UI.panel(overlay,Rect2(x,y,317,131),Color("e6efdf") if completed else Color("f1eddf"),16)
+		UI.label(overlay,"%02d · %s" % [i+1,mission.title],Rect2(x+13,y+9,291,31),20)
+		var note = "Solved · free practice" if completed else "Stage %d · " % (mission.stage+1) + Lessons.DATA[mission.lesson].tag.to_lower()
+		if not unlocked:
+			note = "Unlock learning stage %d in Games" % (mission.stage+1) if mission.stage > progress.unlocked_stage() else "Solve the previous Lab card first"
+		UI.label(overlay,note,Rect2(x+14,y+45,290,27),14,UI.MUTED)
+		var button = UI.button(overlay,"Practice again" if completed else ("Build a program" if unlocked else "Locked"),Rect2(x+14,y+81,289,37),func(): start_lab(i),unlocked)
+		button.name = "LabChallenge%d" % i
+		button.disabled = not unlocked
+
+func start_lab(index: int) -> void:
+	if not Lab.is_unlocked(index,progress.unlocked_stage(),progress.lab_completed):
+		return
+	lab_index = index
+	session_stage = Lab.CHALLENGES[index].stage
+	if progress.lab_completed.has(Lab.CHALLENGES[index].id):
+		_lab_setup()
+	else:
+		_begin_intro([Lab.CHALLENGES[index].lesson],_lab_setup)
+
+func _lab_setup() -> void:
+	var mission: Dictionary = Lab.CHALLENGES[lab_index]
+	_screen("logic_lab","Logic Lab · " + mission.title,"Click or drag instruction blocks. Run watches the whole program; Step follows one action at a time.")
+	lab_screen = LabScreen.new()
+	lab_screen.position = Vector2(154,219)
+	lab_screen.mission = mission
+	lab_screen.gentle = progress.calm
+	lab_screen.cosmetics = progress.cosmetics("pet")
+	lab_screen.already_completed = progress.lab_completed.has(mission.id)
+	overlay.add_child(lab_screen)
+	lab_screen.solved.connect(_finish_lab)
+	lab_screen.back_requested.connect(open_logic_lab)
+	lab_screen.next_requested.connect(func():
+		if Lab.is_unlocked(lab_index+1,progress.unlocked_stage(),progress.lab_completed):
+			start_lab(lab_index+1)
+		else:
+			open_logic_lab())
+
+func _finish_lab(id: String) -> void:
+	if modal_name != "logic_lab" or not is_instance_valid(lab_screen) or not lab_screen.report.get("success",false) or id != Lab.CHALLENGES[lab_index].id:
+		return
+	var first = progress.complete_lab(id)
+	var mission: Dictionary = Lab.CHALLENGES[lab_index]
+	var words: Array[String] = []
+	for item in lab_screen.report.trace:
+		words.append(str(item.words))
+	_discover_in_game(mission.lesson,str(Lessons.entry(mission.lesson).bubble) + "\n\nPip's last successful walkthrough:\n" + "\n".join(words))
+	_save()
+	_refresh_home()
+	if first:
+		_play_sound("win")
 
 func start_picnic() -> void:
 	_tutorial_notice("start_activity")

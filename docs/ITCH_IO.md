@@ -4,7 +4,7 @@
 
 1. Create or edit your game project on itch.io.
 2. Set **Kind of project** to **HTML Game**.
-3. Upload **CritterCare-itchio-v1.3.0.zip** (the versioned download) or **CritterCare-itchio.zip** from this project’s `builds/` folder. Use the standalone download or the identical copy in the Godot project's `builds/` folder.
+3. Upload **CritterCare-itchio-v1.4.0.zip** (the versioned download) or **CritterCare-itchio.zip** from this project’s `builds/` folder. Use the standalone download or the identical copy in the Godot project's `builds/` folder.
 4. Mark that upload **This file will be played in the browser**.
 5. Choose **Embed in page**, with a **960 × 600** viewport, and enable the fullscreen button. The game also fits a 1280 × 800 canvas.
 6. Turn off **Click to Play** if you want the game to begin loading immediately when the page opens. Leave it on if you prefer an explicit launch button.
@@ -69,6 +69,8 @@ References: [itch.io HTML5 games](https://itch.io/docs/creators/html5) · [Godot
 
 ## Updating an existing page
 
-Replace the previous browser upload with this release's `CritterCare-itchio.zip` and save the itch.io page. Reload the embedded game. The home-screen footer should read **v1.3.0 · Guided first play**; if a different version appears, check that the new upload is the one selected for browser play and refresh the page. The top display is only your gold balance; Shop is at the bottom right. New saves open the green-arrow tutorial; existing players can choose Settings → Replay tutorial. The normal Godot project ZIP is for editing/F5 and is not the file to upload as a browser game.
+Replace the previous browser upload with this release's `CritterCare-itchio.zip` and save the itch.io page. Reload the embedded game. The home-screen footer should read **v1.4.0 · Pip's Logic Lab**; if a different version appears, check that the new upload is the one selected for browser play and refresh the page. The top display is only your gold balance; Shop is at the bottom right. New saves open the green-arrow tutorial; existing players can choose Settings → Replay tutorial. The normal Godot project ZIP is for editing/F5 and is not the file to upload as a browser game.
 
 No progress reset is needed for this update. Keep the same itch.io project so existing browser saves remain associated with the same game page.
+
+Logic Lab is under **Games / Quizzes → Open Logic Lab** in both builds. Confirm the browser shows v1.4.0 before testing the new activity.

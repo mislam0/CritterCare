@@ -1,10 +1,10 @@
 # CritterCare
 
-**Release 1.3.0 · Guided first play**
+**Release 1.4.0 · Pip's Logic Lab**
 
 A complete, offline 2D pet-care game that teaches beginner programming through play. Meet Pip, a little hamster with a lot of curiosity.
 
-![CritterCare home screen](docs/preview.png)
+![Pip's Logic Lab](docs/logic-lab-preview.png)
 
 ## Project abstract
 
@@ -26,9 +26,19 @@ On Windows, you can also drag `project.godot` into Godot's Project Manager. Open
 
 ## Confirm you opened the update
 
-The bottom-right footer should say **v1.3.0 · Guided first play**. If it does not, that is an older copy of the game. Extract this download into a fresh folder and import the `project.godot` from that folder rather than launching a previous Project Manager entry. Updating the source folder does not update an already uploaded itch.io game: replace the browser upload with the new **CritterCare-itchio-v1.3.0.zip**, save the itch.io page, and reload it. This release is also supplied with versioned filenames so it is easy to identify the current download. New saves and Reset progress start the guided tour automatically. With an existing save, choose Settings → Replay tutorial to see it without losing progress.
+The bottom-right footer should say **v1.4.0 · Pip's Logic Lab**. If it does not, that is an older copy of the game. Extract this download into a fresh folder and import the `project.godot` from that folder rather than launching a previous Project Manager entry. Updating the source folder does not update an already uploaded itch.io game: replace the browser upload with the new **CritterCare-itchio-v1.4.0.zip**, save the itch.io page, and reload it. This release is also supplied with versioned filenames so it is easy to identify the current download. New saves and Reset progress start the guided tour automatically. With an existing save, choose Settings → Replay tutorial to see it without losing progress.
 
-## New: a first-play tutorial
+## New: Pip's Logic Lab
+
+Open **Games / Quizzes → Open Logic Lab** to build a program from instruction blocks and watch Pip follow it. There are **nine guided challenges** covering sequencing, repeats, IF/ELSE, AND/OR, variables, functions, parameters, lists, and nested loops. Everyone starts with the same easy first challenge. Kindergarten has three cards; higher levels unlock more through the existing learning path.
+
+Click/tap to add a block, drag or use arrows to reorder, then choose **Run** or **Step**. Pause and Stop / edit let you read and revise at your own pace. The highlighted instruction matches the animated practice Pip and changing numbers. Two- and three-visit challenges check that one program handles different starting situations. Hints explain mistakes; there are no retry penalties.
+
+Each first solution earns **25 gold + 2 berries**. Completions save permanently until Reset progress. Replays are free practice without repeat rewards. Practice actions do not spend real treats. Knowledge includes each new lesson and Pip's last successful walkthrough. See **[Logic Lab guide](docs/LOGIC_LAB.md)** for controls, challenge progression, and editing locations.
+
+![Pip's Logic Lab](docs/logic-lab-preview.png)
+
+## A first-play tutorial
 
 ![Green arrows guide the first-play tutorial](docs/tutorial-preview.png)
 
@@ -51,6 +61,7 @@ Existing saves from before this release retain their progress and open normally;
 | Feed Critter | Choose a berry, seed, or carrot from your inventory |
 | Games / Quizzes | Follow the learning path, practice earlier stages, and earn treats and coins |
 | Settings → Replay tutorial | Follow the green arrows through the basics again |
+| Games / Quizzes → Open Logic Lab | Build and run a program with Pip |
 | Games / Quizzes → Play Picnic Catch | Move Pip’s basket, catch snacks, and build streaks for gold |
 | Shop | Buy, equip, or unequip pet accessories and room decorations |
 | Knowledge | Revisit only the lessons you have already encountered |
@@ -64,7 +75,7 @@ Existing saves from before this release retain their progress and open normally;
 
 Pip breathes, blinks, looks toward the pointer, washes his face, reacts happily, chews snacks, dangles, leans in all four movement directions, falls, and settles after a landing. The animations are built from vector shapes and damped springs, so there is no sprite-sheet dependency. This is an animated spring-based ragdoll, implemented in GDScript; it does not require a physics-joint rig.
 
-The `···` button opens sound, gentler-movement, game-level, and reset settings. Gentler movement reduces swaying and breathing and removes landing bounce. **Reset progress** asks for confirmation, then clears discoveries, coins, purchases, equipped items, stage badges, scores, picnic records, wins, and care counts. It restores the starter treats and default room/Pip appearance, restarts the tutorial, and keeps comfort settings and the selected game level.
+The `···` button opens sound, gentler-movement, game-level, and reset settings. Gentler movement reduces swaying and breathing and removes landing bounce. **Reset progress** asks for confirmation, then clears discoveries, coins, purchases, equipped items, stage badges, scores, picnic records, Logic Lab completions, wins, and care counts. It restores the starter treats and default room/Pip appearance, restarts the tutorial, and keeps comfort settings and the selected game level.
 
 ## Care, rewards, and learning
 
@@ -77,11 +88,12 @@ There is no death, no game-over state, no real-money store, and no offline deter
 | Berry Detective | Sort 10 finds using `if / else`; the last five also require `AND`. Get at least 7 correct. | 5 berries + 2 seeds |
 | Loop Garden | Choose how many times a step repeats. Reach a star in each of 3 gardens. Wrong counts can be corrected and retried. | 4 berries + 3 seeds + 1 carrot |
 | Pip's Pop Quiz | Answer up to 5 shuffled questions drawn **only from discovered lessons**. Get at least 60% correct. | 2 berries per correct answer + 1 seed |
+| Logic Lab | Solve guided block-programming challenges. Run, step, and debug at your own pace. | 25 gold + 2 berries per first solution |
 | Picnic Catch | Move Pip’s basket to catch 10 snacks. No countdown or lost lives. | 20 gold + streak/seed bonuses; 3 berries + 1 seed |
 
 Quizzes explain mistakes, identify the correct answer, and lock each choice after it is submitted. Treats are awarded for wins. Coins are awarded once per completed activity, including attempts below the winning score. Leaving an unfinished activity grants no rewards. The games menu shows stage badges and your top three winning scores. Loop Garden scores start at 100 and decrease by 5 per extra attempt, with a minimum winning score of 60. Quiz and sorting scores are the percentage of correct answers. Picnic Catch records the best catch streak as a percentage of ten.
 
-**24 authored discoveries** include the original 12 care/game lessons, 11 concepts introduced along the learning path, and a new Picnic Catch input/output lesson. Home bubbles and new guided pages explain ideas in ordinary words before showing code. Quiz pools contain only lessons actually displayed, and later-stage quizzes focus on that stage's concepts. Every Knowledge entry starts with **Pip says**, containing the complete explanation Pip last gave for that lesson. Those words stay saved even if the learner changes game levels. The explanation and code follow in the same scrollable page. Older saves receive a complete fallback quote for discoveries made before dialogue recording was added.
+**33 authored discoveries** include the original 12 care/game lessons, 11 concepts introduced along the learning path, the Picnic Catch input/output lesson, and 9 Logic Lab lessons. Home bubbles and new guided pages explain ideas in ordinary words before showing code. Quiz pools contain only lessons actually displayed, and later-stage quizzes focus on that stage's concepts. Every Knowledge entry starts with **Pip says**, containing the complete explanation Pip last gave for that lesson. Those words stay saved even if the learner changes game levels. The explanation and code follow in the same scrollable page. Older saves receive a complete fallback quote for discoveries made before dialogue recording was added.
 
 Speech uses a readable fixed font and **Next**, **Back**, and **Done** controls. Long explanations split across pages, with no lost words or automatic timeout. Press Done to let the next queued lesson appear. Mini-game feedback and guided explanations also scroll when needed.
 
@@ -131,7 +143,7 @@ GDScript snippets in the book are deliberately simplified teaching examples of t
 
 ## Saved progress
 
-The game automatically saves inventory, needs, discoveries, care counts, wins, local scores, sound, gentler movement, the selected game level, coins, permanent purchases, equipped items, stage badges, the chosen practice stage, picnic best streak and completed rounds, tutorial completion, and the full encountered explanation for each lesson. Saves happen after important actions, every 30 seconds, and on focus loss/close. Live animation poses and unfinished mini-game rounds are not saved; Pip returns to his resting place when the game starts again.
+The game automatically saves inventory, needs, discoveries, care counts, wins, local scores, sound, gentler movement, the selected game level, coins, permanent purchases, equipped items, stage badges, the chosen practice stage, picnic best streak and completed rounds, Logic Lab completions, tutorial completion, and the full encountered explanation for each lesson. Saves happen after important actions, every 30 seconds, and on focus loss/close. Live animation poses and unfinished mini-game rounds are not saved; Pip returns to his resting place when the game starts again.
 
 The save is `user://crittercare_save.json`. On Windows, this is normally:
 
@@ -161,6 +173,9 @@ The browser build saves in that browser's storage for the game page. Browser and
 | `data/lessons.gd` | Every lesson, level-specific explanation, quiz question, and feedback style |
 | `assets/` | Included fonts, licenses, app icon, and original sound effects |
 | `scripts/tutorial.gd` | First-play/reset tour, green arrows, highlighted controls, and keyboard guidance |
+| `data/logic_lab.gd` | Block catalog, lab challenges, hints, and deterministic instruction execution |
+| `scripts/logic_lab_screen.gd` | Lab editor, drag/drop, visual playback, and practice Pip |
+| `tests/verify_lab.gd` | Logic Lab acceptance checks |
 | `scripts/picnic.gd` | Picnic Catch movement, falling snacks, collisions, and round state |
 | `tests/verify.gd` | Repeatable integration checks |
 | `docs/WORKSHOP.md` | A short workshop flow and concept discovery guide |
@@ -198,9 +213,10 @@ From the project folder, with Godot available as `godot`:
 ```sh
 godot --headless --editor --import --quit --path .
 godot --headless --path . --script res://tests/verify.gd -- --test-mode
+godot --headless --path . --script res://tests/verify_lab.gd -- --test-mode
 ```
 
-For rendered screenshots and actual pointer tests, run the second command without `--headless`, on a computer with a graphical display. You can add `--capture=/absolute/path/to/screenshots` after `--test-mode`. Always keep `--test-mode` when running the test script: it uses separate temporary save files. The tests do not modify a player's normal save.
+For rendered screenshots and actual pointer tests, run either test command without `--headless`, on a computer with a graphical display. You can add `--capture=/absolute/path/to/screenshots` after `--test-mode`. Always keep `--test-mode` when running the test script: it uses separate temporary save files. The tests do not modify a player's normal save.
 
 To build the itch.io ZIP from the command line, using **Godot 4.7.2**:
 
