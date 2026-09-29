@@ -18,7 +18,7 @@ func finish_lab(lab) -> void:
 
 func fit_labels(node: Node) -> Array[String]:
 	var problems: Array[String] = []
-	if node is Label and node.is_visible_in_tree() and node.clip_text and node.get_line_count() > node.get_visible_line_count():
+	if node is RichTextLabel and node.is_visible_in_tree() and not node.fit_content and node.get_content_height() > node.size.y + 0.5:
 		problems.append(str(node.text))
 	for child in node.get_children():
 		problems.append_array(fit_labels(child))
@@ -96,9 +96,9 @@ func run() -> void:
 	var berries: int = game.progress.inventory.berry
 	await finish_lab(lab)
 	check(not lab.report.success and game.progress.coins == coins and game.progress.inventory.berry == berries,"An unsuccessful attempt spends and awards no inventory or coins")
-	check(lab.feedback.text.contains("BEFORE"),"Pip explains the actual ordering mistake")
+	check(lab.feedback.words.contains("BEFORE"),"Pip explains the actual ordering mistake")
 	lab.hint_button.pressed.emit()
-	check(lab.feedback.text.contains("next tile"),"Hint gives a relevant clue without requiring a purchase")
+	check(lab.feedback.words.contains("next tile"),"Hint gives a relevant clue without requiring a purchase")
 	lab.row_controls[1][0].pressed.emit()
 	check(lab.program == ["right","feed"],"The up button reorders instructions")
 	lab.toggle_run()

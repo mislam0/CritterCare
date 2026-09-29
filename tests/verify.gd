@@ -260,14 +260,14 @@ func run() -> void:
 		game.open_knowledge(key)
 		await frames(2)
 		var body = game.overlay.get_node("JournalBody")
-		check(body.get_node("Content/PipQuote").text == str(game.progress.pip_quotes.get(key, game._lesson(key).bubble)) and not body.get_node("Content/PipQuote").clip_text, "Knowledge includes Pip’s complete words: " + key)
+		check(body.get_node("Content/PipQuote").words == str(game.progress.pip_quotes.get(key, game._lesson(key).bubble)) and body.get_node("Content/PipQuote").fit_content, "Knowledge includes Pip’s complete words: " + key)
 		if key in ["functions", "loops", "repeat"]:
 			await snap("journal-" + key)
 	game.close_modal()
 	for key in Lessons.ORDER:
 		game._show_lesson(key, false)
 		await frames(2)
-		check(game.speech_text.get_line_count() <= game.speech_text.get_visible_line_count(), "Every learning-bubble line is visible: " + key)
+		check(game.speech_text.content_fits(), "Every learning-bubble line is visible: " + key)
 		check(game.speech_title.size.y < 33, "Learning bubble heading fits: " + key)
 	game.speech_queue.clear()
 	game._show_lesson("idle", false)
@@ -484,7 +484,7 @@ func verify_readability() -> void:
 		root.size = window
 		await frames(3)
 		var wallet = game.ui.get_node("GoldBalance")
-		check(wallet is Panel and not game.ui.has_node("ShopTop") and game.coin_label.text == str(game.progress.coins), "Header shows the current gold balance without another Shop button")
+		check(wallet is Panel and not game.ui.has_node("ShopTop") and game.coin_label.words == str(game.progress.coins), "Header shows the current gold balance without another Shop button")
 		if graphical:
 			await click(wallet.get_global_rect().get_center() * (Vector2(window)/Vector2(1280,800)))
 			check(game.modal_name.is_empty(), "Clicking the gold balance does not open Shop")
@@ -512,26 +512,29 @@ func verify_readability() -> void:
 				errors.append(key + " lost text")
 			for page in range(game.speech_pages.size()):
 				game._show_speech_page(page)
-				if game.speech_text.get_line_count() > game.speech_text.get_visible_line_count():
+				if not game.speech_text.content_fits():
 					errors.append(key + " clipped")
-				if game.speech_text.get_theme_font_size("font_size") < 18:
+				if game.speech_text.get_theme_font_size("normal_font_size") < 18:
 					errors.append(key + " shrank")
 		check(errors.is_empty(), "Every " + level + " dialogue variant fits at readable size with no lost text: " + ", ".join(errors))
-	var long_quote = ("IF you pet me THEN happiness goes up. A variable remembers the new number. ").repeat(9) + "This is the final sentence."
+	var long_quote = ""
+	for visit in range(9):
+		long_quote += "Visit %d: IF you pet me THEN happiness goes up. A variable remembers the new number. " % (visit+1)
+	long_quote += "This is the final sentence."
 	game._say("A longer explanation", long_quote)
 	check(game.speech_pages.size() > 1 and "".join(game.speech_pages) == long_quote, "Long explanations paginate without dropping their ending")
-	var first: String = game.speech_text.text
+	var first: String = game.speech_text.words
 	game.speech_next.pressed.emit()
-	check(game.speech_page_index == 1 and game.speech_text.text != first, "Next advances to the next readable page")
+	check(game.speech_page_index == 1 and game.speech_text.words != first, "Next advances to the next readable page")
 	game.speech_back.pressed.emit()
-	check(game.speech_page_index == 0 and game.speech_text.text == first, "Back restores the previous page")
+	check(game.speech_page_index == 0 and game.speech_text.words == first, "Back restores the previous page")
 	game._process(120)
-	check(game.speech.visible and game.speech_page_index == 0 and game.speech_text.text == first, "Waiting cannot erase or interrupt unfinished speech")
+	check(game.speech.visible and game.speech_page_index == 0 and game.speech_text.words == first, "Waiting cannot erase or interrupt unfinished speech")
 	game.speech_queue.clear()
 	game.learn("parameters")
 	while game.speech_page_index < game.speech_pages.size()-1:
 		game.speech_next.pressed.emit()
-	check(game.speech_text.text.ends_with("This is the final sentence.") and game.speech_next.text == "Done", "Final speech page includes the full ending and a Done button")
+	check(game.speech_text.words.ends_with("This is the final sentence.") and game.speech_next.text == "Done", "Final speech page includes the full ending and a Done button")
 	game.speech_next.pressed.emit()
 	check(game.speech_key == "parameters", "Done presents the next queued lesson")
 	# Bubbles and their controls remain inside the room when Pip moves.
@@ -557,7 +560,7 @@ func verify_readability() -> void:
 	game.progress.game_level = "kindergarten"
 	game.open_knowledge("functions")
 	await frames(3)
-	check(game.overlay.get_node("JournalBody/Content/PipQuote").text == heard, "Knowledge keeps what Pip actually said after a level change")
+	check(game.overlay.get_node("JournalBody/Content/PipQuote").words == heard, "Knowledge keeps what Pip actually said after a level change")
 	await snap("readability-knowledge-quote")
 	var body = game.overlay.get_node("JournalBody")
 	body.scroll_vertical = 100000
@@ -580,7 +583,7 @@ func verify_readability() -> void:
 	# Existing saves without quotes still get a complete Pip says section.
 	game.progress.unlock("timer")
 	game.open_knowledge("timer")
-	check(game.overlay.get_node("JournalBody/Content/PipQuote").text == game._lesson("timer").bubble, "Older discoveries receive a full fallback quote without resetting progress")
+	check(game.overlay.get_node("JournalBody/Content/PipQuote").words == game._lesson("timer").bubble, "Older discoveries receive a full fallback quote without resetting progress")
 	game.close_modal()
 
 func picnic_drop(field, kind: String, caught: bool = true) -> void:
@@ -601,8 +604,8 @@ func verify_picnic() -> void:
 	var field = game.picnic
 	field.set_process(false)
 	check(field.stage == 0 and not field.running and field.items.is_empty(), "New College players also start with gentle berries, and nothing falls before Start")
-	var controls: Label = game.overlay.get_node("PicnicControls")
-	check(controls.get_line_count() <= controls.get_visible_line_count(), "Picnic control instructions are completely visible")
+	var controls = game.overlay.get_node("PicnicControls")
+	check(controls.content_fits(), "Picnic control instructions are completely visible")
 	await snap("picnic-ready")
 	game.picnic_start.pressed.emit()
 	check(field.running and field.items.size() == 1 and game.picnic_start.disabled, "Start begins one round and cannot be pressed twice")
@@ -736,7 +739,7 @@ func verify_picnic() -> void:
 	saved.load_progress()
 	check(saved.picnic_best == 10 and saved.picnic_rounds == 1 and saved.coins == game.progress.coins, "Picnic gold and records survive save and reload")
 	game.open_knowledge("picnic")
-	check(game.overlay.get_node("JournalBody/Content/PipQuote").text == game.progress.pip_quotes.picnic and game.progress.pip_quotes.picnic.contains("longest streak was 10"), "Knowledge includes Pip's complete picnic explanation and the last round's streak")
+	check(game.overlay.get_node("JournalBody/Content/PipQuote").words == game.progress.pip_quotes.picnic and game.progress.pip_quotes.picnic.contains("longest streak was 10"), "Knowledge includes Pip's complete picnic explanation and the last round's streak")
 	await snap("picnic-knowledge")
 	reset_for_checks()
 	check(game.progress.picnic_best == 0 and game.progress.picnic_rounds == 0 and game.progress.coins == 0, "Reset clears picnic records along with gold")
@@ -849,7 +852,7 @@ func verify_tutorial() -> void:
 				problems.append(tour.step_id()+" outside viewport")
 			if tour.card.get_global_rect().intersects(tour.target_rect):
 				problems.append(tour.step_id()+" card covers target")
-			if tour.heading.get_line_count() > tour.heading.get_visible_line_count():
+			if not tour.heading.content_fits():
 				problems.append(tour.step_id()+" clipped heading")
 			if tour.words.size.y > tour.words.get_parent().size.y+1:
 				problems.append(tour.step_id()+" needs text scrolling")
@@ -864,7 +867,7 @@ func verify_tutorial() -> void:
 	game.progress.fullness = 100
 	tour.step = 5
 	tour._enter_step()
-	check(not tour.next_button.disabled and tour.words.text.contains("Pip is full"), "Replaying with a full Pip offers a clear way past the feeding step")
+	check(not tour.next_button.disabled and tour.words.words.contains("Pip is full"), "Replaying with a full Pip offers a clear way past the feeding step")
 	await activate_tour_button(tour.skip_button)
 	check(not tour.active and game.progress.tutorial_completed, "Skip tutorial dismisses and saves completion")
 	check(game.ui.get_node("ShopNav").focus_mode == Control.FOCUS_ALL, "Finishing restores normal keyboard focus for home controls")

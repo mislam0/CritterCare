@@ -16,12 +16,12 @@ var lab_screen
 var lab_index: int = 0
 var tutorial
 var picnic
-var picnic_count: Label
-var picnic_streak: Label
-var picnic_hint: Label
+var picnic_count: UI.LearningText
+var picnic_streak: UI.LearningText
+var picnic_hint: UI.LearningText
 var picnic_pause: Button
 var picnic_start: Button
-var coin_label: Label
+var coin_label: UI.LearningText
 var shop_category: String = "pet"
 var shop_notice: String = "Earn coins by completing games. Buy once, equip whenever you like."
 var session_stage: int = 0
@@ -29,7 +29,7 @@ var loop_start: int = 0
 var loop_stride: int = 1
 var loop_inner: int = 0
 var loop_value: int = 0
-var loop_live_label: Label
+var loop_live_label: UI.LearningText
 var intro_keys: Array = []
 var intro_index: int = 0
 var intro_action: Callable
@@ -42,17 +42,17 @@ var overlay: Control
 var modal_name: String = ""
 var fullness_bar: ProgressBar
 var happiness_bar: ProgressBar
-var fullness_label: Label
-var happiness_label: Label
-var pocket_label: Label
-var discoveries_label: Label
-var status_label: Label
+var fullness_label: UI.LearningText
+var happiness_label: UI.LearningText
+var pocket_label: UI.LearningText
+var discoveries_label: UI.LearningText
+var status_label: UI.LearningText
 var journal_button: Button
 var speech: Panel
 var speech_tail: Polygon2D
-var speech_title: Label
-var speech_text: Label
-var speech_hint: Label
+var speech_title: UI.LearningText
+var speech_text: UI.LearningText
+var speech_hint: UI.LearningText
 var speech_click: Button
 var speech_full_text: String = ""
 var speech_pages: Array[String] = []
@@ -62,7 +62,7 @@ var speech_back: Button
 var speech_book: Button
 var speech_key: String = ""
 var speech_queue: Array = []
-var toast_label: Label
+var toast_label: UI.LearningText
 var toast_time: float = 0.0
 var save_time: float = 0.0
 var start_time: float = 0.0
@@ -72,7 +72,7 @@ var quiz_index: int = 0
 var quiz_score: int = 0
 var answer_locked: bool = false
 var quiz_answer_buttons: Array = []
-var game_feedback: Label
+var game_feedback: UI.LearningText
 var next_button: Button
 var sort_items: Array = []
 var sort_index: int = 0
@@ -85,8 +85,8 @@ var loop_step: int = 0
 var loop_clock: float = 0.0
 var loop_running: bool = false
 var loop_marker: Panel
-var loop_count_label: Label
-var loop_code_label: Label
+var loop_count_label: UI.LearningText
+var loop_code_label: UI.LearningText
 var loop_attempts: int = 0
 var loop_buttons: Array = []
 var session_rewarded: bool = false
@@ -259,7 +259,7 @@ func _process(delta: float) -> void:
 				loop_step += 1
 				loop_value += loop_stride
 			loop_marker.position.x = 258 + (loop_step + float(loop_inner) / loop_stride) * 116
-			loop_live_label.text = "Value: %d · %d completed %s" % [loop_value, loop_step, "groups" if session_stage == 3 else "repeats"]
+			loop_live_label.words = "Value: %d · %d completed %s" % [loop_value, loop_step, "groups" if session_stage == 3 else "repeats"]
 			_play_sound("step")
 			if loop_step >= loop_count:
 				_finish_loop_run()
@@ -296,12 +296,12 @@ func _notification(what: int) -> void:
 func _refresh_home() -> void:
 	fullness_bar.value = progress.fullness
 	happiness_bar.value = progress.happiness
-	fullness_label.text = "Fullness  %d" % roundi(progress.fullness)
-	happiness_label.text = "Happiness  %d" % roundi(progress.happiness)
-	coin_label.text = str(progress.coins)
-	pocket_label.text = "%d treats" % (progress.inventory.berry + progress.inventory.seed + progress.inventory.carrot)
-	discoveries_label.text = "%d / %d little discoveries" % [progress.discovered.size(), Lessons.ORDER.size()]
-	status_label.text = "Pip · " + (pip.direction if pip.is_held or pip.is_falling else ("snack time" if pip.eating_time > 0 else "feeling cozy"))
+	fullness_label.words = "Fullness  %d" % roundi(progress.fullness)
+	happiness_label.words = "Happiness  %d" % roundi(progress.happiness)
+	coin_label.words = str(progress.coins)
+	pocket_label.words = "%d treats" % (progress.inventory.berry + progress.inventory.seed + progress.inventory.carrot)
+	discoveries_label.words = "%d / %d little discoveries" % [progress.discovered.size(), Lessons.ORDER.size()]
+	status_label.words = "Pip · " + (pip.direction if pip.is_held or pip.is_falling else ("snack time" if pip.eating_time > 0 else "feeling cozy"))
 
 func _on_interaction(action: String) -> void:
 	match action:
@@ -350,7 +350,7 @@ func _show_lesson(key: String, is_new: bool = true) -> void:
 	_save()
 
 func _say(title: String, words: String, lesson_key: String = "") -> void:
-	speech_title.text = title
+	speech_title.words = title
 	speech_full_text = words
 	speech_key = lesson_key
 	speech_pages = _paginate_speech(words)
@@ -369,11 +369,10 @@ func _paginate_speech(words: String) -> Array[String]:
 		var fits = 1
 		while low <= high:
 			var middle = (low + high) / 2
-			speech_text.text = remaining.left(middle).strip_edges()
-			# Visible-line count includes theme line spacing, which multiplying
-			# font line height alone misses and can hide the final sentence.
-			# Query total lines first to refresh Godot's shaped-text cache.
-			if speech_text.get_line_count() <= speech_text.get_visible_line_count():
+			speech_text.words = remaining.left(middle).strip_edges()
+			# Measure the highlighted text, including bold word widths.
+			# Source slices stay plain; no markup can be split across pages.
+			if speech_text.content_fits():
 				fits = middle
 				low = middle + 1
 			else:
@@ -394,11 +393,11 @@ func _paginate_speech(words: String) -> Array[String]:
 
 func _show_speech_page(index: int) -> void:
 	speech_page_index = clampi(index, 0, speech_pages.size()-1)
-	speech_text.text = speech_pages[speech_page_index].strip_edges()
+	speech_text.words = speech_pages[speech_page_index].strip_edges()
 	speech_back.visible = speech_page_index > 0
 	speech_next.text = "Next →" if speech_page_index < speech_pages.size()-1 else "Done"
 	speech_book.visible = not speech_key.is_empty()
-	speech_hint.text = "%d / %d · Take your time. Tap Next or Done when ready." % [speech_page_index+1, speech_pages.size()]
+	speech_hint.words = "%d / %d · Take your time. Tap Next or Done when ready." % [speech_page_index+1, speech_pages.size()]
 
 func _advance_speech() -> void:
 	if speech_page_index < speech_pages.size()-1:
@@ -450,7 +449,7 @@ func _by_level(kid: String, middle: String, college: String) -> String:
 			return kid
 
 func _toast(message: String) -> void:
-	toast_label.text = message
+	toast_label.words = message
 	toast_time = 4.0
 
 func _save() -> void:
@@ -567,7 +566,7 @@ func open_knowledge(selected: String = "") -> void:
 	for key in Lessons.ORDER:
 		if not progress.discovered.has(key):
 			continue
-		var b = UI.button(list, _lesson(key).title, Rect2(0, 0, 285, 50), func(): open_knowledge(key), key == selected)
+		var b = UI.teaching_button(list, _lesson(key).title, Rect2(0, 0, 285, 50), func(): open_knowledge(key), key == selected)
 		b.custom_minimum_size = Vector2(285, 52)
 		b.add_theme_font_size_override("font_size", 17)
 		if key == selected:
@@ -600,7 +599,7 @@ func open_knowledge(selected: String = "") -> void:
 	UI.paragraph(content, "CODE EXAMPLE", 14, UI.MUTED)
 	var code = UI.paragraph(content, lesson.code, 16, UI.GREEN)
 	code.name = "Code"
-	code.add_theme_font_override("font", preload("res://assets/fonts/Code.ttf"))
+	UI.use_code_font(code)
 	UI.paragraph(content, "Simplified GDScript · the same idea used in Pip's behavior", 13, UI.MUTED)
 	_tutorial_notice("open_knowledge")
 
@@ -695,7 +694,7 @@ func open_logic_lab() -> void:
 		if not unlocked:
 			note = "Unlock learning stage %d in Games" % (mission.stage+1) if mission.stage > progress.unlocked_stage() else "Solve the previous Lab card first"
 		UI.label(overlay,note,Rect2(x+14,y+45,290,27),14,UI.MUTED)
-		var button = UI.button(overlay,"Practice again" if completed else ("Build a program" if unlocked else "Locked"),Rect2(x+14,y+81,289,37),func(): start_lab(i),unlocked)
+		var button = UI.teaching_button(overlay,"Practice again" if completed else ("Build a program" if unlocked else "Locked"),Rect2(x+14,y+81,289,37),func(): start_lab(i),unlocked)
 		button.name = "LabChallenge%d" % i
 		button.disabled = not unlocked
 
@@ -804,9 +803,9 @@ func _picnic_setup() -> void:
 func _refresh_picnic() -> void:
 	if modal_name != "picnic":
 		return
-	picnic_count.text = "Snacks  %d / %d" % [picnic.collected, Picnic.GOAL]
-	picnic_streak.text = "Streak  %d   ·   Best  %d" % [picnic.streak, picnic.best_streak]
-	picnic_hint.text = picnic.feedback
+	picnic_count.words = "Snacks  %d / %d" % [picnic.collected, Picnic.GOAL]
+	picnic_streak.words = "Streak  %d   ·   Best  %d" % [picnic.streak, picnic.best_streak]
+	picnic_hint.words = picnic.feedback
 
 func _finish_picnic(report: Dictionary) -> void:
 	if session_rewarded or modal_name != "picnic" or not is_instance_valid(picnic) or not picnic.completed:
@@ -882,7 +881,7 @@ func _quiz_question() -> void:
 	options.shuffle()
 	for i in range(options.size()):
 		var option: Dictionary = options[i]
-		var b = UI.button(overlay, "%s    %s" % [char(65+i), option.text], Rect2(174, 371+i*65, 932, 54), func(): _answer_quiz(option.correct, lesson.why))
+		var b = UI.teaching_button(overlay, "%s    %s" % [char(65+i), option.text], Rect2(174, 371+i*65, 932, 54), func(): _answer_quiz(option.correct, lesson.why), false, 20, true)
 		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		b.add_theme_font_size_override("font_size", 20)
 		b.set_meta("correct", option.correct)
@@ -906,11 +905,11 @@ func _answer_quiz(correct: bool, explanation: String) -> void:
 		if b.get_meta("correct"):
 			b.add_theme_stylebox_override("disabled", UI.style(Color("dcebd2"), 15, Color("8ba67a")))
 			b.add_theme_color_override("font_disabled_color", UI.GREEN)
-	game_feedback.text = _by_level(
+	game_feedback.words = _by_level(
 		("Yes! " if correct else "Not yet, but this is how we learn. ") + explanation,
 		("Correct. " if correct else "Debug moment. ") + explanation,
 		("Correct. " if correct else "Incorrect, but useful feedback. ") + explanation)
-	game_feedback.add_theme_color_override("font_color", UI.GREEN if correct else UI.ORANGE)
+	game_feedback.add_theme_color_override("default_color", UI.GREEN if correct else UI.ORANGE)
 	next_button.disabled = false
 	_play_sound("correct" if correct else "try")
 
@@ -997,10 +996,10 @@ func _answer_sort_choice(choice: int) -> void:
 		fact = "Food? %s. Spoiled? %s." % ["yes" if kind in ["berry", "blueberry", "spoiled_berry", "seed"] else "no", "yes" if kind == "spoiled_berry" else "no"]
 		if sort_index >= 5:
 			fact += " Fullness %d < 95? %s." % [Curriculum.fullness_for(sort_index), "yes" if Curriculum.fullness_for(sort_index)<95 else "no"]
-	game_feedback.text = ("Pip: You found it! " if correct else "Pip: Let's check together. ") + fact + " So choose: " + names[expected] + ". " + ("Follow the rule above one check at a time." if not correct else "")
-	game_feedback.add_theme_color_override("font_color", UI.GREEN if correct else UI.ORANGE)
+	game_feedback.words = ("Pip: You found it! " if correct else "Pip: Let's check together. ") + fact + " So choose: " + names[expected] + ". " + ("Follow the rule above one check at a time." if not correct else "")
+	game_feedback.add_theme_color_override("default_color", UI.GREEN if correct else UI.ORANGE)
 	next_button.disabled = false
-	_discover_in_game(Curriculum.sort_rule(session_stage, sort_index).id, Curriculum.sort_rule(session_stage, sort_index).words + "\n\n" + game_feedback.text)
+	_discover_in_game(Curriculum.sort_rule(session_stage, sort_index).id, Curriculum.sort_rule(session_stage, sort_index).words + "\n\n" + game_feedback.words)
 	_play_sound("correct" if correct else "try")
 
 func _next_sort() -> void:
@@ -1053,14 +1052,14 @@ func _loop_garden() -> void:
 	loop_buttons.append(UI.button(overlay, "+", Rect2(436, 473, 54, 48), func(): _change_loop(1)))
 	loop_code_label = UI.code(overlay, "", Rect2(549, 467, 552, 130), 17)
 	_update_loop_code()
-	loop_buttons.append(UI.button(overlay, "Run my loop  →", Rect2(178, 536, 312, 52), _run_loop, true))
+	loop_buttons.append(UI.teaching_button(overlay, "Run my loop  →", Rect2(178, 536, 312, 52), _run_loop, true, 19))
 	game_feedback = UI.scroll_text(overlay, _by_level(
 		"Count from START to the star. IF the number is right THEN the marker lands on the star.",
 		"Choose the repeat count, run it, then debug by comparing where it stopped.",
 		"Set the loop parameter, execute it, then compare expected position with actual position."), Rect2(178, 606, 920, 61), 19, UI.MUTED)
 	next_button = UI.button(overlay, "Next garden  →" if loop_round < 2 else "Collect rewards →", Rect2(788, 675, 312, 47), _next_loop, true)
 	if session_stage > 0:
-		game_feedback.text = "Pip: Each stone label shows the new total. Count %s to the star, then run your loop." % ("groups of inner steps" if session_stage == 3 else "repeats")
+		game_feedback.words = "Pip: Each stone label shows the new total. Count %s to the star, then run your loop." % ("groups of inner steps" if session_stage == 3 else "repeats")
 	next_button.visible = false
 
 func _change_loop(amount: int) -> void:
@@ -1070,12 +1069,12 @@ func _change_loop(amount: int) -> void:
 	_update_loop_code()
 
 func _update_loop_code() -> void:
-	loop_count_label.text = str(loop_count)
+	loop_count_label.words = str(loop_count)
 	match session_stage:
-		1: loop_code_label.text = "position = %d\nfor step in range(%d):\n    position += %d" % [loop_start, loop_count, loop_stride]
-		2: loop_code_label.text = "total = 0\nfor batch in range(%d):\n    add_seeds(%d) # total += %d" % [loop_count, loop_stride, loop_stride]
-		3: loop_code_label.text = "steps = [2, 3, 2]\nfor group in range(%d):\n    for step in range(steps[%d]):\n        move_one_step()" % [loop_count, loop_round]
-		_: loop_code_label.text = "for step in range(%d):\n    move_one_stone_right()" % loop_count
+		1: loop_code_label.words = "position = %d\nfor step in range(%d):\n    position += %d" % [loop_start, loop_count, loop_stride]
+		2: loop_code_label.words = "total = 0\nfor batch in range(%d):\n    add_seeds(%d) # total += %d" % [loop_count, loop_stride, loop_stride]
+		3: loop_code_label.words = "steps = [2, 3, 2]\nfor group in range(%d):\n    for step in range(steps[%d]):\n        move_one_step()" % [loop_count, loop_round]
+		_: loop_code_label.words = "for step in range(%d):\n    move_one_stone_right()" % loop_count
 
 func _loop_target_value() -> int:
 	return loop_start + loop_targets[loop_round] * loop_stride
@@ -1092,27 +1091,27 @@ func _run_loop() -> void:
 	loop_inner = 0
 	for b in loop_buttons:
 		b.disabled = true
-	game_feedback.text = _by_level(
+	game_feedback.words = _by_level(
 		"Running your loop... IF there is another repeat left THEN take one step.",
 		"Running your loop... each repeat runs move_one_stone_right() once.",
 		"Executing loop body... each iteration advances the marker by one state.")
 	if session_stage > 0:
-		game_feedback.text = "Pip: Start at %d. Each repeat adds %d to our stored number. Watch it change!" % [loop_start, loop_stride]
+		game_feedback.words = "Pip: Start at %d. Each repeat adds %d to our stored number. Watch it change!" % [loop_start, loop_stride]
 	if session_stage == 3:
-		game_feedback.text = "Pip: Every outer repeat runs all %d inner steps. Then the inner count starts again." % loop_stride
+		game_feedback.words = "Pip: Every outer repeat runs all %d inner steps. Then the inner count starts again." % loop_stride
 
 func _finish_loop_run() -> void:
 	loop_running = false
 	var reached = loop_value == _loop_target_value()
 	if reached:
-		game_feedback.text = _by_level(
+		game_feedback.words = _by_level(
 			"IF repeat is %d THEN I take %d steps. You reached the star!" % [loop_count, loop_step],
 			"%d repeats = %d steps. You reached the star!" % [loop_count, loop_step],
 			"%d iterations produced %d position updates. Target reached." % [loop_count, loop_step])
 		next_button.visible = true
 		_play_sound("correct")
 	else:
-		game_feedback.text = _by_level(
+		game_feedback.words = _by_level(
 			"You moved %d steps, but the star is %d steps away. IF the number is wrong THEN try a new number!" % [loop_step, loop_targets[loop_round]],
 			"You moved %d steps. The star is %d steps away. Change the repeat count and try again!" % [loop_step, loop_targets[loop_round]],
 			"Observed %d iterations, expected %d. Adjust the loop count and rerun." % [loop_step, loop_targets[loop_round]])
@@ -1120,9 +1119,9 @@ func _finish_loop_run() -> void:
 			b.disabled = false
 		_play_sound("try")
 	if session_stage > 0:
-		game_feedback.text = "Pip: Start %d + (%d repeats × %d each) = %d. " % [loop_start, loop_count, loop_stride, loop_value] + ("You reached the target!" if reached else "Our target is %d. Try changing the repeat count." % _loop_target_value())
-	game_feedback.add_theme_color_override("font_color", UI.GREEN if reached else UI.ORANGE)
-	_discover_in_game("repeat", game_feedback.text)
+		game_feedback.words = "Pip: Start %d + (%d repeats × %d each) = %d. " % [loop_start, loop_count, loop_stride, loop_value] + ("You reached the target!" if reached else "Our target is %d. Try changing the repeat count." % _loop_target_value())
+	game_feedback.add_theme_color_override("default_color", UI.GREEN if reached else UI.ORANGE)
+	_discover_in_game("repeat", game_feedback.words)
 
 func _next_loop() -> void:
 	if loop_running or loop_value != _loop_target_value() or not next_button.visible:

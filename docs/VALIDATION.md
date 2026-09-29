@@ -1,10 +1,20 @@
 # Validation
 
-Release **1.4.0 · Pip's Logic Lab** uses **Godot 4.7.2 stable** (`4.7.2.stable.official.ed1daf0bf`), standard GDScript, and the Compatibility renderer. The editable project and itch.io build share one source tree.
+Release **1.4.1 · Highlighted programming terms** uses **Godot 4.7.2 stable** (`4.7.2.stable.official.ed1daf0bf`), standard GDScript, and the Compatibility renderer. The editable project and itch.io build share one source tree.
 
 ## Current checks
 
-The Linux integration suite passed **317 headless checks** and **330 rendered checks**, with **zero failures**. The rendered run includes actual mouse input and captures the home screen, Shop categories, customized room and Pip, stage selection, new lessons, all added sorting/loop stages, quiz/results, Knowledge, and settings. A 960 × 600 window was also captured. The games menu includes the new Picnic Catch entry and retains the best-score display. Speech fit checks use the actual visible-line count, including Godot theme line spacing. The previous font-height-only check missed a clipped final line; this release fixes that calculation and paginates the complete text.
+The Linux integration suite passed **330 rendered checks**, Logic Lab passed **115 rendered checks**, and the highlighting suite passed **20 rendered checks**: **465 checks, zero failures**. These runs include actual mouse input, dragging, gameplay, rewards, save/reload, reset, tutorial behavior, every lesson's speech pagination, and layouts at 1280 × 800 and 960 × 600. Speech pagination now measures the rich text's actual shaped height, including bold term widths, before choosing each exact source slice.
+
+## Term highlighting
+
+- A shared whole-word vocabulary covers the tutorial, speech, Knowledge quotes/explanations/code, guided lessons, quiz questions/answers/feedback, mini-game rules and results, and live Logic Lab blocks/hints/trace messages.
+- Core terms work in all letter cases. Prose conjunctions remain plain unless explicitly capitalized as logic words. Code mode recognizes lowercase GDScript keywords and comparison/assignment operators.
+- Every lesson field and quiz answer preserves its exact plain source at all three Game levels. Literal BBCode, list/index brackets, indentation, Unicode, and line breaks remain visible. Saved quotes contain no presentation markup.
+- Every authored quiz question and choice was checked for fit across all Game levels. Real pointer input still activates answers through passive rich text. Existing Lab tests still cover actual dragging and row reordering.
+- The same bold dark lettering and soft yellow background identify terms; colors do not encode correct answers. Long code panels can scroll. Screenshots were inspected for speech, Knowledge, quiz, tutorial, Lab, and a small window.
+
+## Gameplay regression
 
 - Original petting, carrying, releasing, soft landings, feeding, needs, and lesson discovery still work.
 - All three game levels start at First steps. Kindergarten stays there, Middle–Highschool caps at Little recipes, and College reaches Code explorer.
@@ -32,7 +42,7 @@ The Linux integration suite passed **317 headless checks** and **330 rendered ch
 - Knowledge displays the exact captured explanation under Pip says. It remains available after a game-level change and a save/reload. Read with Pip replays the saved text.
 - The full Knowledge page, including its code example, is reachable by scrolling. Guided lesson and mini-game feedback areas also scroll instead of clipping long content.
 - Reset clears saved dialogue. Existing discoveries from saves without recorded dialogue receive a full fallback explanation, without requiring a reset.
-- The visible home-screen version marker identifies this release as v1.4.0.
+- The visible home-screen version marker identifies this release as v1.4.1.
 
 ## Picnic Catch
 
@@ -50,14 +60,14 @@ The Linux integration suite passed **317 headless checks** and **330 rendered ch
 - Fresh games automatically open a 15-step tour. Reset progress restarts it immediately and preserves Game level and comfort settings.
 - Real mouse clicks pet Pip, open the highlighted menus, feed exactly one treat, and read the full speech lesson. Real dragging moves Pip and the tour waits for his landing.
 - Arrows and green outlines track the live controls, including after Game level changes or Shop category switches. Input outside the highlighted target is blocked, and the tutorial card does not cover that target.
-- All tutorial text, cards, and targets fit at 1280 × 800 and 960 × 600. All tutorial text fits without scrolling. Screenshots cover first launch, petting, dragging, needs, feeding, speech, Knowledge, Shop, settings, and games.
+- All tutorial text, cards, and targets fit at 1280 × 800 and 960 × 600. Tutorial paragraphs grow inside their scroll area, so longer guidance stays reachable. Screenshots cover first launch, petting, dragging, needs, feeding, speech, Knowledge, Shop, settings, and games.
 - The final highlighted Picnic Catch entry ends the tutorial and starts the actual activity. Finishing or skipping saves completion; unfinished tours remain pending. Returning pre-tutorial saves retain their progress and can use Replay tutorial.
 - Replay does not reset care or inventory. A full pet, ongoing chewing, or empty pouch gives the feeding step a Next option. Shop browsing requires no purchases. Reset clears completion again.
 - Needs and ordinary queued dialogue wait during the tour. Normal keyboard focus is restored afterward. A test caught a focus-restoration hang caused by freed menu nodes; stable instance IDs and weak references now handle rebuilt menus safely.
 
 ## Logic Lab acceptance checks
 
-The separate Logic Lab suite passed **113 headless checks** and **115 rendered checks**, with zero failures. The rendered run exercises real pointer clicks and dragging, captures the editor and completed puzzles, and checks a 960 × 600 window.
+The separate Logic Lab suite passed **115 rendered checks**, with zero failures. The rendered run exercises real pointer clicks and dragging, captures the editor and completed puzzles, and checks a 960 × 600 window.
 
 - All nine challenge solutions and each authored starting visit execute successfully. Wrong instruction order, incorrect repeat counts, reversed branches, OR instead of AND, undefined function calls, skipped function calls, and incorrect nested groups produce specific retryable feedback.
 - Different valid solutions are accepted for movement, repeated addition, and parameter calls. The list puzzle requires visiting its values as well as reaching the target.
@@ -73,7 +83,7 @@ The separate Logic Lab suite passed **113 headless checks** and **115 rendered c
 
 The bundled official matching single-thread Web templates are used by the existing export helper. The updated game was exported successfully with the command-line wrapper. The final browser ZIP was checked for archive integrity, `index.html` at its root, nonempty engine/game files, and license notices. Logic Lab content, editor, execution, save changes, and lessons are included in the same export as the rest of the game.
 
-**Browser gameplay is not verified for this update.** The browser test launcher was blocked by this execution environment before it could open the game. Native rendering and a successful export do not establish browser save/reload, audio, iframe, or fullscreen behavior. Use the preview checklist in [ITCH_IO.md](ITCH_IO.md) on your itch.io page before publishing.
+**Browser gameplay is not verified for this update.** The prior browser test launcher was blocked by this execution environment before it could open the game; a browser playthrough was not repeated for this text-rendering update. Native rendering and a successful export do not establish browser save/reload, audio, iframe, or fullscreen behavior. Use the preview checklist in [ITCH_IO.md](ITCH_IO.md) on your itch.io page before publishing.
 
 ## Scope
 

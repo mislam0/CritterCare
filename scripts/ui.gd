@@ -9,6 +9,8 @@ const CREAM = Color("fffdf7")
 const ORANGE = Color("c4764b")
 const FONT = preload("res://assets/fonts/Nunito-SemiBold.ttf")
 const HEADING_FONT = preload("res://assets/fonts/Nunito-ExtraBold.ttf")
+const LearningText = preload("res://scripts/learning_text.gd")
+const CODE_FONT = preload("res://assets/fonts/Code.ttf")
 
 static func style(color: Color, radius: int = 18, border: Color = Color.TRANSPARENT, shadow: bool = false) -> StyleBoxFlat:
 	var s = StyleBoxFlat.new()
@@ -27,6 +29,10 @@ static func theme() -> Theme:
 	t.default_font = FONT
 	t.default_font_size = 19
 	t.set_color("font_color", "Label", INK)
+	t.set_color("default_color", "RichTextLabel", INK)
+	t.set_font("normal_font", "RichTextLabel", FONT)
+	t.set_font("bold_font", "RichTextLabel", HEADING_FONT)
+	t.set_constant("line_separation", "RichTextLabel", 0)
 	t.set_color("font_color", "Button", INK)
 	t.set_color("font_hover_color", "Button", INK)
 	t.set_color("font_pressed_color", "Button", INK)
@@ -48,28 +54,28 @@ static func panel(parent: Node, rect: Rect2, color: Color = CREAM, radius: int =
 	parent.add_child(p)
 	return p
 
-static func label(parent: Node, value: String, rect: Rect2, size: int = 20, color: Color = INK, center: bool = false) -> Label:
-	var l = Label.new()
+static func label(parent: Node, value: String, rect: Rect2, size: int = 20, color: Color = INK, center: bool = false) -> LearningText:
+	var l = LearningText.new()
 	# Establish wrapping width while the label is empty. Setting long text at
 	# width zero first creates an oversized minimum height in Godot's layout.
 	l.position = rect.position
 	l.size = rect.size
 	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	l.clip_text = true
 	# A clipped label needs room for at least one complete font line.
 	var font = HEADING_FONT if size >= 23 else FONT
 	while size > 10 and font.get_height(size) > rect.size.y - 1:
 		size -= 1
-	l.add_theme_font_size_override("font_size", size)
+	l.add_theme_font_size_override("normal_font_size", size)
+	l.add_theme_font_size_override("bold_font_size", size)
 	if size >= 23:
-		l.add_theme_font_override("font", HEADING_FONT)
-	l.add_theme_color_override("font_color", color)
+		l.add_theme_font_override("normal_font", HEADING_FONT)
+	l.add_theme_color_override("default_color", color)
 	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	if center:
 		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	parent.add_child(l)
-	l.text = value
+	l.words = value
 	return l
 
 static func button(parent: Node, value: String, rect: Rect2, action: Callable, primary: bool = false) -> Button:
@@ -88,21 +94,23 @@ static func button(parent: Node, value: String, rect: Rect2, action: Callable, p
 	parent.add_child(b)
 	return b
 
-static func paragraph(parent: Node, value: String, font_size: int = 18, color: Color = INK) -> Label:
+static func paragraph(parent: Node, value: String, font_size: int = 18, color: Color = INK) -> LearningText:
 	# Container-managed text grows vertically and is never clipped to a fixed height.
-	var l = Label.new()
+	var l = LearningText.new()
+	l.fit_content = true
 	l.size = Vector2(560, 40)
 	l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	l.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	l.add_theme_font_size_override("font_size", font_size)
-	l.add_theme_color_override("font_color", color)
+	l.add_theme_font_size_override("normal_font_size", font_size)
+	l.add_theme_font_size_override("bold_font_size", font_size)
+	l.add_theme_color_override("default_color", color)
 	parent.add_child(l)
-	l.text = value
+	l.words = value
 	return l
 
-static func scroll_text(parent: Node, value: String, rect: Rect2, font_size: int = 18, color: Color = INK) -> Label:
+static func scroll_text(parent: Node, value: String, rect: Rect2, font_size: int = 18, color: Color = INK) -> LearningText:
 	var scroll = ScrollContainer.new()
 	scroll.position = rect.position
 	scroll.size = rect.size
@@ -111,8 +119,28 @@ static func scroll_text(parent: Node, value: String, rect: Rect2, font_size: int
 	parent.add_child(scroll)
 	return paragraph(scroll, value, font_size, color)
 
-static func code(parent: Node, text: String, rect: Rect2, font_size: int = 19) -> Label:
+static func code(parent: Node, text: String, rect: Rect2, font_size: int = 19) -> LearningText:
 	panel(parent, rect, Color("edf0e6"), 14)
-	var l = label(parent, text, Rect2(rect.position + Vector2(20, 12), rect.size - Vector2(40, 24)), font_size, GREEN)
-	l.add_theme_font_override("font", preload("res://assets/fonts/Code.ttf"))
+	# A long example can grow inside its scroll area instead of losing lines.
+	var l = scroll_text(parent, text, Rect2(rect.position + Vector2(20, 12), rect.size - Vector2(40, 24)), font_size, GREEN)
+	use_code_font(l)
 	return l
+
+static func use_code_font(l: LearningText) -> void:
+	l.add_theme_font_override("normal_font", CODE_FONT)
+	l.add_theme_font_override("bold_font", CODE_FONT)
+	l.code_mode = true
+
+static func teaching_button(parent: Node, value: String, rect: Rect2, action: Callable, primary: bool = false, font_size: int = 17, left: bool = false) -> Button:
+	# The native button keeps focus, mouse/touch and keyboard activation.
+	# Its passive rich-text child never intercepts a click or drag.
+	var b = button(parent, "", rect, action, primary)
+	b.accessibility_name = value
+	var l = label(b, value, Rect2(14, 3, rect.size.x-28, rect.size.y-6), font_size, CREAM if primary else INK, not left)
+	l.name = "TeachingWords"
+	l.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	l.offset_left = 14
+	l.offset_right = -14
+	l.offset_top = 3
+	l.offset_bottom = -3
+	return b

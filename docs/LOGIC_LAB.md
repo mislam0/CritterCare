@@ -1,4 +1,4 @@
-# Pip's Logic Lab · v1.4.0
+# Pip's Logic Lab · v1.4.1
 
 Open **Games / Quizzes → Open Logic Lab**. Everyone begins with **A snack for Pip**.
 

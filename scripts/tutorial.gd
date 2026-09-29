@@ -11,7 +11,7 @@ const STEPS = [
 	{"id":"needs", "title":"How is Pip feeling?", "words":"Fullness shows how fed I am. Happiness shows how cheerful I feel. Petting and snacks help! GOLD is your money for the Shop. You earn it by playing games."},
 	{"id":"feed", "title":"Let's find a snack", "words":"Click Feed Critter at the bottom. This opens your treat pouch. You begin with berries, seeds, and carrots to share with me."},
 	{"id":"snack", "title":"Offer Pip one treat", "words":"Click the highlighted Offer one button. It spends one treat and raises my fullness. IF I have room AND you have that treat THEN I can eat it."},
-	{"id":"speech", "title":"Pip explains the why", "words":"My speech teaches the logic behind your actions. Click Next to read another page, then Done. Nothing disappears while you are reading. The full words are saved in Knowledge."},
+	{"id":"speech", "title":"Pip explains the why", "words":"My speech teaches the logic behind your actions. Highlighted words are coding ideas to notice. Click Next to read another page, then Done. Nothing disappears while you are reading. The full words are saved in Knowledge."},
 	{"id":"knowledge", "title":"Your learning book", "words":"Click Knowledge at the bottom. It keeps the lessons you have already met, so you can look them up whenever you want."},
 	{"id":"book", "title":"Read it again anytime", "words":"Each discovery includes Pip says, a plain explanation, and a code example. Scroll down to read it all. Read with Pip replays the complete explanation."},
 	{"id":"shop", "title":"Make this home yours", "words":"Click Shop at the bottom right. You can browse now, even with zero gold. Game rewards help you buy your favorite looks later."},
@@ -31,9 +31,9 @@ var target_rect = Rect2()
 var arrow_tip = Vector2.ZERO
 var blockers: Array[ColorRect] = []
 var card: Panel
-var heading: Label
-var words: Label
-var counter: Label
+var heading: UI.LearningText
+var words: UI.LearningText
+var counter: UI.LearningText
 var next_button: Button
 var skip_button: Button
 var skip_step: Button
@@ -101,15 +101,15 @@ func _enter_step() -> void:
 		game.speech_queue.erase("events")
 		game._show_lesson("events")
 	game.pip.blocked = id not in ["pet","carry","speech"] or not game.modal_name.is_empty()
-	counter.text = "PIP'S FIRST-PLAY TOUR  ·  %d / %d" % [step+1,STEPS.size()]
-	heading.text = STEPS[step].title
-	words.text = STEPS[step].words
+	counter.words = "PIP'S FIRST-PLAY TOUR  ·  %d / %d" % [step+1,STEPS.size()]
+	heading.words = STEPS[step].title
+	words.words = STEPS[step].words
 	var action_step = id in ["pet","carry","feed","snack","speech","knowledge","shop","settings","games"]
 	next_button.disabled = action_step
 	next_button.text = "Follow arrow" if action_step else ("Let's begin →" if id == "welcome" else ("Finish tour" if id == "activities" else "Next →"))
 	skip_step.visible = action_step
 	if id == "snack" and _snack_button().disabled:
-		words.text = "Pip is full, still chewing, or this pouch is empty. Feeding waits until he has room and you have a treat. Games earn more treats. Click Next to continue the tour."
+		words.words = "Pip is full, still chewing, or this pouch is empty. Feeding waits until he has room and you have a treat. Games earn more treats. Click Next to continue the tour."
 		next_button.disabled = false
 		next_button.text = "Next →"
 		skip_step.hide()

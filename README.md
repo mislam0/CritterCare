@@ -1,10 +1,10 @@
 # CritterCare
 
-**Release 1.4.0 · Pip's Logic Lab**
+**Release 1.4.1 · Highlighted programming terms**
 
 A complete, offline 2D pet-care game that teaches beginner programming through play. Meet Pip, a little hamster with a lot of curiosity.
 
-![Pip's Logic Lab](docs/logic-lab-preview.png)
+![Highlighted teaching terms in Pip’s speech](docs/highlights-preview.png)
 
 ## Project abstract
 
@@ -26,9 +26,17 @@ On Windows, you can also drag `project.godot` into Godot's Project Manager. Open
 
 ## Confirm you opened the update
 
-The bottom-right footer should say **v1.4.0 · Pip's Logic Lab**. If it does not, that is an older copy of the game. Extract this download into a fresh folder and import the `project.godot` from that folder rather than launching a previous Project Manager entry. Updating the source folder does not update an already uploaded itch.io game: replace the browser upload with the new **CritterCare-itchio-v1.4.0.zip**, save the itch.io page, and reload it. This release is also supplied with versioned filenames so it is easy to identify the current download. New saves and Reset progress start the guided tour automatically. With an existing save, choose Settings → Replay tutorial to see it without losing progress.
+The bottom-right footer should say **v1.4.1 · Pip's Logic Lab**. If it does not, that is an older copy of the game. Extract this download into a fresh folder and import the `project.godot` from that folder rather than launching a previous Project Manager entry. Updating the source folder does not update an already uploaded itch.io game: replace the browser upload with the new **CritterCare-itchio-v1.4.1.zip**, save the itch.io page, and reload it. This release is also supplied with versioned filenames so it is easy to identify the current download. New saves and Reset progress start the guided tour automatically. With an existing save, choose Settings → Replay tutorial to see it without losing progress.
 
-## New: Pip's Logic Lab
+## New: easier-to-notice teaching terms
+
+Programming ideas now use **bold, dark text on a soft yellow highlight** throughout Pip's speech, the Knowledge book, tutorial, lesson introductions, quiz questions and choices, mini-game rules and feedback, and Logic Lab blocks, hints, and live explanations. This includes IF, THEN, ELSE, Boolean, true/false, variables, loops, input/output, and the higher-stage concepts.
+
+Highlights appear automatically at every Game level. The same treatment applies to vocabulary in every quiz choice, independent of whether it is the correct answer. Ordinary lowercase “and”, “or”, “not”, and “for” in prose remain plain; explicit logic words and lowercase code keywords stand out. Highlighting uses both weight and a background, not color alone.
+
+Long speech is measured with the highlighted font before pagination. Knowledge and feedback remain scrollable, and long code examples now scroll too. Dialogue files and saved quotes remain plain text. See **[editing text and highlighting](docs/TEXT_HIGHLIGHTING.md)** to extend the vocabulary or change its appearance.
+
+## Pip's Logic Lab
 
 Open **Games / Quizzes → Open Logic Lab** to build a program from instruction blocks and watch Pip follow it. There are **nine guided challenges** covering sequencing, repeats, IF/ELSE, AND/OR, variables, functions, parameters, lists, and nested loops. Everyone starts with the same easy first challenge. Kindergarten has three cards; higher levels unlock more through the existing learning path.
 
@@ -214,6 +222,7 @@ From the project folder, with Godot available as `godot`:
 godot --headless --editor --import --quit --path .
 godot --headless --path . --script res://tests/verify.gd -- --test-mode
 godot --headless --path . --script res://tests/verify_lab.gd -- --test-mode
+godot --headless --path . --script res://tests/verify_highlights.gd -- --test-mode
 ```
 
 For rendered screenshots and actual pointer tests, run either test command without `--headless`, on a computer with a graphical display. You can add `--capture=/absolute/path/to/screenshots` after `--test-mode`. Always keep `--test-mode` when running the test script: it uses separate temporary save files. The tests do not modify a player's normal save.

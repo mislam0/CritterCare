@@ -32,10 +32,10 @@ var actor
 var actor_target = Vector2.ZERO
 var food_icon: Control
 var world: Panel
-var feedback: Label
-var stats: Label
-var visit_label: Label
-var progress_label: Label
+var feedback: UI.LearningText
+var stats: UI.LearningText
+var visit_label: UI.LearningText
+var progress_label: UI.LearningText
 var run_button: Button
 var step_button: Button
 var stop_button: Button
@@ -62,9 +62,11 @@ class BlockCard extends Button:
 	func _get_drag_data(_point: Vector2):
 		if lab.active or block_id.is_empty():
 			return null
-		var preview = Label.new()
-		preview.text = lab.Lab.BLOCKS[block_id].title
-		preview.add_theme_font_size_override("font_size",18)
+		var preview = Panel.new()
+		preview.size = Vector2(260,64)
+		preview.theme = lab.theme
+		preview.add_theme_stylebox_override("panel",lab.UI.style(lab.UI.CREAM,12))
+		lab.UI.label(preview,lab.Lab.BLOCKS[block_id].title,Rect2(10,4,240,56),16)
 		set_drag_preview(preview)
 		return {"lab":lab.get_instance_id(),"block":block_id,"row":row}
 	func _can_drop_data(_point: Vector2, data: Variant) -> bool:
@@ -177,7 +179,7 @@ func _card(parent: Node, id: String, rect: Rect2) -> BlockCard:
 		card.add_theme_stylebox_override("normal",UI.style(color,15,Color("d6dfce")))
 	parent.add_child(card)
 	var words = UI.label(card,Lab.BLOCKS[id].title if not id.is_empty() else "",Rect2(8,1,rect.size.x-16,rect.size.y-2),15)
-	words.add_theme_constant_override("line_spacing",0)
+	words.add_theme_constant_override("line_separation",0)
 	words.name = "Words"
 	card.tooltip_text = "Add: " + (Lab.BLOCKS[id].title if not id.is_empty() else "instruction")
 	return card
@@ -190,7 +192,7 @@ func refresh_blocks() -> void:
 		row_labels[i].visible = not filled
 		if filled:
 			row_cards[i].block_id = program[i]
-			row_cards[i].get_node("Words").text = Lab.BLOCKS[program[i]].title
+			row_cards[i].get_node("Words").words = Lab.BLOCKS[program[i]].title
 			row_cards[i].disabled = active
 		for j in range(3):
 			row_controls[i][j].visible = filled
@@ -246,23 +248,23 @@ func clear_program() -> void:
 func _program_changed() -> void:
 	highlighted = -1
 	_reset_world()
-	feedback.text = "Pip: %d of %d spaces used. I follow the blocks from top to bottom. What do you think will happen?" % [program.size(),Lab.MAX_BLOCKS]
+	feedback.words = "Pip: %d of %d spaces used. I follow the blocks from top to bottom. What do you think will happen?" % [program.size(),Lab.MAX_BLOCKS]
 	refresh_blocks()
 
 func show_hint() -> void:
-	feedback.text = "Pip's hint: " + mission.hints[mini(hint_index,mission.hints.size()-1)]
+	feedback.words = "Pip's hint: " + mission.hints[mini(hint_index,mission.hints.size()-1)]
 	hint_index += 1
 
 func begin_run() -> bool:
 	report = Lab.execute(mission,program)
 	if not report.valid:
-		feedback.text = report.message
+		feedback.words = report.message
 		return false
 	active = true
 	trace_index = 0
 	clock = 0
 	attempts += 1
-	progress_label.text = "Test %d · Follow the highlighted block. You can pause, step, or stop to edit." % attempts
+	progress_label.words = "Test %d · Follow the highlighted block. You can pause, step, or stop to edit." % attempts
 	_reset_world()
 	return true
 
@@ -284,7 +286,7 @@ func stop_run() -> void:
 	active = false
 	autoplay = false
 	highlighted = -1
-	feedback.text = "Pip: Stopped. Change any blocks, then run from the beginning. There is no penalty for trying!"
+	feedback.words = "Pip: Stopped. Change any blocks, then run from the beginning. There is no penalty for trying!"
 	refresh_blocks()
 
 func stop() -> void:
@@ -300,8 +302,8 @@ func advance_trace() -> void:
 	var current: Dictionary = report.trace[trace_index]
 	state = current.state.duplicate(true)
 	highlighted = current.row
-	feedback.text = "Pip: " + current.words
-	visit_label.text = "Visit %d of %d · %s" % [current.visit,mission.cases.size(),"testing" if current.action != "pass" else "works!"]
+	feedback.words = "Pip: " + current.words
+	visit_label.words = "Visit %d of %d · %s" % [current.visit,mission.cases.size(),"testing" if current.action != "pass" else "works!"]
 	if current.action == "setup":
 		actor.eating_time = 0
 		actor.happy_time = 0
@@ -323,28 +325,28 @@ func finish_run() -> void:
 	active = false
 	autoplay = false
 	highlighted = -1
-	feedback.text = "Pip: " + report.message
+	feedback.words = "Pip: " + report.message
 	if report.success:
-		progress_label.text = "Program complete! " + ("Already collected: practice as often as you like." if already_completed else "First solution: +25 gold and +2 berries.")
+		progress_label.words = "Program complete! " + ("Already collected: practice as often as you like." if already_completed else "First solution: +25 gold and +2 berries.")
 		next_button.show()
 		actor.happy_time = 2.0
 		solved_once = true
 		solved.emit(mission.id)
 		already_completed = true
 	else:
-		progress_label.text = "Let's debug together: change a block, use Hint, then try again. No gold or treats lost."
+		progress_label.words = "Let's debug together: change a block, use Hint, then try again. No gold or treats lost."
 	refresh_blocks()
 
 func _reset_world() -> void:
 	state = Lab.initial_state(mission.cases[0])
-	visit_label.text = "Visit 1 of %d · ready" % mission.cases.size()
+	visit_label.words = "Visit 1 of %d · ready" % mission.cases.size()
 	actor.eating_time = 0
 	actor.happy_time = 0
 	actor.floaties.clear()
 	_update_world(true)
 
 func _update_world(snap: bool = false) -> void:
-	stats.text = "Seeds in jar: %d\nGoal: exactly 6" % state.seeds if mission.bowl < 0 else "Fullness %d   ·   Happiness %d\nHungry: %s   ·   Berry: %s" % [state.fullness,state.happiness,"yes" if state.fullness < 60 else "no","yes" if state.has_food else "no"]
+	stats.words = "Seeds in jar: %d\nGoal: exactly 6" % state.seeds if mission.bowl < 0 else "Fullness %d   ·   Happiness %d\nHungry: %s   ·   Berry: %s" % [state.fullness,state.happiness,"yes" if state.fullness < 60 else "no","yes" if state.has_food else "no"]
 	food_icon.visible = mission.bowl >= 0 and state.has_food
 	seed_jar.count = state.seeds
 	seed_jar.queue_redraw()
