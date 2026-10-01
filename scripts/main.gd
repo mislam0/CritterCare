@@ -1271,7 +1271,7 @@ func open_shop() -> void:
 		open_shop(), shop_category == "room").name = "RoomCategory"
 	_add_icon(overlay, "coin", Rect2(899, 222, 35, 35))
 	UI.label(overlay, "%d coins" % progress.coins, Rect2(944, 219, 184, 44), 24, UI.GREEN)
-	var ids = Shop.ORDER.filter(func(id): return Shop.ITEMS[id].category == shop_category)
+	var ids = Shop.ids_for_category(shop_category)
 	for i in range(ids.size()):
 		var id: String = ids[i]
 		var item: Dictionary = Shop.ITEMS[id]
@@ -1280,11 +1280,21 @@ func open_shop() -> void:
 		var x = 153 + (i % 3) * 330
 		var y = 282 + (i / 3) * 197
 		UI.panel(overlay, Rect2(x, y, 315, 181), Color("e6efdf") if equipped else Color("f3eedf"), 18)
-		var art = CosmeticArt.new()
-		art.kind = id
-		art.position = Vector2(x+54, y+61)
-		art.scale = Vector2.ONE * 1.08
-		overlay.add_child(art)
+		var art: Node2D = null
+		if item.category == "pet":
+			var texture_path := Shop.pet_texture_path(id)
+			if not texture_path.is_empty():
+				var sprite := Sprite2D.new()
+				sprite.texture = load(texture_path)
+				art = sprite
+		else:
+			var vector_art := CosmeticArt.new()
+			vector_art.kind = id
+			art = vector_art
+		if art != null:
+			art.position = Vector2(x+54, y+61)
+			art.scale = Vector2.ONE * 1.08
+			overlay.add_child(art)
 		UI.label(overlay, item.name, Rect2(x+104, y+10, 199, 44), 19)
 		UI.label(overlay, item.description, Rect2(x+104, y+57, 195, 53), 15, UI.MUTED)
 		UI.label(overlay, "Equipped" if equipped else ("Owned" if owned else "%d coins" % item.price), Rect2(x+10, y+105, 295, 22), 15, UI.GREEN, true)

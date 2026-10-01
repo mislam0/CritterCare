@@ -5,6 +5,7 @@ extends Node2D
 signal interacted(action: String)
 
 const CosmeticArt = preload("res://scripts/cosmetic_art.gd")
+const Shop = preload("res://data/shop.gd")
 var costumes: Node2D
 var cosmetic_items: Dictionary = {}
 
@@ -48,8 +49,20 @@ func set_cosmetics(items: Dictionary) -> void:
 	costumes = Node2D.new()
 	add_child(costumes)
 	for slot in items:
-		var art = CosmeticArt.new()
-		art.kind = items[slot]
+		var item_id: String = items[slot]
+		var art: Node2D
+		if Shop.ITEMS.has(item_id) and Shop.ITEMS[item_id].category == "pet":
+			var texture_path := Shop.pet_texture_path(item_id)
+			if texture_path.is_empty():
+				push_warning("Missing cosmetic image: " + item_id)
+				continue
+			var sprite := Sprite2D.new()
+			sprite.texture = load(texture_path)
+			art = sprite
+		else:
+			var vector_art := CosmeticArt.new()
+			vector_art.kind = item_id
+			art = vector_art
 		art.position = {"head":Vector2(0,-109), "neck":Vector2(0,25), "face":Vector2(0,-46)}.get(slot, Vector2.ZERO)
 		art.scale = Vector2.ONE * (2.25 if slot == "face" else 1.65)
 		costumes.add_child(art)

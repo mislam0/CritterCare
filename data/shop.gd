@@ -16,6 +16,32 @@ const ITEMS = {
 }
 const ORDER = ["leaf_hat", "bow", "glasses", "scarf", "flower_hat", "crown", "rose_mat", "blue_mat", "peach_wall", "lantern", "night_wall", "bunting"]
 
+const PET_COSMETIC_IMAGE_DIR = "res://assets/cosmetics/pet/"
+
+static func pet_texture_path(id: String) -> String:
+	if not ITEMS.has(id) or ITEMS[id].category != "pet":
+		return ""
+	var slot: String = ITEMS[id].slot
+	for extension in ["png", "webp", "svg"]:
+		var path: String = PET_COSMETIC_IMAGE_DIR + slot + "/" + id + "." + str(extension)
+		if ResourceLoader.exists(path):
+			return path
+	return ""
+
+static func ids_for_category(category: String) -> Array:
+	var ids: Array = []
+	for id in ORDER:
+		if ITEMS.has(id) and ITEMS[id].category == category:
+			ids.append(id)
+	# New pet cosmetics do not need to be added to ORDER.
+	# Add the item data above and drop a same-named image into:
+	# assets/cosmetics/pet/<slot>/
+	if category == "pet":
+		for id in ITEMS:
+			if ITEMS[id].category == "pet" and not ids.has(id):
+				ids.append(id)
+	return ids
+
 static func slot_key(id: String) -> String:
 	if not ITEMS.has(id):
 		return ""
