@@ -1,10 +1,22 @@
 # Validation
 
-Release **1.4.1 · Highlighted programming terms** uses **Godot 4.7.2 stable** (`4.7.2.stable.official.ed1daf0bf`), standard GDScript, and the Compatibility renderer. The editable project and itch.io build share one source tree.
+Release **1.5.0 · Pip’s Snack Jam** uses **Godot 4.7.2 stable** (`4.7.2.stable.official.ed1daf0bf`), standard GDScript, and the Compatibility renderer. The editable project and itch.io build share one source tree.
 
 ## Current checks
 
-The Linux integration suite passed **330 rendered checks**, Logic Lab passed **115 rendered checks**, and the highlighting suite passed **20 rendered checks**: **465 checks, zero failures**. These runs include actual mouse input, dragging, gameplay, rewards, save/reload, reset, tutorial behavior, every lesson's speech pagination, and layouts at 1280 × 800 and 960 × 600. Speech pagination now measures the rich text's actual shaped height, including bold term widths, before choosing each exact source slice.
+The Linux integration suite passed **333 rendered checks**, Logic Lab passed **115**, term highlighting passed **20**, and Snack Jam passed **70**: **538 rendered checks, zero failures**. The main suite also passed **320 headless checks**. Rhythm testing includes a whole 52.8-second run driven by the actual audio stream rather than a forced clock; audio output used Godot’s Dummy driver in the test environment. These runs include actual mouse input, dragging, gameplay, rewards, save/reload, reset, tutorial behavior, every lesson's speech pagination, and layouts at 1280 × 800 and 960 × 600. Speech pagination now measures the rich text's actual shaped height, including bold term widths, before choosing each exact source slice.
+
+## Snack Jam
+
+- The exact bundled song length matches the chart’s 52.8 seconds. Chill, Standard, and Lively contain 40, 80, and 120 ordered notes, with no chords and progressively tighter windows. Full perfect and all-missed rounds finish correctly for each mode.
+- Boundary timing, late misses, wrong lanes, duplicate hits, extra taps, count-in practice, and clock jitter are checked against expected results. Completed scores cannot be modified.
+- The real Games button opens setup directly, without a lesson interruption. Rhythm settings stay independent of all three Game levels, and the timing offset clamps and persists.
+- Actual A/S/D key events, pointer clicks, and screen touches catch the correct notes. Repeated key echoes do not create hits; one touch does not generate a duplicate hit.
+- Pause freezes the active music stream, judgement, score, and chart. Resume keeps the same note position and releases audio only after its three-beat lead-in. Focus loss pauses the round. Leaving and restarting stop playback without paying unfinished rewards.
+- A perfect Chill performance pays exactly 40 gold, 2 berries, and 1 seed; an untouched completed chart pays 20 gold only. Thresholds at 70% and 90% are checked. Early and duplicate finish callbacks cannot pay. Rhythm play grants no curriculum badges.
+- Personal bests are independent by mode and cannot regress. Full result dialogue, records, and round counts survive save/reload. Version-7 saves retain older achievements and receive default rhythm preferences. Reset clears records and restarts the tutorial while keeping timing/mode preferences.
+- The dancing Pip wears equipped accessories. Gentler movement suppresses twirls and large bounces. Screenshots were inspected for the Games menu, setup, live notes, pause, results, Knowledge, and a 960 × 600 window; labels fit and long result dialogue scrolls.
+- The full original synthesized song and its reproducible generator are included. Native audio-clock timing was exercised; audible timing on real audio hardware and in browsers remains a device-level preview check.
 
 ## Term highlighting
 
@@ -36,13 +48,13 @@ The Linux integration suite passed **330 rendered checks**, Logic Lab passed **1
 ## Shop access and dialogue regression checks
 
 - The header is a noninteractive GOLD balance; clicking it does not open Shop. The bottom Shop button remains visible and clickable at 1280 × 800 and 960 × 600, including with zero gold. Native tests use actual pointer input at both sizes.
-- Every one of the 33 authored lessons is checked at all three explanation levels. Every displayed line fits at font size 18, and concatenating all pages reproduces the original text exactly.
+- Every one of the 34 authored lessons is checked at all three explanation levels. Every displayed line fits at font size 18, and concatenating all pages reproduces the original text exactly.
 - A much longer explanation also preserves its final sentence. Next and Back work, waiting does not dismiss an unfinished page, and Done advances the queued lesson.
 - Speech controls stay inside the room when Pip is moved to its corners or middle.
 - Knowledge displays the exact captured explanation under Pip says. It remains available after a game-level change and a save/reload. Read with Pip replays the saved text.
 - The full Knowledge page, including its code example, is reachable by scrolling. Guided lesson and mini-game feedback areas also scroll instead of clipping long content.
 - Reset clears saved dialogue. Existing discoveries from saves without recorded dialogue receive a full fallback explanation, without requiring a reset.
-- The visible home-screen version marker identifies this release as v1.4.1.
+- The visible home-screen version marker identifies this release as v1.5.0.
 
 ## Picnic Catch
 
@@ -81,9 +93,9 @@ The separate Logic Lab suite passed **115 rendered checks**, with zero failures.
 
 ## Web export
 
-The bundled official matching single-thread Web templates are used by the existing export helper. The updated game was exported successfully with the command-line wrapper. The final browser ZIP was checked for archive integrity, `index.html` at its root, nonempty engine/game files, and license notices. Logic Lab content, editor, execution, save changes, and lessons are included in the same export as the rest of the game.
+The bundled official matching single-thread Web templates are used by the existing export helper. The updated game was exported successfully with the command-line wrapper. The final browser ZIP was checked for archive integrity, `index.html` at its root, nonempty engine/game files, and license notices. Snack Jam’s controller, original song, chart, save changes, rewards, and lesson are included in the same export as the rest of the game. The separate browser ZIP is byte-identical to the copy inside the editable project package.
 
-**Browser gameplay is not verified for this update.** The prior browser test launcher was blocked by this execution environment before it could open the game; a browser playthrough was not repeated for this text-rendering update. Native rendering and a successful export do not establish browser save/reload, audio, iframe, or fullscreen behavior. Use the preview checklist in [ITCH_IO.md](ITCH_IO.md) on your itch.io page before publishing.
+**Browser gameplay is not verified for this update.** A fresh Chrome 154 binary reported its version correctly, but the browser test launcher exited with SIGSEGV before opening a page in this execution environment. Native rendering and a successful export do not establish browser save/reload, audio, iframe, or fullscreen behavior. Use the preview checklist in [ITCH_IO.md](ITCH_IO.md) on your itch.io page before publishing.
 
 ## Scope
 

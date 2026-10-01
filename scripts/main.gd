@@ -12,6 +12,9 @@ const Picnic = preload("res://scripts/picnic.gd")
 const Tutorial = preload("res://scripts/tutorial.gd")
 const Lab = preload("res://data/logic_lab.gd")
 const LabScreen = preload("res://scripts/logic_lab_screen.gd")
+const Jam = preload("res://data/snack_jam.gd")
+const SnackJam = preload("res://scripts/snack_jam.gd")
+var snack_jam
 var lab_screen
 var lab_index: int = 0
 var tutorial
@@ -118,7 +121,7 @@ func _ready() -> void:
 	if not progress.tutorial_completed:
 		start_tutorial()
 	elif progress.discovered.size() > 0:
-		_say("Welcome back!", "Your discoveries and purchases are saved. Try Pip's Logic Lab in Games / Quizzes: build a little program, then watch me follow your instructions!")
+		_say("Welcome back!", "Your discoveries and purchases are saved. Try Pip's Snack Jam in Games / Quizzes: tap along to a little song and watch me dance!")
 	else:
 		_say("Hello, I'm Pip!", "Click my head to pet me, or hold and drag to pick me up. Play games for coins, then tap Shop for hats and room decorations!")
 
@@ -161,7 +164,7 @@ func _build_home() -> void:
 	shop_nav.name = "ShopNav"
 	_style_shop_button(shop_nav)
 	UI.label(ui, "CLICK to pet  ·  HOLD + DRAG to carry  ·  ESC to return home", Rect2(70, 774, 845, 21), 12, UI.MUTED)
-	UI.label(ui, "v%s · Pip's Logic Lab" % ProjectSettings.get_setting("application/config/version"), Rect2(926, 774, 306, 21), 12, UI.MUTED)
+	UI.label(ui, "v%s · Pip's Snack Jam" % ProjectSettings.get_setting("application/config/version"), Rect2(926, 774, 306, 21), 12, UI.MUTED)
 	# Speech is created last so it floats above the room's labels.
 	speech = UI.panel(ui, Rect2(410, 181, 460, 205), UI.CREAM, 22, true)
 	speech.name = "PipSpeech"
@@ -465,6 +468,8 @@ func _play_sound(kind: String) -> void:
 		audio.play()
 
 func _screen(id: String, title: String, subtitle: String) -> Control:
+	if is_instance_valid(snack_jam):
+		snack_jam.stop()
 	if is_instance_valid(lab_screen):
 		lab_screen.stop()
 	if is_instance_valid(picnic):
@@ -493,6 +498,8 @@ func _screen(id: String, title: String, subtitle: String) -> Control:
 	return overlay
 
 func close_modal() -> void:
+	if is_instance_valid(snack_jam):
+		snack_jam.stop()
 	if is_instance_valid(lab_screen):
 		lab_screen.stop()
 	if is_instance_valid(picnic):
@@ -611,7 +618,7 @@ func _reveal_journal_entry(scroll: ScrollContainer, entry: Button) -> void:
 func open_games() -> void:
 	var stage = progress.active_stage()
 	var cap = Curriculum.max_stage(progress.game_level)
-	_screen("games", "Play, learn, and grow", Lessons.level_label(progress.game_level) + " · Everyone starts with the basics. No timers.")
+	_screen("games", "Play, learn, and grow", Lessons.level_label(progress.game_level) + " · Learn at your pace. Bonus games below!")
 	var picker = OptionButton.new()
 	picker.name = "StagePicker"
 	picker.position = Vector2(154, 224)
@@ -654,16 +661,17 @@ func open_games() -> void:
 		note = "You are at this level's final stage. Replay for practice, treats, and coins."
 	if stage > 0 and _stage_quiz_pool(stage).size() < 3:
 		note = "Play both games to meet this stage's ideas before taking its quiz."
-	UI.panel(overlay, Rect2(151, 618, 478, 78), Color("f5e5b7"), 18)
-	UI.label(overlay, "Picnic Catch", Rect2(169, 623, 228, 31), 23)
-	UI.label(overlay, "Catch snacks. Earn gold.", Rect2(170, 657, 226, 25), 15, UI.GREEN)
-	var picnic_button = UI.button(overlay, "Play Picnic Catch", Rect2(406, 634, 206, 45), start_picnic, true)
+	UI.panel(overlay, Rect2(151, 617, 317, 81), Color("f5e5b7"), 18)
+	UI.label(overlay, "Picnic Catch", Rect2(166, 621, 287, 28), 21,UI.INK,true)
+	var picnic_button = UI.button(overlay, "Play Picnic Catch", Rect2(166, 654, 287, 35), start_picnic, true)
 	picnic_button.name = "PlayPicnic"
 	picnic_button.tooltip_text = "Bonus activity · optional for stage badges"
-	UI.panel(overlay, Rect2(642,618,486,78), Color("e0eadb"),18)
-	UI.label(overlay,"Pip's Logic Lab",Rect2(660,623,244,31),23)
-	UI.label(overlay,"Build blocks. Run your program.",Rect2(661,657,249,25),14,UI.GREEN)
-	UI.button(overlay,"Open Logic Lab",Rect2(922,634,189,45),open_logic_lab,true).name = "PlayLogicLab"
+	UI.panel(overlay, Rect2(481,617,317,81), Color("e0eadb"),18)
+	UI.label(overlay,"Pip's Logic Lab",Rect2(496,621,287,28),21,UI.INK,true)
+	UI.button(overlay,"Open Logic Lab",Rect2(496,654,287,35),open_logic_lab,true).name = "PlayLogicLab"
+	UI.panel(overlay, Rect2(811,617,317,81), Color("eae1ee"),18)
+	UI.label(overlay,"NEW · Pip's Snack Jam",Rect2(826,621,287,28),21,UI.INK,true)
+	UI.button(overlay,"Play Snack Jam  ♪",Rect2(826,654,287,35),start_snack_jam,true).name = "PlaySnackJam"
 	var best: Array[String] = []
 	for record in progress.scores:
 		best.append("%s %d%%" % [record.mode, record.score])
@@ -673,7 +681,7 @@ func open_games() -> void:
 
 func _stage_quiz_pool(stage: int) -> Array:
 	var keys = progress.discovered.filter(func(key):
-		return Lessons.DATA.has(key) and ((key in Curriculum.STAGES[stage].keys if stage > 0 else (Lessons.ORDER.find(key) < 12 or key == "picnic")) or Lab.lesson_stage(key) == stage))
+		return Lessons.DATA.has(key) and ((key in Curriculum.STAGES[stage].keys if stage > 0 else (Lessons.ORDER.find(key) < 12 or key in ["picnic","snack_jam"])) or Lab.lesson_stage(key) == stage))
 	keys.shuffle()
 	return keys.slice(0, 5)
 
@@ -752,6 +760,61 @@ func start_picnic() -> void:
 	if session_stage >= 3:
 		keys.append("limits")
 	_begin_intro(keys, _picnic_setup)
+
+func start_snack_jam() -> void:
+	_tutorial_notice("start_activity")
+	_screen("snack_jam","Pip's Snack Jam","A little music, a little dancing · Finish for gold · Rhythm settings are separate from Game level.")
+	session_rewarded = false
+	snack_jam = SnackJam.new()
+	snack_jam.position = Vector2(154,218)
+	snack_jam.mode = progress.jam_mode
+	snack_jam.timing_offset_ms = progress.jam_offset_ms
+	snack_jam.sound_on = progress.sound
+	snack_jam.gentle = progress.calm
+	snack_jam.cosmetics = progress.cosmetics("pet")
+	snack_jam.best = progress.jam_best.duplicate(true)
+	snack_jam.finished.connect(_finish_snack_jam.bind(snack_jam))
+	snack_jam.preferences_changed.connect(func(mode,offset,sound_on):
+		progress.jam_mode = mode
+		progress.jam_offset_ms = offset
+		progress.sound = sound_on
+		_save())
+	overlay.add_child(snack_jam)
+
+func _finish_snack_jam(_report: Dictionary, source) -> void:
+	if session_rewarded or modal_name != "snack_jam" or not is_instance_valid(source) or source != snack_jam or not source.round_state.completed:
+		return
+	session_rewarded = true
+	var report: Dictionary = source.round_state.report()
+	var reward = Jam.prizes(report.accuracy)
+	progress.award_coins(reward.gold)
+	progress.record_jam(report.mode,report.accuracy,report.best_combo)
+	if report.accuracy >= 70:
+		progress.reward("Snack Jam",report.accuracy,reward.berries,reward.seeds)
+	else:
+		progress.happiness = minf(100,progress.happiness+4)
+	var words: String = _lesson("snack_jam").bubble + " This time, you caught %d of %d snacks. Our longest combo was %d." % [report.perfect+report.good,report.notes,report.best_combo]
+	_discover_in_game("snack_jam",words)
+	_save()
+	_refresh_home()
+	_screen("jam_result","Thanks for the jam!",Jam.SETTINGS[report.mode].name + " · " + Jam.SONG + " · Your rewards and personal best are saved.")
+	UI.panel(overlay,Rect2(154,223,974,129),Color("f5e5b7"),20)
+	UI.label(overlay,"+%d gold" % reward.gold,Rect2(176,236,291,49),35,UI.GREEN)
+	UI.label(overlay,"%d%% accuracy · Best combo %d" % [report.accuracy,report.best_combo],Rect2(474,237,632,46),27,UI.INK,true)
+	UI.label(overlay,"20 for finishing + %d accuracy bonus" % (reward.gold-20),Rect2(176,290,359,39),16,UI.GREEN)
+	UI.label(overlay,"Perfect %d · Nice %d · Missed %d · Extra taps %d" % [report.perfect,report.good,report.missed,report.extra_taps],Rect2(551,290,555,39),16,UI.INK,true)
+	var treats = "+%d berries" % reward.berries + (" + 1 seed" if reward.seeds>0 else "") if reward.berries>0 else "70% accuracy earns 2 berries; 90% adds a seed. Try any groove!"
+	UI.label(overlay,treats,Rect2(170,359,938,37),20,UI.GREEN,true)
+	UI.panel(overlay,Rect2(154,407,974,192),Color("e8eddf"),18)
+	UI.label(overlay,"PIP EXPLAINS · AFTER THE MUSIC",Rect2(177,416,928,29),14,UI.GREEN)
+	UI.scroll_text(overlay,words,Rect2(177,453,928,130),19).name = "JamPipQuote"
+	var best: Dictionary = progress.jam_best[report.mode]
+	UI.label(overlay,"Your %s best: %d%% · Longest combo: %d" % [Jam.SETTINGS[report.mode].name,best.accuracy,best.combo],Rect2(171,611,628,42),17,UI.GREEN)
+	UI.button(overlay,"Read in Knowledge",Rect2(828,615,278,39),func(): open_knowledge("snack_jam"))
+	UI.button(overlay,"Play again",Rect2(154,675,309,47),start_snack_jam,true).name = "JamReplay"
+	UI.button(overlay,"Visit the Shop",Rect2(485,675,309,47),open_shop)
+	UI.button(overlay,"More games",Rect2(816,675,309,47),open_games)
+	_play_sound("win")
 
 func _picnic_setup() -> void:
 	_screen("picnic", "Pip's Picnic Catch", "Catch 10 snacks · No countdown, no lost lives · A bonus game, separate from stage badges.")
@@ -1182,7 +1245,7 @@ func open_settings() -> void:
 	_screen("settings", "Make yourself comfortable", "A calm place to play, learn, and care for a tiny friend.")
 	UI.panel(overlay, Rect2(151, 221, 978, 109), Color("eef0e5"), 20)
 	UI.label(overlay, "Little sound effects", Rect2(181, 232, 625, 35), 24)
-	UI.label(overlay, "Soft clicks, happy chimes, and tiny footsteps.", Rect2(182, 276, 649, 30), 18, UI.MUTED)
+	UI.label(overlay, "Soft clicks, happy chimes, and Snack Jam music.", Rect2(182, 276, 649, 30), 18, UI.MUTED)
 	UI.button(overlay, "Sound: " + ("on" if progress.sound else "off"), Rect2(878, 251, 215, 50), func():
 		progress.sound = not progress.sound
 		_save()

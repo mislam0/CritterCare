@@ -18,8 +18,17 @@ const LEVEL_DESCRIPTIONS = {
 	"middle":"Start easy. Unlock two more stages with OR, NOT, comparisons, and reusable recipes.",
 	"college":"Start easy. Unlock all four stages, including lists, nested loops, and boundary checks."
 }
-const ORDER = ["idle", "events", "variables", "boolean", "vectors", "gravity", "condition", "functions", "loops", "timer", "and", "repeat", "or", "not", "comparison", "step_size", "elif", "parameters", "accumulator", "grouping", "lists", "nested", "limits", "picnic", "lab_sequence", "lab_repeat", "lab_branch", "lab_checks", "lab_counter", "lab_recipe", "lab_parameter", "lab_list", "lab_nested"]
+const ORDER = ["idle", "events", "variables", "boolean", "vectors", "gravity", "condition", "functions", "loops", "timer", "and", "repeat", "or", "not", "comparison", "step_size", "elif", "parameters", "accumulator", "grouping", "lists", "nested", "limits", "picnic", "lab_sequence", "lab_repeat", "lab_branch", "lab_checks", "lab_counter", "lab_recipe", "lab_parameter", "lab_list", "lab_nested", "snack_jam"]
 const DATA = {
+	"snack_jam": {
+		"tag":"INPUT & CONDITIONS", "title":"A little rhythm, a little logic", "trigger":"Finish a Snack Jam song",
+		"bubble":"IF you tap the matching pad when a snack reaches its ring THEN it counts as a hit and the combo goes up. ELSE a missed snack resets the combo. Your tap is input; my dance and the changing score are output!",
+		"body":"Input is something you tell the game to do, like pressing A, S, or D, or tapping a pad. Output is the response you can see or hear: Pip dances and the snack lights up.\n\nThe game checks two things: did you choose the matching lane, AND was your tap close enough to the note's time? That check is a condition. Its answer is a boolean: true means yes, false means no.\n\nA variable remembers a value. Combo remembers how many notes you have hit in a row. IF a hit succeeds THEN add 1 to combo. ELSE a missed note or an extra tap sets combo to 0. Previously caught snacks stay counted.\n\nPerfect hits earn full accuracy credit; Nice hits earn 70% credit. Missed notes earn none, and extra taps lower accuracy. Finish a song for 20 gold plus up to 20 accuracy bonus gold. At 70% accuracy, earn 2 berries; at 90%, also earn a seed. Chill, Standard, and Lively use separate best scores and the same reward thresholds. These rhythm choices do not change your learning stage.",
+		"code":"if correct_lane and on_time:\n    combo += 1\n    dance()\nelse:\n    combo = 0",
+		"question":"Pip's combo is 4. You hit the next matching snack on time. What happens?",
+		"choices":["The combo becomes 5", "The combo stays 4", "The combo becomes 0"], "answer":0,
+		"why":"A successful hit adds 1 to the stored combo: 4 + 1 = 5. The tap is input, and the updated combo and dance are output."
+	},
 	"lab_sequence":{"tag":"SEQUENCING","title":"My first program","trigger":"Open A snack for Pip in Logic Lab","bubble":"IF you press Run THEN I follow your blocks from top to bottom. A program is a list of instructions. Put Step right first, then Offer one berry. Order matters: I must reach my snack before I can eat it!","body":"An instruction tells Pip to do one thing. A sequence is the order of those instructions. Pip starts on tile 0; the next tile is 1.\n\nClick a block in the tray to add it to your program, or drag it into a space. Use the up and down arrows to reorder blocks, and the cross to remove one. There are five spaces. First, predict what Pip will do. Press Run to watch, or Step to follow one action at a time. Pause lets you read; Stop / edit lets you change the program.\n\nThis is a practice scene with its own berries and numbers. Trying does not spend your treats. IF an instruction is in the wrong place THEN move it and try again. Finding and fixing a mistake is called debugging.","code":"step_right()\noffer_berry()","question":"Pip is one step away from his berry. Which program works?","choices":["Step right, then offer the berry","Offer the berry, then step right","Offer the berry without moving"],"answer":0,"why":"Pip needs to be beside the berry before he can eat it. The order of instructions changes what happens."},
 	"lab_repeat":{"tag":"REPEATS","title":"One block, several steps","trigger":"Open Three tiny steps in Logic Lab","bubble":"IF a block says REPEAT 3 times THEN I do its action three times. That repeated action is called a loop. Repeat my step three times, then offer the berry. Watch one block light up while I take each little step!","body":"REPEAT means do the same action again. A loop avoids writing the same instruction many times. REPEAT 3: step right means step, step, step.\n\nThe next block waits until all three steps finish. Then Offer one berry can run. You can also use three separate Step right blocks; both programs can work. Choose blocks from the tray, reorder them with the arrows or by dragging, and press Run. Step and Pause let you take your time.","code":"for step in range(3):\n    step_right()\noffer_berry()","question":"A block repeats Step right 3 times. How many steps does Pip take?","choices":["3 steps","1 step","4 steps"],"answer":0,"why":"The repeat count is three, so the same action happens three times before the next block runs."},
 	"lab_branch":{"tag":"IF / ELSE","title":"One program, two visits","trigger":"Open Hungry or happy? in Logic Lab","bubble":"IF I am hungry THEN offer a berry. ELSE, which means otherwise, pet me. Hungry is a yes-or-no check: fullness below 60 means yes. Only one of these two actions runs. Try the same program with hungry Pip and already-fed Pip!","body":"A condition is a question with a yes or no answer. We call yes true and no false. Here hungry asks whether fullness is below 60. Fullness 30 gives yes; fullness 80 gives no.\n\nTHEN tells Pip what to do when the answer is yes. ELSE tells him what to do otherwise. The other action is skipped. The lab runs two separate visits with the same blocks, resetting its practice numbers before each visit. A program should work for both visits.\n\nChoose the rule block whose actions match the goal. Press Run, or Step through the check and its chosen action. There is no need to type code.","code":"if fullness < 60:\n    offer_berry()\nelse:\n    pet_pip()","question":"Fullness starts at 80. In IF hungry: feed; ELSE: pet, what happens?","choices":["The ELSE action pets Pip","The THEN action feeds Pip","Both actions happen"],"answer":0,"why":"80 is not below 60, so hungry is false. The ELSE action runs and the feeding action is skipped."},
@@ -134,6 +143,7 @@ const DATA = {
 }
 
 const IF_THEN = {
+	"snack_jam":"IF you tap the matching snack on time THEN the combo goes up and I dance. ELSE a missed snack resets the combo.",
 	"picnic":"IF you move the mouse or press a direction THEN my basket moves. IF it catches a snack THEN add one to our count.",
 	"idle":"IF I am being held THEN I dangle. ELSE I rest and breathe.",
 	"events":"IF your click lands on my head THEN the game runs pet().",
@@ -161,6 +171,7 @@ const IF_THEN = {
 }
 
 const SIMPLE_WORDS = {
+	"snack_jam":"Your tap is input: an action you give the game. My dance is output: its response. Combo is a variable that remembers a number.",
 	"picnic":"Input means your action. Output means what the game does because of it. A variable remembers a value, like our snack count!",
 	"idle":"A condition is just a yes-or-no question the game asks.",
 	"events":"An event means something happened, like a click.",
@@ -188,6 +199,7 @@ const SIMPLE_WORDS = {
 }
 
 const COLLEGE_NOTES = {
+	"snack_jam":"The lane check AND the timing check must both be true. The game compares the tap time with the note time, then updates the combo variable.",
 	"picnic":"The game checks whether a snack crosses the basket's height within its width. Each snack counts once; reaching 10 ends the round. The changing snack count is stored in a variable.",
 	"idle":"This is state-based animation selection: is_held controls which branch mutates the current animation state.",
 	"events":"This uses input handling: a mouse event is filtered by hit area, then dispatches the pet interaction.",

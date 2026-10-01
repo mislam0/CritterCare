@@ -35,6 +35,10 @@ var pickup_position = Vector2.ZERO
 var direction: String = "resting"
 var floaties: Array = []
 var last_pointer = Vector2.ZERO
+## Optional stage poses used by Snack Jam; ordinary care keeps these at zero.
+var stage_actor: bool = false
+var dance_pose: int = 0
+var dance_phase: float = 0.0
 
 func _ready() -> void:
 	last_pointer = get_global_mouse_position()
@@ -245,13 +249,16 @@ func _draw() -> void:
 	# The ground shadow stays on the floor when the hamster is lifted.
 	var height = FLOOR_Y - position.y
 	var shadow_width = 78.0 - minf(height * 0.12, 30.0)
-	ellipse(Vector2(0, FLOOR_Y - position.y + 85), Vector2(shadow_width, 12), Color(0.25, 0.28, 0.18, 0.15))
+	if not stage_actor:
+		ellipse(Vector2(0, FLOOR_Y - position.y + 85), Vector2(shadow_width, 12), Color(0.25, 0.28, 0.18, 0.15))
 	draw_set_transform(Vector2(0, -breath * 30), lean, Vector2(1 + squish + breath, 1 - squish - breath))
 	# Tail, body and dangling feet.
 	ellipse(Vector2(77, 47), Vector2(17, 15), pink, ink)
 	var dangle = 11.0 if is_held or is_falling else 0.0
 	for side in [-1, 1]:
 		var foot = Vector2(side * 43 + paw_angle * 22, 75 + dangle)
+		if dance_pose > 0 and not calm:
+			foot.y -= maxf(0,sin(dance_phase*TAU+side*PI/2))*13
 		if is_held:
 			draw_line(Vector2(side * 40, 53), foot, fur.darkened(0.08), 17, true)
 		ellipse(foot, Vector2(24, 13 if not is_held else 19), pink, ink)
@@ -298,7 +305,13 @@ func _draw() -> void:
 	# Paws: dangling, tucked, washing, or holding the current snack.
 	for side in [-1, 1]:
 		var hand = Vector2(side * 70, 33)
-		if is_held or is_falling:
+		if dance_pose == 1:
+			hand = Vector2(side*lerpf(16,58,(sin(dance_phase*TAU)+1)/2),9)
+		elif dance_pose == 2:
+			hand = Vector2(side*75,-22+(0 if calm else sin(dance_phase*TAU+side)*18))
+		elif dance_pose == 3:
+			hand = Vector2(side*86,-9)
+		elif is_held or is_falling:
 			hand += Vector2(paw_angle * 28, 15 + side * paw_angle * 8)
 		elif eating_time > 0:
 			hand = Vector2(side * 17, 9 + chew * 3)
