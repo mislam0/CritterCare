@@ -232,3 +232,45 @@ static func execute(mission: Dictionary, program: Array) -> Dictionary:
 	if report.success:
 		report.message = "Your program works for %s! You gave instructions, tested them, and watched what changed." % ("this visit" if mission.cases.size() == 1 else "all %d visits" % mission.cases.size())
 	return report
+
+static func present_mission(source: Dictionary, level: String) -> Dictionary:
+	var result = source.duplicate(true)
+	if level == "kindergarten":
+		match result.id:
+			"delivery":
+				result.goal = "Step to my berry. THEN offer it!"
+				result.hints = ["My berry is on the next tile.","Step right first. THEN offer the berry."]
+			"repeats":
+				result.goal = "Take 3 steps. THEN offer my berry!"
+				result.hints = ["My berry is 3 little steps away.","Use REPEAT 3. THEN offer a berry."]
+			"choice":
+				result.goal = "IF hungry: feed. ELSE: pet. Try both visits!"
+				result.hints = ["Below 60 means hungry. 30: yes. 80: no.","IF hungry: berry. ELSE: pet. Pick that block!"]
+	return result
+
+static func short_error(words: String, mission: Dictionary) -> String:
+	if words.contains("BEFORE"): return "Move to tile %d BEFORE offering the berry." % mission.bowl
+	if words.contains("edge"): return "Too far! Try fewer steps."
+	if words.contains("no berry"): return "No berry here. Try petting Pip!"
+	if words.contains("between 1"): return "Add 1 to 5 blocks. THEN press Run!"
+	if words.contains("tray"): return "Use the blocks on this card."
+	if mission.id == "choice": return "Hungry Pip needs food. Full Pip needs a pet. Try IF / ELSE!"
+	if mission.id in ["delivery","repeats"]: return "Reach tile %d. THEN offer one berry. Try again!" % mission.bowl
+	return words
+
+static func present_report(source: Dictionary, mission: Dictionary, level: String) -> Dictionary:
+	var result = source.duplicate(true)
+	if level != "kindergarten": return result
+	result.message = "Your plan works for every visit. Hooray!" if result.success else short_error(result.message,mission)
+	for item in result.trace:
+		var state: Dictionary = item.state
+		match item.action:
+			"setup": item.words = "Visit %d. %s Let's try our plan!" % [item.visit,"Hungry Pip." if state.fullness < 60 else "Pip has a full tummy."]
+			"right": item.words = "One step right! Now I am on tile %d." % state.position
+			"feed": item.words = "Munch! IF fed, THEN fullness grows to %d." % state.fullness
+			"pet": item.words = "IF you pet me, THEN happiness grows to %d!" % state.happiness
+			"check":
+				if mission.id == "choice": item.words = "Hungry? %s. %s goes next." % ["Yes" if state.fullness < 60 else "No","THEN" if item.words.contains("THEN") else "ELSE"]
+			"pass": item.words = "Visit %d works!" % item.visit
+			"error": item.words = short_error(item.words,mission)
+	return result

@@ -38,7 +38,7 @@ func run() -> void:
 	var tour = game.tutorial
 	tour.step = 1
 	tour._enter_step()
-	check_surface(tour.words,tour.STEPS[1].words,"Tutorial instructions highlight their IF / THEN explanation")
+	check_surface(tour.words,preload("res://data/game_text.gd").TOUR_KIDS.pet,"Tutorial instructions highlight their IF / THEN explanation")
 	await snap("highlight-tutorial")
 	tour.finish()
 	game.progress.save_path = "user://crittercare_highlight_acceptance.json"

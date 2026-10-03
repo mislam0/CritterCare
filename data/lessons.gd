@@ -1,4 +1,5 @@
 extends RefCounted
+const Language = preload("res://data/lesson_language.gd")
 ## Every quiz question belongs to one discoverable lesson. Snippets are
 ## simplified GDScript versions of the behavior in hamster.gd / save_data.gd.
 
@@ -14,9 +15,9 @@ const LEVEL_SHORT = {
 	"college":"College detail"
 }
 const LEVEL_DESCRIPTIONS = {
-	"kindergarten":"Pip explains slowly with IF ___ THEN ___ examples, plain words, and extra hints.",
-	"middle":"Start easy. Unlock two more stages with OR, NOT, comparisons, and reusable recipes.",
-	"college":"Start easy. Unlock all four stages, including lists, nested loops, and boundary checks."
+	"kindergarten":"Tiny ideas. Fun examples. Easy games. Read one little thought at a time!",
+	"middle":"Plain definitions first. More detail and three stages of guided practice.",
+	"college":"Start from zero. Deeper explanations and four stages of guided practice."
 }
 const ORDER = ["idle", "events", "variables", "boolean", "vectors", "gravity", "condition", "functions", "loops", "timer", "and", "repeat", "or", "not", "comparison", "step_size", "elif", "parameters", "accumulator", "grouping", "lists", "nested", "limits", "picnic", "lab_sequence", "lab_repeat", "lab_branch", "lab_checks", "lab_counter", "lab_recipe", "lab_parameter", "lab_list", "lab_nested", "snack_jam"]
 const DATA = {
@@ -142,90 +143,6 @@ const DATA = {
 	"limits": {"tag": "BOUNDARY CHECKS", "title": "Check the edge", "trigger": "Code explorer", "bubble": "IF fullness reaches 95 THEN skip the snack. A boundary is the exact point where a rule changes.", "body": "A boundary is a limit where a decision changes. Test just below the limit, exactly at it, and just above it. For fullness < 95, 94 passes, 95 fails, and 96 fails. Testing these edge cases helps find mistakes before players encounter them.", "code": "# fullness < 95\n# 94: true; 95: false\n# 96: false", "question": "Which set best checks the edge of the rule fullness < 95?", "choices": ["94, 95, and 96", "10, 20, and 30", "Only 0"], "answer": 0, "why": "94, 95, and 96 test below, at, and above the boundary where the answer changes."}
 }
 
-const IF_THEN = {
-	"snack_jam":"IF you tap the matching snack on time THEN the combo goes up and I dance. ELSE a missed snack resets the combo.",
-	"picnic":"IF you move the mouse or press a direction THEN my basket moves. IF it catches a snack THEN add one to our count.",
-	"idle":"IF I am being held THEN I dangle. ELSE I rest and breathe.",
-	"events":"IF your click lands on my head THEN the game runs pet().",
-	"variables":"IF you pet me THEN happiness becomes the old number plus 8.",
-	"boolean":"IF is_held is true THEN I follow your hand. IF it is false THEN I stand on my own.",
-	"vectors":"IF the mouse moves right THEN my x number grows. IF it moves down THEN my y number grows.",
-	"gravity":"IF you let go in the air THEN gravity pulls me down until the floor stops me.",
-	"condition":"IF I am hungry enough AND you have a treat THEN I can eat.",
-	"functions":"IF the game calls feed(kind) THEN it runs the snack recipe for that treat.",
-	"loops":"IF the chew loop has more repeats left THEN I chew again.",
-	"timer":"IF my quiet timer reaches its target THEN I clean my face.",
-	"and":"IF is_berry is true AND is_red is true THEN the find goes in the basket.",
-	"repeat":"IF repeat is 4 THEN the marker takes 4 steps.",
-	"or": "IF a find is a berry OR it is red THEN basket. OR needs at least one yes.",
-	"not": "IF a berry is NOT red THEN basket. NOT turns true into false and false into true.",
-	"comparison": "IF fullness is less than 95 THEN there is room for a snack. The < sign means less than.",
-	"step_size": "IF one repeat adds 2 THEN three repeats add 6. A variable remembers the new number each time.",
-	"elif": "IF it is a red berry THEN snack. ELSE IF it is another berry THEN save it. ELSE leave it.",
-	"parameters": "IF I call add_seeds(2) THEN the recipe adds 2 seeds. The number is an input to a reusable recipe.",
-	"accumulator": "IF a loop repeats THEN add this batch to total. An accumulator is a number that keeps a running total.",
-	"grouping": "IF (berry OR seed) AND NOT spoiled THEN basket. Parentheses keep the food checks together.",
-	"lists": "IF I need the first list item THEN I use index 0. A list keeps several values in order.",
-	"nested": "IF the outer loop repeats THEN run the whole inner loop again. Two groups of three steps make six steps.",
-	"limits": "IF fullness reaches 95 THEN skip the snack. A boundary is the exact point where a rule changes."
-}
-
-const SIMPLE_WORDS = {
-	"snack_jam":"Your tap is input: an action you give the game. My dance is output: its response. Combo is a variable that remembers a number.",
-	"picnic":"Input means your action. Output means what the game does because of it. A variable remembers a value, like our snack count!",
-	"idle":"A condition is just a yes-or-no question the game asks.",
-	"events":"An event means something happened, like a click.",
-	"variables":"A variable is a labeled box that stores a number or word.",
-	"boolean":"A boolean is a tiny switch with only true or false.",
-	"vectors":"A Vector2 is two position numbers: x and y.",
-	"gravity":"Velocity means speed and direction. Gravity changes the downward speed.",
-	"condition":"A condition is a check. The answer is true or false.",
-	"functions":"A function is a named recipe the game can reuse.",
-	"loops":"A loop repeats the same step instead of writing it many times.",
-	"timer":"A timer counts time until something should happen.",
-	"and":"AND means both checks must be true.",
-	"repeat":"A repeat count tells a loop how many times to run.",
-	"or": "",
-	"not": "",
-	"comparison": "",
-	"step_size": "",
-	"elif": "",
-	"parameters": "",
-	"accumulator": "",
-	"grouping": "",
-	"lists": "",
-	"nested": "",
-	"limits": ""
-}
-
-const COLLEGE_NOTES = {
-	"snack_jam":"The lane check AND the timing check must both be true. The game compares the tap time with the note time, then updates the combo variable.",
-	"picnic":"The game checks whether a snack crosses the basket's height within its width. Each snack counts once; reaching 10 ends the round. The changing snack count is stored in a variable.",
-	"idle":"This is state-based animation selection: is_held controls which branch mutates the current animation state.",
-	"events":"This uses input handling: a mouse event is filtered by hit area, then dispatches the pet interaction.",
-	"variables":"This is bounded state mutation: happiness is incremented and clamped so the invariant 0 <= happiness <= 100 holds.",
-	"boolean":"is_held is a boolean state flag used by movement, animation, and input flow.",
-	"vectors":"Position is represented by a 2D vector. The held critter interpolates toward the pointer to create soft motion.",
-	"gravity":"The falling behavior integrates velocity over time, then resolves contact with the floor using a damped bounce.",
-	"condition":"Feeding is gated by compound conditions, so inventory and fullness must both allow the action.",
-	"functions":"feed(kind) abstracts repeated snack behavior behind one callable routine with a treat-type parameter.",
-	"loops":"The chew animation is a finite repeated sequence. A loop expresses repeated work without duplicating code.",
-	"timer":"The timer accumulates delta time, making the behavior frame-rate independent.",
-	"and":"Logical AND shortens a decision that needs multiple true predicates before accepting an item.",
-	"repeat":"The loop count is an input-controlled parameter; debugging means comparing expected and observed state.",
-	"or": "OR needs at least one true check. The red button passes the red check.",
-	"not": "The blue berry passes is_berry. Its red check is false, so NOT red is true.",
-	"comparison": "Less than does not include equal. At exactly 95 the check is false.",
-	"step_size": "The stored value goes 1, 3, 5, 7. The starting value matters too.",
-	"elif": "An IF / ELIF / ELSE chain runs the first matching choice and skips the rest.",
-	"parameters": "The parameter amount receives 3, so the same recipe now adds 3 seeds.",
-	"accumulator": "The total keeps earlier additions: 3 + 3 + 3 + 3 = 12.",
-	"grouping": "The food group is true, but the freshness check is false. AND needs both parts.",
-	"lists": "Index 0 is first; index 1 is second. The second value is 3.",
-	"nested": "Each outer repeat runs all three inner steps: 2 groups times 3 steps = 6.",
-	"limits": "94, 95, and 96 test below, at, and above the boundary where the answer changes."
-}
-
 static func normalize_level(level: String) -> String:
 	return level if level in LEVELS else "kindergarten"
 
@@ -237,23 +154,17 @@ static func level_description(level: String) -> String:
 
 static func entry(key: String, level: String = "kindergarten") -> Dictionary:
 	var lesson = DATA[key].duplicate(true)
-	if key.begins_with("lab_"):
-		return lesson
-	if key in ["or", "not", "comparison", "step_size", "elif", "parameters", "accumulator", "grouping", "lists", "nested", "limits"]:
-		return lesson
 	var normalized = normalize_level(level)
+	var simple: Dictionary = Language.KIDS[key]
 	if normalized == "kindergarten":
-		lesson.bubble = IF_THEN[key] + " " + SIMPLE_WORDS[key]
-		lesson.body = IF_THEN[key] + "\n\n" + SIMPLE_WORDS[key] + " You can read it like a normal sentence before you read it like code.\n\n" + lesson.body
-		lesson.why = SIMPLE_WORDS[key] + " " + lesson.why
-	elif normalized == "middle":
-		lesson.bubble = IF_THEN[key] + " In code, this is " + lesson.tag.to_lower() + " controlling what happens next."
-		lesson.body = IF_THEN[key] + "\n\nRead the plain words first, then follow the code one line at a time. Each line describes a check, a stored value, or an action.\n\n" + lesson.body
-		lesson.why = "Think about which check is true. " + lesson.why
+		for field in simple: lesson[field] = simple[field]
 	else:
-		lesson.bubble = IF_THEN[key] + " " + COLLEGE_NOTES[key]
-		lesson.body = lesson.body + "\n\nCollege note: " + COLLEGE_NOTES[key]
-		lesson.why = COLLEGE_NOTES[key] + " " + lesson.why
+		# Everyone gets a definition before the longer worked example.
+		lesson.bubble = simple.bubble + "\n\n" + DATA[key].body
+		lesson.body = simple.body + "\n\n" + DATA[key].body
+		if normalized == "college":
+			lesson.body += "\n\n" + Language.COLLEGE[key]
+			lesson.bubble += "\n\n" + Language.COLLEGE[key]
 	return lesson
 
 static func quiz_pool(discovered: Array) -> Array:

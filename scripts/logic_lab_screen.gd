@@ -5,6 +5,8 @@ signal solved(challenge_id: String)
 signal back_requested
 signal next_requested
 
+const Text = preload("res://data/game_text.gd")
+var game_level: String = "kindergarten"
 const UI = preload("res://scripts/ui.gd")
 const Lab = preload("res://data/logic_lab.gd")
 const Hamster = preload("res://scripts/hamster.gd")
@@ -87,7 +89,7 @@ func _ready() -> void:
 	size = Vector2(974,518)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	UI.scroll_text(self,"YOUR GOAL · " + mission.goal,Rect2(0,0,974,56),20,UI.GREEN).name = "LabGoal"
-	progress_label = UI.label(self,"Click blocks to add them. Drag or use the arrows to change their order.",Rect2(0,60,974,29),16,UI.MUTED)
+	progress_label = UI.label(self,Text.line("lab_order",game_level),Rect2(0,60,974,29),16,UI.MUTED)
 	UI.label(self,"1. CHOOSE BLOCKS",Rect2(0,91,226,24),14,UI.GREEN)
 	UI.label(self,"2. YOUR PROGRAM · TOP TO BOTTOM",Rect2(238,91,354,24),14,UI.GREEN)
 	UI.label(self,"3. WATCH WHAT HAPPENS",Rect2(604,91,370,24),14,UI.GREEN)
@@ -146,9 +148,8 @@ func _ready() -> void:
 	actor.cosmetic_items = cosmetics
 	actor.scale = Vector2.ONE * 0.34
 	world.add_child(actor)
-	UI.label(world,"Practice Pip · your real treats are safe",Rect2(12,228,346,25),14,UI.MUTED,true)
-	UI.panel(self,Rect2(0,391,974,73),Color("f5eed9"),16)
-	feedback = UI.scroll_text(self,"Pip: A program is a list of instructions. Add blocks, predict what I will do, then press Run. Step lets you follow one small action at a time.",Rect2(14,397,946,61),17)
+	UI.label(world,Text.line("lab_safe",game_level),Rect2(12,228,346,25),14,UI.MUTED,true)
+	feedback = UI.feedback_text(self,Text.line("lab_edit",game_level),Rect2(0,387,974,83),18)
 	feedback.name = "LabFeedback"
 	UI.button(self,"Lab menu",Rect2(0,477,114,39),func(): back_requested.emit()).name = "LabBack"
 	hint_button = UI.button(self,"Hint",Rect2(123,477,76,39),show_hint)
@@ -248,23 +249,27 @@ func clear_program() -> void:
 func _program_changed() -> void:
 	highlighted = -1
 	_reset_world()
-	feedback.words = "Pip: %d of %d spaces used. I follow the blocks from top to bottom. What do you think will happen?" % [program.size(),Lab.MAX_BLOCKS]
+	UI.neutral_feedback(feedback)
+	feedback.words = "%d / %d blocks. " % [program.size(),Lab.MAX_BLOCKS] + Text.line("lab_edit",game_level)
 	refresh_blocks()
 
 func show_hint() -> void:
+	UI.neutral_feedback(feedback)
 	feedback.words = "Pip's hint: " + mission.hints[mini(hint_index,mission.hints.size()-1)]
 	hint_index += 1
 
 func begin_run() -> bool:
-	report = Lab.execute(mission,program)
+	report = Lab.present_report(Lab.execute(mission,program),mission,game_level)
 	if not report.valid:
 		feedback.words = report.message
+		UI.show_feedback(feedback,false)
 		return false
 	active = true
 	trace_index = 0
 	clock = 0
 	attempts += 1
-	progress_label.words = "Test %d · Follow the highlighted block. You can pause, step, or stop to edit." % attempts
+	UI.neutral_feedback(feedback)
+	progress_label.words = "Try %d · " % attempts + Text.line("lab_test",game_level)
 	_reset_world()
 	return true
 
@@ -286,7 +291,8 @@ func stop_run() -> void:
 	active = false
 	autoplay = false
 	highlighted = -1
-	feedback.words = "Pip: Stopped. Change any blocks, then run from the beginning. There is no penalty for trying!"
+	UI.neutral_feedback(feedback)
+	feedback.words = Text.line("lab_stopped",game_level)
 	refresh_blocks()
 
 func stop() -> void:
@@ -303,6 +309,8 @@ func advance_trace() -> void:
 	state = current.state.duplicate(true)
 	highlighted = current.row
 	feedback.words = "Pip: " + current.words
+	if current.action in ["pass","error"]: UI.show_feedback(feedback,current.action == "pass")
+	else: UI.neutral_feedback(feedback)
 	visit_label.words = "Visit %d of %d · %s" % [current.visit,mission.cases.size(),"testing" if current.action != "pass" else "works!"]
 	if current.action == "setup":
 		actor.eating_time = 0
@@ -326,6 +334,7 @@ func finish_run() -> void:
 	autoplay = false
 	highlighted = -1
 	feedback.words = "Pip: " + report.message
+	UI.show_feedback(feedback,report.success,"✓ PLAN WORKS!" if report.success else "✕ TRY AGAIN!")
 	if report.success:
 		progress_label.words = "Program complete! " + ("Already collected: practice as often as you like." if already_completed else "First solution: +25 gold and +2 berries.")
 		next_button.show()
@@ -334,7 +343,7 @@ func finish_run() -> void:
 		solved.emit(mission.id)
 		already_completed = true
 	else:
-		progress_label.words = "Let's debug together: change a block, use Hint, then try again. No gold or treats lost."
+		progress_label.words = Text.line("lab_retry",game_level)
 	refresh_blocks()
 
 func _reset_world() -> void:

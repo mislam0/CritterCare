@@ -1,10 +1,20 @@
 # Validation
 
-Release **1.5.0 · Pip’s Snack Jam** uses **Godot 4.7.2 stable** (`4.7.2.stable.official.ed1daf0bf`), standard GDScript, and the Compatibility renderer. The editable project and itch.io build share one source tree.
+Release **1.6.0 · Learn with Pip** uses **Godot 4.7.2 stable** (`4.7.2.stable.official.ed1daf0bf`), standard GDScript, and the Compatibility renderer. The editable project and itch.io build share one source tree.
 
 ## Current checks
 
-The Linux integration suite passed **333 rendered checks**, Logic Lab passed **115**, term highlighting passed **20**, and Snack Jam passed **70**: **538 rendered checks, zero failures**. The main suite also passed **320 headless checks**. Rhythm testing includes a whole 52.8-second run driven by the actual audio stream rather than a forced clock; audio output used Godot’s Dummy driver in the test environment. These runs include actual mouse input, dragging, gameplay, rewards, save/reload, reset, tutorial behavior, every lesson's speech pagination, and layouts at 1280 × 800 and 960 × 600. Speech pagination now measures the rich text's actual shaped height, including bold term widths, before choosing each exact source slice.
+The Linux integration suite passed **333 rendered checks**, Logic Lab **115**, term highlighting **20**, Snack Jam **70**, and the new feedback/audience/cooldown suite **69**: **607 rendered checks, zero failures**. Rhythm testing includes a full 52.8-second run driven by the actual audio stream; output used Godot's Dummy driver. Tests cover real mouse input, dragging, rewards, saving, reset, the tutorial, exact dialogue pagination, and 1280 × 800 / 960 × 600 layouts.
+
+## New feedback, audience, and cooldown checks
+
+- Wrong and correct quiz clicks produce the exact red/green colors, a bold heading at least 26 px on the design canvas, and colored answer choices. Sorting, loops, Lab programs, caught/missed picnic snacks, leaves, rhythm hits, extra taps, and missed notes have immediate outcomes.
+- All 34 beginner bubbles are at most 40 words; beginner explanations are at most 70. Timer questions test the explained time concept. Boolean values and Lab controls have plain definitions.
+- Game level chooses wording independently of stage unlocks. New Middle and College players still begin with easy game rules, while receiving their chosen explanation depth.
+- Measured pages preserve every character. Kindergarten splits speech into short newline-separated thoughts. Rich text remains plain in saved data; complete quotes and walkthroughs still appear in Knowledge.
+- Sixty-second boundaries are checked at 59,999 and 60,000 milliseconds since presentation. Duplicate queued lessons are rejected. Other concepts remain available. Shop reminders use their own keys. Reset clears timers and queued automatic messages.
+- Explicit reading remains available while a lesson is cooling down. Every answer still gets immediate feedback. Guided repeat introductions respect the same cooldown; ordinary game instructions remain visible.
+- Fixed labels across all three Game levels fit at both supported window sizes. Longer explanations scroll. Screenshots were inspected for incorrect/correct feedback in the quiz, sorting, loops, Lab, Picnic Catch, Snack Jam, Knowledge, and the beginner tutorial.
 
 ## Snack Jam
 
@@ -24,7 +34,7 @@ The Linux integration suite passed **333 rendered checks**, Logic Lab passed **1
 - Core terms work in all letter cases. Prose conjunctions remain plain unless explicitly capitalized as logic words. Code mode recognizes lowercase GDScript keywords and comparison/assignment operators.
 - Every lesson field and quiz answer preserves its exact plain source at all three Game levels. Literal BBCode, list/index brackets, indentation, Unicode, and line breaks remain visible. Saved quotes contain no presentation markup.
 - Every authored quiz question and choice was checked for fit across all Game levels. Real pointer input still activates answers through passive rich text. Existing Lab tests still cover actual dragging and row reordering.
-- The same bold dark lettering and soft yellow background identify terms; colors do not encode correct answers. Long code panels can scroll. Screenshots were inspected for speech, Knowledge, quiz, tutorial, Lab, and a small window.
+- The same bold dark lettering and soft yellow background identify terms; term highlighting stays distinct from the red/green answer feedback. Long code panels can scroll. Screenshots were inspected for speech, Knowledge, quiz, tutorial, Lab, and a small window.
 
 ## Gameplay regression
 
@@ -54,7 +64,7 @@ The Linux integration suite passed **333 rendered checks**, Logic Lab passed **1
 - Knowledge displays the exact captured explanation under Pip says. It remains available after a game-level change and a save/reload. Read with Pip replays the saved text.
 - The full Knowledge page, including its code example, is reachable by scrolling. Guided lesson and mini-game feedback areas also scroll instead of clipping long content.
 - Reset clears saved dialogue. Existing discoveries from saves without recorded dialogue receive a full fallback explanation, without requiring a reset.
-- The visible home-screen version marker identifies this release as v1.5.0.
+- The visible home-screen version marker identifies this release as v1.6.0.
 
 ## Picnic Catch
 
@@ -95,7 +105,7 @@ The separate Logic Lab suite passed **115 rendered checks**, with zero failures.
 
 The bundled official matching single-thread Web templates are used by the existing export helper. The updated game was exported successfully with the command-line wrapper. The final browser ZIP was checked for archive integrity, `index.html` at its root, nonempty engine/game files, and license notices. Snack Jam’s controller, original song, chart, save changes, rewards, and lesson are included in the same export as the rest of the game. The separate browser ZIP is byte-identical to the copy inside the editable project package.
 
-**Browser gameplay is not verified for this update.** A fresh Chrome 154 binary reported its version correctly, but the browser test launcher exited with SIGSEGV before opening a page in this execution environment. Native rendering and a successful export do not establish browser save/reload, audio, iframe, or fullscreen behavior. Use the preview checklist in [ITCH_IO.md](ITCH_IO.md) on your itch.io page before publishing.
+**Browser gameplay is not verified for this update.** A freshly downloaded and completely extracted Chrome 154.0.8037.97 binary reported its version correctly, but the Playwright browser launcher exited with SIGSEGV before opening a page in this execution environment. Native rendering and a successful export do not establish browser save/reload, audio, iframe, or fullscreen behavior. Use the preview checklist in [ITCH_IO.md](ITCH_IO.md) on your itch.io page before publishing.
 
 ## Scope
 

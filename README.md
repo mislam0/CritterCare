@@ -1,10 +1,22 @@
 # CritterCare
 
-**Release 1.5.0 · Pip’s Snack Jam**
+**Release 1.6.0 · Learn with Pip**
 
 A complete, offline 2D pet-care game that teaches beginner programming through play. Meet Pip, a little hamster with a lot of curiosity.
 
 ![Pip’s Snack Jam](docs/snack-jam-preview.png)
+
+## What changed in 1.6.0
+
+- Every incorrect quiz answer, sort, loop attempt, Lab plan, picnic catch/miss, and rhythm tap/miss gets bold **pure red** feedback. Correct attempts use **bright green**, with check/cross symbols and clear words as well as color.
+- All 34 lessons have short beginner versions. Kindergarten–Elementary gets small, playful thoughts, simple quiz wording, and plain-word rules. Middle–Highschool adds worked examples; College adds definitions and deeper explanations. All levels start from zero programming knowledge.
+- The selected **Game level** now controls teaching and game-screen wording even at the first stage. It still controls how far the existing learning path can grow. Snack Jam's Chill/Standard/Lively settings remain separate.
+- Repeated automatic lessons wait **60 seconds per concept** after display. Repeated Shop explanations are also limited. Other new concepts can still appear. Answer feedback, manual Knowledge reading, Hint, and the tutorial remain immediately available.
+- The same source powers F5 and the rebuilt itch.io ZIP. Existing saves keep their progress, purchases, and exact recorded Pip quotes. Reset clears queued reminders and starts the tutorial again.
+
+![Clear incorrect-answer feedback](docs/feedback-preview.png)
+
+See [Editing dialogue and feedback](docs/EDITING_TEXT.md) for the files to change in VS Code.
 
 ## Project abstract
 
@@ -26,7 +38,7 @@ On Windows, you can also drag `project.godot` into Godot's Project Manager. Open
 
 ## Confirm you opened the update
 
-The bottom-right footer should say **v1.5.0 · Pip’s Snack Jam**. If it does not, that is an older copy of the game. Extract this download into a fresh folder and import the `project.godot` from that folder rather than launching a previous Project Manager entry. Updating the source folder does not update an already uploaded itch.io game: replace the browser upload with the new **CritterCare-itchio-v1.5.0.zip**, save the itch.io page, and reload it. This release is also supplied with versioned filenames so it is easy to identify the current download. New saves and Reset progress start the guided tour automatically. With an existing save, choose Settings → Replay tutorial to see it without losing progress.
+The bottom-right footer should say **v1.6.0 · Learn with Pip**. If it does not, that is an older copy of the game. Extract this download into a fresh folder and import the `project.godot` from that folder rather than launching a previous Project Manager entry. Updating the source folder does not update an already uploaded itch.io game: replace the browser upload with the new **CritterCare-itchio-v1.6.0.zip**, save the itch.io page, and reload it. This release is also supplied with versioned filenames so it is easy to identify the current download. New saves and Reset progress start the guided tour automatically. With an existing save, choose Settings → Replay tutorial to see it without losing progress.
 
 ## New: Pip’s Snack Jam
 
@@ -192,7 +204,11 @@ The browser build saves in that browser's storage for the game page. Browser and
 | `data/curriculum.gd` | Stage availability, prerequisites, rules, and deterministic sort outcomes |
 | `data/shop.gd` | One catalog for prices, ownership validation, categories, and equipment slots |
 | `scripts/cosmetic_art.gd` | Shared vector artwork for Shop previews and equipped accessories |
-| `data/lessons.gd` | Every lesson, level-specific explanation, quiz question, and feedback style |
+| `data/lessons.gd` | Lesson identities, middle-level worked examples/questions, and level selection |
+| `data/lesson_language.gd` | Short beginner lessons, quiz questions, and College explanation extensions |
+| `data/game_text.gd` | Tutorial and game instructions for each Game level |
+| `scripts/teaching_cooldown.gd` | One-minute automatic lesson cooldown |
+| `tests/verify_feedback.gd` | Feedback colors, cooldowns, beginner wording, and layout checks |
 | `assets/` | Included fonts, licenses, app icon, and original sound effects |
 | `scripts/tutorial.gd` | First-play/reset tour, green arrows, highlighted controls, and keyboard guidance |
 | `data/logic_lab.gd` | Block catalog, lab challenges, hints, and deterministic instruction execution |
@@ -244,6 +260,7 @@ godot --headless --path . --script res://tests/verify.gd -- --test-mode
 godot --headless --path . --script res://tests/verify_lab.gd -- --test-mode
 godot --headless --path . --script res://tests/verify_highlights.gd -- --test-mode
 godot --headless --path . --script res://tests/verify_jam.gd -- --test-mode
+godot --headless --path . --script res://tests/verify_feedback.gd -- --test-mode
 ```
 
 For rendered screenshots and actual pointer tests, run a test command without `--headless`, on a computer with a graphical display. You can add `--capture=/absolute/path/to/screenshots` after `--test-mode`. Always keep `--test-mode` when running the test script: it uses separate temporary save files. The tests do not modify a player's normal save.

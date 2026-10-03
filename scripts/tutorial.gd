@@ -2,6 +2,7 @@ extends Control
 ## A guided tour of the real care UI. Clicks go through only at the green target.
 ## Progression follows actual game events; no purchases or rewards are simulated.
 
+const Text = preload("res://data/game_text.gd")
 const UI = preload("res://scripts/ui.gd")
 const GREEN = Color("29924c")
 const STEPS = [
@@ -103,13 +104,13 @@ func _enter_step() -> void:
 	game.pip.blocked = id not in ["pet","carry","speech"] or not game.modal_name.is_empty()
 	counter.words = "PIP'S FIRST-PLAY TOUR  ·  %d / %d" % [step+1,STEPS.size()]
 	heading.words = STEPS[step].title
-	words.words = STEPS[step].words
+	words.words = Text.TOUR_KIDS[id] if game.progress.game_level == "kindergarten" else STEPS[step].words
 	var action_step = id in ["pet","carry","feed","snack","speech","knowledge","shop","settings","games"]
 	next_button.disabled = action_step
 	next_button.text = "Follow arrow" if action_step else ("Let's begin →" if id == "welcome" else ("Finish tour" if id == "activities" else "Next →"))
 	skip_step.visible = action_step
 	if id == "snack" and _snack_button().disabled:
-		words.words = "Pip is full, still chewing, or this pouch is empty. Feeding waits until he has room and you have a treat. Games earn more treats. Click Next to continue the tour."
+		words.words = "No snack yet!\nPip needs tummy room and a treat.\nClick Next. We can feed him later!" if game.progress.game_level == "kindergarten" else "Pip may be full, chewing, or out of treats. Games earn more treats. Click Next to continue."
 		next_button.disabled = false
 		next_button.text = "Next →"
 		skip_step.hide()

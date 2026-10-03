@@ -4,7 +4,7 @@
 
 1. Create or edit your game project on itch.io.
 2. Set **Kind of project** to **HTML Game**.
-3. Upload **CritterCare-itchio-v1.5.0.zip** (the versioned download) or **CritterCare-itchio.zip** from this project’s `builds/` folder. Use the standalone download or the identical copy in the Godot project's `builds/` folder.
+3. Upload **CritterCare-itchio-v1.6.0.zip** (the versioned download) or **CritterCare-itchio.zip** from this project’s `builds/` folder. Use the standalone download or the identical copy in the Godot project's `builds/` folder.
 4. Mark that upload **This file will be played in the browser**.
 5. Choose **Embed in page**, with a **960 × 600** viewport, and enable the fullscreen button. The game also fits a 1280 × 800 canvas.
 6. Turn off **Click to Play** if you want the game to begin loading immediately when the page opens. Leave it on if you prefer an explicit launch button.
@@ -69,18 +69,22 @@ References: [itch.io HTML5 games](https://itch.io/docs/creators/html5) · [Godot
 
 ## Updating an existing page
 
-Replace the previous browser upload with this release's `CritterCare-itchio.zip` and save the itch.io page. Reload the embedded game. The home-screen footer should read **v1.5.0 · Pip’s Snack Jam**; if a different version appears, check that the new upload is the one selected for browser play and refresh the page. The top display is only your gold balance; Shop is at the bottom right. New saves open the green-arrow tutorial; existing players can choose Settings → Replay tutorial. The normal Godot project ZIP is for editing/F5 and is not the file to upload as a browser game.
+Replace the previous browser upload with this release's `CritterCare-itchio.zip` and save the itch.io page. Reload the embedded game. The home-screen footer should read **v1.6.0 · Learn with Pip**; if a different version appears, check that the new upload is the one selected for browser play and refresh the page. The top display is only your gold balance; Shop is at the bottom right. New saves open the green-arrow tutorial; existing players can choose Settings → Replay tutorial. The normal Godot project ZIP is for editing/F5 and is not the file to upload as a browser game.
 
 No progress reset is needed for this update. Keep the same itch.io project so existing browser saves remain associated with the same game page.
 
-Logic Lab is under **Games / Quizzes → Open Logic Lab** in both builds. Confirm the browser shows v1.5.0 before testing the new activity.
+Logic Lab is under **Games / Quizzes → Open Logic Lab** in both builds. Confirm the browser shows v1.6.0 before testing the new activity.
 
 ## Highlighting check (v1.4.1)
 
 Open a teaching bubble and confirm terms such as IF, THEN, Boolean, and true/false have bold dark text on a pale yellow background. Visit Knowledge, scroll to the code, and try a quiz and a Logic Lab block. Check the same styling in their explanations and answers. Use Next/Back to read a long speech lesson and verify its last sentence is present. Existing saves should retain their progress and complete quotes.
 
-## Snack Jam check (v1.5.0)
+## Snack Jam check (v1.6.0)
 
 Open Games / Quizzes → Play Snack Jam. Choose Chill and press Start song with a real click/tap so the browser can activate audio. Verify the four count-in beats, then catch snacks with A/S/D and with the pads. Test Music off/on, Space pause, three-beat resume, and switching tabs. Finish a whole song, check the gold/treat result and full Knowledge quote, then reload and confirm the selected mode, timing preference, and personal best remain. Try Standard and Lively as well, including in the 960 × 600 embed and fullscreen.
 
 The rhythm player uses streamed audio and the measured music clock to keep notes aligned. If your device’s notes consistently arrive behind the music, raise Timing before starting; if ahead, lower it. The adjustment changes by 20 ms and is saved. Bluetooth/audio hardware and browser performance can affect perceived timing; the preview check should include the devices you intend to use. Gentler movement limits Pip’s dancing without changing note timing.
+
+## Feedback and beginner wording check (v1.6.0)
+
+Confirm the footer says **v1.6.0 · Learn with Pip**. Try a wrong and a correct quiz answer, sort, loop count, and Lab program. Check for large bold red/green outcomes, plus words and symbols. In Picnic Catch, miss a snack and catch one; in Snack Jam, miss, tap early, and hit a note. Select Kindergarten–Elementary to see short instructions and thought-sized speech pages. Pick Pip up repeatedly: the same lesson should stay quiet for 60 seconds after it is shown. Knowledge → Read with Pip should still work during that delay. Change Game level to check explanation depth without resetting progress.

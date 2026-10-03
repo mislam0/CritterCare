@@ -212,8 +212,8 @@ func run() -> void:
 	game._run_loop()
 	game.close_modal()
 	check(not game.loop_running, "Closing a mini game cancels its active animation")
-	check(Lessons.entry("timer", "kindergarten").bubble.begins_with("IF my quiet timer reaches its target THEN"), "Starter level uses IF THEN teaching language")
-	check(Lessons.entry("timer", "college").body.contains("College note:"), "College level adds advanced lesson notes")
+	check(Lessons.entry("timer", "kindergarten").bubble.contains("IF quiet time is up, THEN"), "Starter level uses IF THEN teaching language")
+	check(Lessons.entry("timer", "college").body.contains("delta"), "College level adds advanced lesson notes")
 	game.open_settings()
 	await snap("11-settings")
 	game.progress.game_level = "middle"
@@ -739,7 +739,7 @@ func verify_picnic() -> void:
 	saved.load_progress()
 	check(saved.picnic_best == 10 and saved.picnic_rounds == 1 and saved.coins == game.progress.coins, "Picnic gold and records survive save and reload")
 	game.open_knowledge("picnic")
-	check(game.overlay.get_node("JournalBody/Content/PipQuote").words == game.progress.pip_quotes.picnic and game.progress.pip_quotes.picnic.contains("longest streak was 10"), "Knowledge includes Pip's complete picnic explanation and the last round's streak")
+	check(game.overlay.get_node("JournalBody/Content/PipQuote").words == game.progress.pip_quotes.picnic and game.progress.pip_quotes.picnic.contains("streak of 10 consecutive catches earned 20 bonus gold"), "Knowledge includes Pip's complete picnic explanation and the last round's streak")
 	await snap("picnic-knowledge")
 	reset_for_checks()
 	check(game.progress.picnic_best == 0 and game.progress.picnic_rounds == 0 and game.progress.coins == 0, "Reset clears picnic records along with gold")
@@ -867,7 +867,7 @@ func verify_tutorial() -> void:
 	game.progress.fullness = 100
 	tour.step = 5
 	tour._enter_step()
-	check(not tour.next_button.disabled and tour.words.words.contains("Pip is full"), "Replaying with a full Pip offers a clear way past the feeding step")
+	check(not tour.next_button.disabled and tour.words.words.contains("Click Next"), "Replaying with a full Pip offers a clear way past the feeding step")
 	await activate_tour_button(tour.skip_button)
 	check(not tour.active and game.progress.tutorial_completed, "Skip tutorial dismisses and saves completion")
 	check(game.ui.get_node("ShopNav").focus_mode == Control.FOCUS_ALL, "Finishing restores normal keyboard focus for home controls")

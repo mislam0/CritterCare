@@ -113,7 +113,7 @@ func run() -> void:
 	await finish_lab(lab)
 	check(lab.report.success and game.progress.coins == coins+25 and game.progress.inventory.berry == berries+2,"First working solution awards exactly 25 coins and two berries")
 	check(game.progress.lab_completed == ["delivery"] and game.progress.stage_badges.is_empty(),"Lab completion persists separately from curriculum badges")
-	check(game.progress.pip_quotes.lab_sequence.contains("fullness changes: 30 + 20 = 50"),"Knowledge records Pip's actual complete walkthrough")
+	check(game.progress.pip_quotes.lab_sequence.contains("fullness grows to 50"),"Knowledge records Pip's actual complete walkthrough")
 	await snap("lab-first-success")
 	await finish_lab(lab)
 	game._finish_lab("delivery")

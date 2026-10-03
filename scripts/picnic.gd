@@ -7,6 +7,9 @@ signal caught(kind: String)
 signal finished(report: Dictionary)
 signal pause_changed(value: bool)
 
+const Text = preload("res://data/game_text.gd")
+var game_level: String = "kindergarten"
+var last_outcome: int = 0
 const UI = preload("res://scripts/ui.gd")
 const Icon = preload("res://scripts/icon.gd")
 const Hamster = preload("res://scripts/hamster.gd")
@@ -46,6 +49,7 @@ class Basket extends Node2D:
 
 func _ready() -> void:
 	name = "PicnicField"
+	feedback = Text.line("picnic_ready",game_level)
 	clip_contents = true
 	focus_mode = Control.FOCUS_ALL
 	mouse_filter = Control.MOUSE_FILTER_STOP
@@ -70,7 +74,8 @@ func start() -> void:
 	if running or completed:
 		return
 	running = true
-	feedback = "Move under a berry. IF the basket catches it THEN add one snack!"
+	feedback = Text.line("picnic_start",game_level)
+	last_outcome = 0
 	spawn_item("berry", player_x)
 	grab_focus()
 	changed.emit()
@@ -195,7 +200,14 @@ func advance_items(delta: float) -> void:
 			if item.kind != "leaf":
 				misses += 1
 				streak = 0
-				feedback = "Missed one? That's okay! Keep your snacks and try the next berry."
+				feedback = Text.line("picnic_miss",game_level)
+				last_outcome = -1
+				_pop("✕ MISSED!",UI.INCORRECT)
+				changed.emit()
+			else:
+				feedback = Text.line("picnic_dodge",game_level)
+				last_outcome = 1
+				_pop("✓ LEAF LEFT!",UI.CORRECT)
 				changed.emit()
 			item.node.queue_free()
 			items.remove_at(i)
@@ -205,18 +217,20 @@ func resolve_catch(kind: String) -> void:
 		return
 	if kind == "leaf":
 		streak = 0
-		feedback = "A leaf! ELSE means otherwise: leave it. Your snacks and earned gold are safe."
-		_pop("Oops, a leaf!", UI.MUTED)
+		feedback = Text.line("picnic_leaf",game_level)
+		last_outcome = -1
+		_pop("✕ A LEAF!", UI.INCORRECT)
 	else:
+		last_outcome = 1
 		collected += 1
 		streak += 1
 		best_streak = maxi(best_streak, streak)
 		if kind == "seed":
 			seed_gold += 2
-			feedback = "Golden seed! IF it is a seed THEN add one snack AND two bonus gold."
+			feedback = "✓ SEED! +1 snack and +2 gold."
 		else:
-			feedback = "Caught it! Snacks: %d + 1 = %d. That number is a variable: it remembers our count." % [collected-1, collected]
-		_pop("+1 snack" + (" · +2 gold" if kind == "seed" else ""), UI.GREEN)
+			feedback = "✓ CAUGHT! %d snacks. Keep going!" % collected if game_level == "kindergarten" else "✓ CAUGHT! Snack count: %d + 1 = %d." % [collected-1,collected]
+		_pop("✓ +1 SNACK" + (" +2 GOLD" if kind == "seed" else ""), UI.CORRECT)
 		actor.happy_time = 0.8
 		caught.emit(kind)
 	changed.emit()
@@ -227,8 +241,9 @@ func resolve_catch(kind: String) -> void:
 
 func _pop(words: String, color: Color) -> void:
 	for f in floaties:
-		f.node.position.y -= 32
-	var label = UI.label(self, words, Rect2(clampf(player_x-110, 0, size.x-220), catch_y()-110, 220, 31), 17, color, true)
+		f.node.position.y -= 43
+	var label = UI.label(self, words, Rect2(clampf(player_x-180,0,size.x-360),catch_y()-110,360,42),24, color, true)
+	UI.outcome_label(label,color == UI.CORRECT)
 	floaties.append({"node":label,"life":1.4})
 
 func _draw() -> void:
