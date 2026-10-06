@@ -20,7 +20,7 @@ const STEPS = [
 	{"id":"settings", "title":"Make yourself comfy", "words":"Click the three dots at the top right. Settings lets you choose your Game level, sound, gentler movement, and more."},
 	{"id":"level", "title":"Choose your Game level", "words":"Everyone starts with easy lessons. Higher Game levels unlock more concepts as you progress. Keep this level or choose another. You can replay this tour in Settings anytime."},
 	{"id":"games", "title":"Time to play and learn", "words":"Click Games / Quizzes. Complete activities to earn gold and treats. Pip explains each activity before you begin, with hints when you need help."},
-	{"id":"activities", "title":"You're ready to explore!", "words":"Sort, repeat steps, or quiz yourself. Logic Lab builds a program; Snack Jam lets Pip dance to your taps! Picnic Catch is a snack hunt. Finish the tour, or click the highlighted Picnic Catch to start!"}
+	{"id":"activities", "title":"You're ready to explore!", "words":"Scroll through six game cards. Each explains how to play and what you can earn. We've scrolled to Picnic Catch: move a basket to catch snacks! Finish the tour, or click its highlighted button to play."}
 ]
 
 var game
@@ -196,7 +196,7 @@ func target_control() -> Control:
 		"settings": return game.ui.get_node("SettingsButton")
 		"level": return game.overlay.get_node_or_null("GameLevel")
 		"games": return game.ui.get_node("GamesNav")
-		"activities": return game.overlay.get_node_or_null("PlayPicnic")
+		"activities": return game.game_menu_button("PlayPicnic")
 	return null
 
 func _target() -> Rect2:
@@ -215,6 +215,7 @@ func _process(delta: float) -> void:
 		return
 	clock += delta
 	move_to_front()
+	if step_id() == "activities": game.reveal_game("PlayPicnic")
 	_refresh_layout()
 	# Menus may rebuild their controls after a tab or Game level changes.
 	_update_focus()

@@ -107,7 +107,7 @@ const TOUR_KIDS = {
 	"settings": "Click the three dots.\nWe can change sound and Game level here.",
 	"level": "Pick your Game level.\nWe all start small. Bigger levels add more later.\nYou can change it anytime!",
 	"games": "Click Games / Quizzes.\nLet's play for gold and treats!",
-	"activities": "Try a game!\nSort snacks, hop, build, or dance.\nClick Picnic Catch, or Finish tour."
+	"activities": "Scroll to see all 6 games!\nThese cards tell you how to play.\nTry Picnic Catch! Follow the arrow, or Finish tour."
 }
 static func line(key: String, level: String) -> String:
 	return COPY[key][2 if level == "college" else (1 if level == "middle" else 0)]

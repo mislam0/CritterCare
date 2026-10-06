@@ -3,6 +3,10 @@ extends Node2D
 ## Save data and learning content are separated so they are easy to extend.
 
 const UI = preload("res://scripts/ui.gd")
+const GameMenu = preload("res://data/game_menu.gd")
+var games_scroll: ScrollContainer
+var games_scroll_offset: int = 0
+var games_buttons: Dictionary = {}
 const SaveData = preload("res://scripts/save_data.gd")
 const Lessons = preload("res://data/lessons.gd")
 const Curriculum = preload("res://data/curriculum.gd")
@@ -643,7 +647,8 @@ func _reveal_journal_entry(scroll: ScrollContainer, entry: Button) -> void:
 func open_games() -> void:
 	var stage = progress.active_stage()
 	var cap = Curriculum.max_stage(progress.game_level)
-	_screen("games", "Play, learn, and grow", Lessons.level_label(progress.game_level) + " · Learn at your pace. Bonus games below!")
+	_screen("games", "Play, learn, and grow", _by_level("Pick a game! Scroll down to see them all.","Choose an activity. Scroll for all six games and their instructions.","Browse all six activities. Descriptions explain how each game plays."))
+	games_buttons.clear()
 	var picker = OptionButton.new()
 	picker.name = "StagePicker"
 	picker.position = Vector2(154, 224)
@@ -654,55 +659,123 @@ func open_games() -> void:
 	picker.select(stage)
 	picker.item_selected.connect(func(index):
 		progress.practice_stage = index
+		games_scroll_offset = 0
 		_save()
 		open_games())
 	overlay.add_child(picker)
 	UI.label(overlay, Curriculum.STAGES[stage].summary, Rect2(520, 222, 594, 48), 17, UI.GREEN)
-	var wins: Array = progress.stage_badges.get(str(stage), [])
-	var path_text = "Finish all three activities to collect this stage's badges. A quiz needs at least 3 questions."
+	var path_text = "Win the first three activities for stage badges. A quiz needs at least 3 questions."
 	if Curriculum.completed(progress.stage_badges, stage):
-		path_text = "Stage complete! Replay any activity for coins or choose another unlocked stage."
+		path_text = "Stage complete! Replay for gold or choose another unlocked stage."
 	if cap == 0:
-		path_text = _by_level("Little games. Lots of practice. Take your time!","Keep practicing these gentle games. This level always stays at First steps.","Keep practicing these gentle games. This level always stays at First steps.")
-	UI.label(overlay, path_text, Rect2(154, 278, 974, 43), 16, UI.MUTED)
-	var cards = [
-		["berry", "Berry Detective", _by_level("Basket or leave?\nGet 7 of 10 right!","Sort 10 finds using a rule.\nGet at least 7 right.","Apply conditions to 10 finds.\nA win needs 7 correct."), start_sort],
-		["paw", "Loop Garden", _by_level("Count hops to the star.\nTry three little gardens!","Choose a repeat count.\nReach the star in 3 gardens.","Choose and test loop counts.\nSolve 3 gardens; retries are free."), start_loop],
-		["book", "Pip's Pop Quiz", _by_level("A few little questions.\nOnly things Pip showed you!","Up to 5 familiar questions.\nGet 3 of 5 right to win.","Recall up to 5 discovered ideas.\n60% correct earns a win."), start_quiz]]
-	for i in range(3):
-		var x = 151 + i*330
-		UI.panel(overlay, Rect2(x, 333, 317, 273), [Color("f5e7e5"),Color("e8eddc"),Color("f2eada")][i], 20)
-		_add_icon(overlay, cards[i][0], Rect2(x+18, 350, 49, 49))
-		UI.label(overlay, "Badge earned" if wins.has(Curriculum.MODES[i]) else "Badge to earn", Rect2(x+84, 358, 210, 30), 15, UI.GREEN)
-		UI.label(overlay, cards[i][1], Rect2(x+18, 410, 281, 38), 24)
-		UI.label(overlay, cards[i][2], Rect2(x+18, 452, 281, 68), 18)
-		UI.label(overlay, "Finish: coins · Win: treats too", Rect2(x+18, 518, 281, 23), 15, UI.GREEN)
-		var b = UI.button(overlay, "Let's play" if i < 2 else "Start quiz", Rect2(x+18, 547, 281, 44), cards[i][3], true)
-		if i == 2 and _stage_quiz_pool(stage).is_empty():
-			b.text = "Play the other games first"
-			b.disabled = true
-	var note = "Next stage unlocks after all three badges. Earlier stages stay available for practice."
-	if stage == cap:
-		note = "You are at this level's final stage. Replay for practice, treats, and coins."
-	if stage > 0 and _stage_quiz_pool(stage).size() < 3:
-		note = "Play both games to meet this stage's ideas before taking its quiz."
-	UI.panel(overlay, Rect2(151, 617, 317, 81), Color("f5e5b7"), 18)
-	UI.label(overlay, "Picnic Catch", Rect2(166, 621, 287, 28), 21,UI.INK,true)
-	var picnic_button = UI.button(overlay, "Play Picnic Catch", Rect2(166, 654, 287, 35), start_picnic, true)
-	picnic_button.name = "PlayPicnic"
-	picnic_button.tooltip_text = "Bonus activity · optional for stage badges"
-	UI.panel(overlay, Rect2(481,617,317,81), Color("e0eadb"),18)
-	UI.label(overlay,"Pip's Logic Lab",Rect2(496,621,287,28),21,UI.INK,true)
-	UI.button(overlay,"Open Logic Lab",Rect2(496,654,287,35),open_logic_lab,true).name = "PlayLogicLab"
-	UI.panel(overlay, Rect2(811,617,317,81), Color("eae1ee"),18)
-	UI.label(overlay,"NEW · Pip's Snack Jam",Rect2(826,621,287,28),21,UI.INK,true)
-	UI.button(overlay,"Play Snack Jam  ♪",Rect2(826,654,287,35),start_snack_jam,true).name = "PlaySnackJam"
+		path_text = "Little games. Lots of practice. Take your time!"
+	UI.label(overlay, path_text, Rect2(154, 276, 974, 36), 16, UI.MUTED)
+	var saved_offset = games_scroll_offset
+	games_scroll = ScrollContainer.new()
+	games_scroll.name = "GamesScroll"
+	games_scroll.position = Vector2(154,320)
+	games_scroll.size = Vector2(974,387)
+	games_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	games_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_ALWAYS
+	games_scroll.follow_focus = true
+	games_scroll.focus_mode = Control.FOCUS_ALL
+	games_scroll.scroll_deadzone = 12
+	overlay.add_child(games_scroll)
+	var bar = games_scroll.get_v_scroll_bar()
+	bar.custom_minimum_size.x = 14
+	bar.focus_mode = Control.FOCUS_NONE
+	var track = UI.style(Color("edf0e5"),7)
+	track.content_margin_left = 7
+	track.content_margin_right = 7
+	bar.add_theme_stylebox_override("scroll",track)
+	for style_name in ["grabber","grabber_highlight","grabber_pressed"]:
+		bar.add_theme_stylebox_override(style_name,UI.style(UI.GREEN,7))
+	bar.value_changed.connect(func(value): games_scroll_offset = int(value))
+	var content = VBoxContainer.new()
+	content.name = "GameCatalog"
+	content.mouse_filter = Control.MOUSE_FILTER_PASS
+	content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	content.add_theme_constant_override("separation",14)
+	games_scroll.add_child(content)
+	var grid = GridContainer.new()
+	grid.name = "GameCards"
+	grid.mouse_filter = Control.MOUSE_FILTER_PASS
+	grid.columns = 3
+	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	grid.add_theme_constant_override("h_separation",14)
+	grid.add_theme_constant_override("v_separation",16)
+	content.add_child(grid)
+	var actions = [start_sort,start_loop,start_quiz,start_picnic,open_logic_lab,start_snack_jam]
+	var wins: Array = progress.stage_badges.get(str(stage),[])
+	for i in range(GameMenu.ORDER.size()):
+		var id: String = GameMenu.ORDER[i]
+		var badge = ("Badge earned" if wins.has(Curriculum.MODES[i]) else "Badge to earn") if i < 3 else _by_level("Just for fun + rewards","Bonus activity","Optional bonus activity")
+		_add_game_card(grid,id,badge,actions[i],id == "quiz" and _stage_quiz_pool(stage).is_empty())
 	var best: Array[String] = []
-	for record in progress.scores:
-		best.append("%s %d%%" % [record.mode, record.score])
-	var best_label = UI.label(overlay, "Best scores: " + (" · ".join(best) if not best.is_empty() else "Your first win will appear here."), Rect2(158, 701, 966, 28), 14, UI.MUTED)
-	best_label.tooltip_text = note
+	for record in progress.scores: best.append("%s %d%%" % [record.mode,record.score])
+	UI.paragraph(content,"Best scores: " + (" · ".join(best) if not best.is_empty() else "Your first win will appear here."),14,UI.MUTED)
+	UI.label(overlay,_by_level("6 games · Scroll or slide the green bar to see more ↓","6 games · Mouse wheel or the scrollbar · Tab moves between buttons","6 activities · Scroll to browse; keyboard focus reveals each selected game"),Rect2(154,713,974,24),14,UI.GREEN)
+	_restore_games_scroll(games_scroll,saved_offset)
 	_tutorial_notice("open_games")
+
+func _add_game_card(grid: GridContainer, id: String, badge: String, action: Callable, locked: bool) -> void:
+	var info: Dictionary = GameMenu.CARDS[id]
+	var card = PanelContainer.new()
+	card.name = "GameCard_" + id
+	card.custom_minimum_size = Vector2(306,360)
+	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	card.mouse_filter = Control.MOUSE_FILTER_PASS
+	var background = UI.style(Color(info.color),18)
+	background.set_content_margin_all(16)
+	card.add_theme_stylebox_override("panel",background)
+	grid.add_child(card)
+	var column = VBoxContainer.new()
+	column.mouse_filter = Control.MOUSE_FILTER_PASS
+	column.add_theme_constant_override("separation",8)
+	column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	card.add_child(column)
+	var header = HBoxContainer.new()
+	header.mouse_filter = Control.MOUSE_FILTER_PASS
+	header.add_theme_constant_override("separation",14)
+	column.add_child(header)
+	var icon = _add_icon(header,info.icon,Rect2(0,0,42,42))
+	icon.custom_minimum_size = Vector2(42,42)
+	var tag = UI.paragraph(header,badge,14,UI.GREEN)
+	tag.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	UI.paragraph(column,info.title,23).name = "GameTitle"
+	var description = UI.paragraph(column,GameMenu.description(id,progress.game_level),17)
+	description.name = "GameDescription"
+	description.custom_minimum_size.y = 115
+	description.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	var rewards = UI.paragraph(column,info.reward,14,UI.GREEN)
+	rewards.name = "GameRewards"
+	rewards.custom_minimum_size.y = 40
+	var button = UI.button(column,"Meet Pip's lessons first" if locked else info.action,Rect2(0,0,274,44),action,true)
+	button.custom_minimum_size.y = 44
+	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	button.name = info.button
+	button.disabled = locked
+	button.set_meta("game_card",card)
+	button.accessibility_name = info.action + ": " + info.title
+	button.focus_entered.connect(func(): reveal_game(info.button))
+	games_buttons[info.button] = button
+
+func game_menu_button(button_name: String) -> Button:
+	return games_buttons.get(button_name) if modal_name == "games" else null
+
+func reveal_game(button_name: String) -> void:
+	var button = game_menu_button(button_name)
+	if is_instance_valid(button) and is_instance_valid(games_scroll):
+		var card: Control = button.get_meta("game_card")
+		games_scroll.ensure_control_visible(card if card.size.y <= games_scroll.size.y else button)
+
+func _restore_games_scroll(scroll: ScrollContainer, offset: int) -> void:
+	# Containers need a layout pass before they have a real scroll range.
+	await get_tree().process_frame
+	await get_tree().process_frame
+	if not is_instance_valid(scroll) or scroll != games_scroll or modal_name != "games": return
+	scroll.scroll_vertical = offset
+	if _tutorial_active() and tutorial.step_id() == "activities": reveal_game("PlayPicnic")
 
 func _stage_quiz_pool(stage: int) -> Array:
 	var keys = progress.discovered.filter(func(key):
@@ -1331,6 +1404,7 @@ func open_settings() -> void:
 	_tutorial_notice("open_settings")
 
 func _reset_progress() -> void:
+	games_scroll_offset = 0
 	teaching_cooldowns.clear()
 	toast_cooldowns.clear()
 	auto_speech.clear()

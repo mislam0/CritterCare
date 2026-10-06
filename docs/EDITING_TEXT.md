@@ -8,6 +8,7 @@ Open the extracted **CritterCare** folder in VS Code. Use Ctrl+Shift+F to search
 | Extra College explanations | `data/lesson_language.gd` → `COLLEGE` |
 | Middle-level questions and worked examples; lesson tags, triggers, code | `data/lessons.gd` → `DATA` |
 | How levels combine text | `data/lessons.gd` → `entry()` |
+| Game-selection titles, descriptions by Game level, reward notes, and button labels | `data/game_menu.gd` → `CARDS` (description order: Kindergarten, Middle, College) |
 | Game instructions and beginner tutorial | `data/game_text.gd` → `COPY` and `TOUR_KIDS` |
 | Other menu, reward, Shop, speech, and mini-game messages | `scripts/main.gd` → the named screen/function; `_by_level(kid, middle, college)` selects wording |
 | Higher-level tutorial text and arrow targets | `scripts/tutorial.gd` → `STEPS` |
@@ -27,4 +28,4 @@ Treat every player as a new programmer. Introduce terms before testing them. Kin
 
 The automatic cooldown uses elapsed session time, including time in menus. Each concept has its own timer; repeated events do not stack duplicate bubbles. Explicit reading, hints, tutorial steps, and attempt feedback bypass the popup delay. Existing captured quotes stay verbatim until that lesson is presented again.
 
-Run `tests/verify_feedback.gd` and the affected existing suites with `--test-mode`. Then choose **Project → Tools → Export CritterCare for itch.io**. Upload the newly rebuilt ZIP in `builds/`; editing the source does not update an older itch.io upload by itself.
+For catalog text or layout changes, also run `tests/verify_game_menu.gd`. Run `tests/verify_feedback.gd` and the affected existing suites with `--test-mode`. Then choose **Project → Tools → Export CritterCare for itch.io**. Upload the newly rebuilt ZIP in `builds/`; editing the source does not update an older itch.io upload by itself.

@@ -596,9 +596,9 @@ func verify_picnic() -> void:
 	game.progress.sound = false
 	game.progress.game_level = "college"
 	game.open_games()
-	check(game.overlay.has_node("PlayPicnic"), "Picnic Catch has a visible entry in Games / Quizzes")
+	check(is_instance_valid(game.game_menu_button("PlayPicnic")), "Picnic Catch has a visible entry in Games / Quizzes")
 	await snap("picnic-games-menu")
-	game.overlay.get_node("PlayPicnic").pressed.emit()
+	game.game_menu_button("PlayPicnic").pressed.emit()
 	check(game.modal_name == "intro" and game.progress.discovered.has("picnic"), "Picnic teaches input/output before the first round and saves it in Knowledge")
 	await finish_intro()
 	var field = game.picnic
@@ -829,7 +829,7 @@ func verify_tutorial() -> void:
 	await activate_tour_button(game.ui.get_node("GamesNav"))
 	check(tour.step_id() == "activities" and game.modal_name == "games", "The final step introduces activities and points to Picnic Catch")
 	await snap("tutorial-games")
-	await activate_tour_button(game.overlay.get_node("PlayPicnic"))
+	await activate_tour_button(game.game_menu_button("PlayPicnic"))
 	check(not tour.active and game.progress.tutorial_completed and game.modal_name == "intro", "Starting the highlighted game finishes the tour and enters the activity normally")
 	var restored = SaveData.new()
 	restored.save_path = game.progress.save_path

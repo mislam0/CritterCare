@@ -11,6 +11,12 @@ func _draw() -> void:
 	var green = Color("65845b")
 	var ink = Color("426d53")
 	match kind:
+		"music":
+			draw_line(Vector2(-3,10),Vector2(-3,-18),ink,4,true)
+			draw_line(Vector2(16,5),Vector2(16,-22),ink,4,true)
+			draw_line(Vector2(-3,-18),Vector2(16,-22),ink,5,true)
+			draw_circle(Vector2(-10,12),8,Color("bc637a"))
+			draw_circle(Vector2(9,7),8,Color("bc637a"))
 		"basket":
 			draw_arc(Vector2(0,-4),16,PI,TAU,25,Color("b58750"),4,true)
 			draw_colored_polygon(PackedVector2Array([Vector2(-23,-7),Vector2(23,-7),Vector2(17,21),Vector2(-17,21)]),Color("c99a5e"))

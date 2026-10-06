@@ -1,12 +1,20 @@
 # CritterCare
 
-**Release 1.6.0 · Learn with Pip**
+**Release 1.6.1 · Learn with Pip**
 
 A complete, offline 2D pet-care game that teaches beginner programming through play. Meet Pip, a little hamster with a lot of curiosity.
 
-![Pip’s Snack Jam](docs/snack-jam-preview.png)
+![Scrollable game cards](docs/games-menu-preview.png)
 
-## What changed in 1.6.0
+## What changed in 1.6.1
+
+- **Games / Quizzes now scrolls.** Use the mouse wheel or drag the green scrollbar to browse all six activities. Tab reveals the focused Play button. Stage selection and Close stay in place.
+- Every game has a matching card with its **title, how to play, goal, and rewards**, including Picnic Catch, Logic Lab, and Snack Jam. Descriptions follow your selected Game level, with short, playful wording for Kindergarten–Elementary.
+- Returning to the menu remembers your browsing position. Changing practice stage or resetting progress returns it to the top.
+- The tutorial automatically scrolls its highlighted Picnic Catch button into view.
+- The normal project and itch.io build include the same update. No progress reset is needed.
+
+## Previous update: 1.6.0
 
 - Every incorrect quiz answer, sort, loop attempt, Lab plan, picnic catch/miss, and rhythm tap/miss gets bold **pure red** feedback. Correct attempts use **bright green**, with check/cross symbols and clear words as well as color.
 - All 34 lessons have short beginner versions. Kindergarten–Elementary gets small, playful thoughts, simple quiz wording, and plain-word rules. Middle–Highschool adds worked examples; College adds definitions and deeper explanations. All levels start from zero programming knowledge.
@@ -38,11 +46,11 @@ On Windows, you can also drag `project.godot` into Godot's Project Manager. Open
 
 ## Confirm you opened the update
 
-The bottom-right footer should say **v1.6.0 · Learn with Pip**. If it does not, that is an older copy of the game. Extract this download into a fresh folder and import the `project.godot` from that folder rather than launching a previous Project Manager entry. Updating the source folder does not update an already uploaded itch.io game: replace the browser upload with the new **CritterCare-itchio-v1.6.0.zip**, save the itch.io page, and reload it. This release is also supplied with versioned filenames so it is easy to identify the current download. New saves and Reset progress start the guided tour automatically. With an existing save, choose Settings → Replay tutorial to see it without losing progress.
+The bottom-right footer should say **v1.6.1 · Learn with Pip**. If it does not, that is an older copy of the game. Extract this download into a fresh folder and import the `project.godot` from that folder rather than launching a previous Project Manager entry. Updating the source folder does not update an already uploaded itch.io game: replace the browser upload with the new **CritterCare-itchio-v1.6.1.zip**, save the itch.io page, and reload it. This release is also supplied with versioned filenames so it is easy to identify the current download. New saves and Reset progress start the guided tour automatically. With an existing save, choose Settings → Replay tutorial to see it without losing progress.
 
 ## New: Pip’s Snack Jam
 
-Open **Games / Quizzes → Play Snack Jam** for a musical play break. Tap **A / S / D**, click, or touch the three snack pads as falling snacks reach their rings. Pip claps, bounces, and twirls in your equipped accessories. **Berry Bounce** is an original 53-second tune with a four-beat count-in and a gentle ending.
+Open **Games / Quizzes**, scroll down, and choose **Play Snack Jam** for a musical play break. Tap **A / S / D**, click, or touch the three snack pads as falling snacks reach their rings. Pip claps, bounces, and twirls in your equipped accessories. **Berry Bounce** is an original 53-second tune with a four-beat count-in and a gentle ending.
 
 Choose **Chill** (40 snacks and generous timing), **Standard** (80 snacks, one each beat), or **Lively** (120 snacks with extra offbeats). These settings are separate from Game level and available to everyone immediately. Each has its own saved best accuracy and longest combo. Misses reset the combo; there are no lost lives. The optional timing adjustment helps line up notes and music.
 
@@ -62,7 +70,7 @@ Long speech is measured with the highlighted font before pagination. Knowledge a
 
 ## Pip's Logic Lab
 
-Open **Games / Quizzes → Open Logic Lab** to build a program from instruction blocks and watch Pip follow it. There are **nine guided challenges** covering sequencing, repeats, IF/ELSE, AND/OR, variables, functions, parameters, lists, and nested loops. Everyone starts with the same easy first challenge. Kindergarten has three cards; higher levels unlock more through the existing learning path.
+Open **Games / Quizzes**, scroll down, and choose **Open Logic Lab** to build a program from instruction blocks and watch Pip follow it. There are **nine guided challenges** covering sequencing, repeats, IF/ELSE, AND/OR, variables, functions, parameters, lists, and nested loops. Everyone starts with the same easy first challenge. Kindergarten has three cards; higher levels unlock more through the existing learning path.
 
 Click/tap to add a block, drag or use arrows to reorder, then choose **Run** or **Step**. Pause and Stop / edit let you read and revise at your own pace. The highlighted instruction matches the animated practice Pip and changing numbers. Two- and three-visit challenges check that one program handles different starting situations. Hints explain mistakes; there are no retry penalties.
 

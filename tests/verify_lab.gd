@@ -73,9 +73,9 @@ func run() -> void:
 	game.progress.save_path = "user://crittercare_lab_acceptance.json"
 	game.progress.sound = false
 	game.open_games()
-	check(game.overlay.has_node("PlayLogicLab"),"Logic Lab is visible in Games / Quizzes")
+	check(is_instance_valid(game.game_menu_button("PlayLogicLab")),"Logic Lab is visible in Games / Quizzes")
 	await snap("lab-games-menu")
-	game.overlay.get_node("PlayLogicLab").pressed.emit()
+	game.game_menu_button("PlayLogicLab").pressed.emit()
 	check(game.modal_name == "lab_menu","The Games button opens the lab challenge menu")
 	check(not game.overlay.get_node("LabChallenge0").disabled and game.overlay.get_node("LabChallenge1").disabled,"A new learner begins with the first simple challenge")
 	await snap("lab-challenge-menu")

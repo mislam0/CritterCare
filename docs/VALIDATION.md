@@ -1,10 +1,21 @@
 # Validation
 
-Release **1.6.0 · Learn with Pip** uses **Godot 4.7.2 stable** (`4.7.2.stable.official.ed1daf0bf`), standard GDScript, and the Compatibility renderer. The editable project and itch.io build share one source tree.
+Release **1.6.1 · Learn with Pip** uses **Godot 4.7.2 stable** (`4.7.2.stable.official.ed1daf0bf`), standard GDScript, and the Compatibility renderer. The editable project and itch.io build share one source tree.
 
 ## Current checks
 
-The Linux integration suite passed **333 rendered checks**, Logic Lab **115**, term highlighting **20**, Snack Jam **70**, and the new feedback/audience/cooldown suite **69**: **607 rendered checks, zero failures**. Rhythm testing includes a full 52.8-second run driven by the actual audio stream; output used Godot's Dummy driver. Tests cover real mouse input, dragging, rewards, saving, reset, the tutorial, exact dialogue pagination, and 1280 × 800 / 960 × 600 layouts.
+The Linux integration suite passed **333 rendered checks**, Logic Lab **115**, term highlighting **20**, Snack Jam **70**, feedback/audience/cooldown **69**, and the new game-menu suite **46**: **653 rendered checks, zero failures**. Rhythm testing includes a full 52.8-second run driven by the actual audio stream; output used Godot's Dummy driver. Tests cover real mouse input, dragging, rewards, saving, reset, the tutorial, exact dialogue pagination, and 1280 × 800 / 960 × 600 layouts.
+
+## Scrollable game catalog
+
+- All six games have container-managed title, description, reward, and launch controls. Complete text and card bounds fit at all three Game levels, at both supported window sizes. The first three launch buttons fit before scrolling; each lower card is reachable.
+- Actual mouse-wheel events, scrollbar track clicks, and dragging the green thumb scroll the catalog. Actual Tab input moves from the quiz to Picnic Catch and reveals its button. The native ScrollContainer retains standard platform behavior; raw injected touch events did not verify touch swiping on this desktop, so touch-device scrolling remains a preview check.
+- Actual pointer clicks launch all six destinations at both sizes. The empty-discovery quiz stays disabled. Existing intro cooldown behavior is preserved.
+- Returning to Games remembers the scroll position within the session. Stage changes and Reset progress start it at the top.
+- The final tutorial step reveals its real Picnic Catch button after container layout, follows it with the green arrow, and accepts a real click to finish the tour and enter the activity. The full first-play tutorial also passes.
+- Screenshots of both rows at each Game level and window size were captured. Visual inspection caught a right-column overlap: the scrollbar now reserves its own width.
+- Edit menu wording in `data/game_menu.gd`. Layout and launch wiring are in `scripts/main.gd`; the regression is `tests/verify_game_menu.gd`.
+
 
 ## New feedback, audience, and cooldown checks
 
@@ -64,7 +75,7 @@ The Linux integration suite passed **333 rendered checks**, Logic Lab **115**, t
 - Knowledge displays the exact captured explanation under Pip says. It remains available after a game-level change and a save/reload. Read with Pip replays the saved text.
 - The full Knowledge page, including its code example, is reachable by scrolling. Guided lesson and mini-game feedback areas also scroll instead of clipping long content.
 - Reset clears saved dialogue. Existing discoveries from saves without recorded dialogue receive a full fallback explanation, without requiring a reset.
-- The visible home-screen version marker identifies this release as v1.6.0.
+- The visible home-screen version marker identifies this release as v1.6.1.
 
 ## Picnic Catch
 
@@ -103,9 +114,9 @@ The separate Logic Lab suite passed **115 rendered checks**, with zero failures.
 
 ## Web export
 
-The bundled official matching single-thread Web templates are used by the existing export helper. The updated game was exported successfully with the command-line wrapper. The final browser ZIP was checked for archive integrity, `index.html` at its root, nonempty engine/game files, and license notices. Snack Jam’s controller, original song, chart, save changes, rewards, and lesson are included in the same export as the rest of the game. The separate browser ZIP is byte-identical to the copy inside the editable project package.
+The bundled official matching single-thread Web templates are used by the existing export helper. The updated game was exported successfully with the command-line wrapper. The final browser ZIP was checked for archive integrity, `index.html` at its root, nonempty engine/game files, and license notices. Snack Jam’s controller, original song, chart, save changes, rewards, and lesson are included in the same export as the rest of the game. The separate browser ZIP is byte-identical to the copy inside the editable project package. The exported PCK was loaded independently in headless Godot: its version is 1.6.1 and its game scene creates all six cards and a scrollable catalog.
 
-**Browser gameplay is not verified for this update.** A freshly downloaded and completely extracted Chrome 154.0.8037.97 binary reported its version correctly, but the Playwright browser launcher exited with SIGSEGV before opening a page in this execution environment. Native rendering and a successful export do not establish browser save/reload, audio, iframe, or fullscreen behavior. Use the preview checklist in [ITCH_IO.md](ITCH_IO.md) on your itch.io page before publishing.
+**Browser gameplay is not verified for this update.** A previous browser-validation attempt reached the Chrome version check, but the launcher exited with SIGSEGV before opening a page. This menu update was validated with native rendering and a fresh Web export; a hosted browser playthrough was not repeated. Native rendering and a successful export do not establish browser save/reload, audio, iframe, or fullscreen behavior. Use the preview checklist in [ITCH_IO.md](ITCH_IO.md) on your itch.io page before publishing.
 
 ## Scope
 

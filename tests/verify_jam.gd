@@ -102,9 +102,12 @@ func run() -> void:
 	game.speech_queue.clear()
 	game.speech.hide()
 	game.open_games()
-	check(game.overlay.has_node("PlaySnackJam") and game.overlay.has_node("PlayPicnic") and game.overlay.has_node("PlayLogicLab"),"Snack Jam has a visible menu entrance beside both existing bonus activities")
+	check(is_instance_valid(game.game_menu_button("PlaySnackJam")) and is_instance_valid(game.game_menu_button("PlayPicnic")) and is_instance_valid(game.game_menu_button("PlayLogicLab")),"Snack Jam has a visible menu entrance beside both existing bonus activities")
 	await snap("jam-games-menu")
-	await click(game.overlay.get_node("PlaySnackJam").get_global_rect().get_center())
+	await frames(3)
+	game.reveal_game("PlaySnackJam")
+	await frames(3)
+	await click(game.game_menu_button("PlaySnackJam").get_global_rect().get_center())
 	check(game.modal_name=="snack_jam" and not game.progress.discovered.has("snack_jam"),"The button opens the rhythm game directly and saves teaching for after the song")
 	var field = game.snack_jam
 	field.manual_clock = true
