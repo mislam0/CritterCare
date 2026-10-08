@@ -73,9 +73,9 @@ func run() -> void:
 	game.progress.save_path = "user://crittercare_lab_acceptance.json"
 	game.progress.sound = false
 	game.open_games()
-	check(game.overlay.has_node("PlayLogicLab"),"Logic Lab is visible in Games / Quizzes")
+	check(is_instance_valid(game.game_menu_button("PlayLogicLab")),"Logic Lab is visible in Games / Quizzes")
 	await snap("lab-games-menu")
-	game.overlay.get_node("PlayLogicLab").pressed.emit()
+	game.game_menu_button("PlayLogicLab").pressed.emit()
 	check(game.modal_name == "lab_menu","The Games button opens the lab challenge menu")
 	check(not game.overlay.get_node("LabChallenge0").disabled and game.overlay.get_node("LabChallenge1").disabled,"A new learner begins with the first simple challenge")
 	await snap("lab-challenge-menu")
@@ -113,7 +113,7 @@ func run() -> void:
 	await finish_lab(lab)
 	check(lab.report.success and game.progress.coins == coins+25 and game.progress.inventory.berry == berries+2,"First working solution awards exactly 25 coins and two berries")
 	check(game.progress.lab_completed == ["delivery"] and game.progress.stage_badges.is_empty(),"Lab completion persists separately from curriculum badges")
-	check(game.progress.pip_quotes.lab_sequence.contains("fullness changes: 30 + 20 = 50"),"Knowledge records Pip's actual complete walkthrough")
+	check(game.progress.pip_quotes.lab_sequence.contains("fullness grows to 50"),"Knowledge records Pip's actual complete walkthrough")
 	await snap("lab-first-success")
 	await finish_lab(lab)
 	game._finish_lab("delivery")

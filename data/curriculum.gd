@@ -21,7 +21,7 @@ static func unlocked(badges: Dictionary, level: String) -> int:
 		stage += 1
 	return stage
 
-static func sort_rule(stage: int, index: int) -> Dictionary:
+static func _sort_rule(stage: int, index: int) -> Dictionary:
 	match stage:
 		1:
 			return {"id":"or", "code":"is_berry or is_red", "words":"OR needs at least one yes. IF it is a berry OR it is red THEN basket; ELSE leave it."} if index < 5 else {"id":"not", "code":"is_berry and not is_red", "words":"NOT flips yes and no. IF it is a berry AND it is NOT red THEN basket; ELSE leave it."}
@@ -46,3 +46,12 @@ static func sort_answer(stage: int, index: int, kind: String) -> int:
 
 static func fullness_for(index: int) -> int:
 	return 60 if index % 2 == 0 else 95
+
+static func sort_rule(stage: int, index: int, level: String = "middle") -> Dictionary:
+	var rule = _sort_rule(stage,index).duplicate(true)
+	if level == "kindergarten":
+		rule.words = "IF berry: basket. ELSE: leave it!\nELSE means otherwise." if index < 5 else "AND means both!\nIF berry AND red: basket.\nELSE: leave it."
+		rule.code = "IF berry:\n    basket\nELSE: leave" if index < 5 else "IF berry AND red:\n    basket\nELSE: leave"
+	elif level == "college":
+		rule.words += "\nA condition is a check with a true (yes) or false (no) result."
+	return rule

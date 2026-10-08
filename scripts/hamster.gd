@@ -4,7 +4,6 @@ extends Node2D
 
 signal interacted(action: String)
 
-const CosmeticArt = preload("res://scripts/cosmetic_art.gd")
 const Shop = preload("res://data/shop.gd")
 var costumes: Node2D
 var cosmetic_items: Dictionary = {}
@@ -36,6 +35,10 @@ var pickup_position = Vector2.ZERO
 var direction: String = "resting"
 var floaties: Array = []
 var last_pointer = Vector2.ZERO
+## Optional stage poses used by Snack Jam; ordinary care keeps these at zero.
+var stage_actor: bool = false
+var dance_pose: int = 0
+var dance_phase: float = 0.0
 
 func _ready() -> void:
 	last_pointer = get_global_mouse_position()
@@ -47,25 +50,25 @@ func set_cosmetics(items: Dictionary) -> void:
 		remove_child(costumes)
 		costumes.queue_free()
 	costumes = Node2D.new()
+	costumes.name = "Cosmetics"
 	add_child(costumes)
 	for slot in items:
-		var item_id: String = items[slot]
-		var art: Node2D
-		if Shop.ITEMS.has(item_id) and Shop.ITEMS[item_id].category == "pet":
-			var texture_path := Shop.pet_texture_path(item_id)
-			if texture_path.is_empty():
-				push_warning("Missing cosmetic image: " + item_id)
-				continue
-			var sprite := Sprite2D.new()
-			sprite.texture = load(texture_path)
-			art = sprite
-		else:
-			var vector_art := CosmeticArt.new()
-			vector_art.kind = item_id
-			art = vector_art
-		art.position = {"head":Vector2(0,-109), "neck":Vector2(0,25), "face":Vector2(0,-46)}.get(slot, Vector2.ZERO)
-		art.scale = Vector2.ONE * (2.25 if slot == "face" else 1.65)
-		costumes.add_child(art)
+		var id: String = str(items[slot])
+		if not Shop.ITEMS.has(id) or Shop.ITEMS[id].category != "pet":
+			continue
+		var item: Dictionary = Shop.ITEMS[id]
+		var layout: Dictionary = Shop.pet_layout(str(slot), id)
+		var sprite = Sprite2D.new()
+		sprite.name = "Cosmetic_" + id
+		sprite.texture = item.texture
+		sprite.position = layout.offset
+		# Shop pet art is intentionally high-resolution. Always fit it down to
+		# the catalog display width so curves stay crisp during Pip's motion.
+		var source_width := maxf(1.0, float(sprite.texture.get_width()))
+		sprite.scale = Vector2.ONE * (float(layout.width) / source_width)
+		# Preserve hard-edged user-authored pixel art on the Pixel Knight set.
+		sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST if item.theme == "pixel_knight" else CanvasItem.TEXTURE_FILTER_LINEAR
+		costumes.add_child(sprite)
 	_update_costume_pose()
 
 func _update_costume_pose() -> void:
@@ -258,13 +261,16 @@ func _draw() -> void:
 	# The ground shadow stays on the floor when the hamster is lifted.
 	var height = FLOOR_Y - position.y
 	var shadow_width = 78.0 - minf(height * 0.12, 30.0)
-	ellipse(Vector2(0, FLOOR_Y - position.y + 85), Vector2(shadow_width, 12), Color(0.25, 0.28, 0.18, 0.15))
+	if not stage_actor:
+		ellipse(Vector2(0, FLOOR_Y - position.y + 85), Vector2(shadow_width, 12), Color(0.25, 0.28, 0.18, 0.15))
 	draw_set_transform(Vector2(0, -breath * 30), lean, Vector2(1 + squish + breath, 1 - squish - breath))
 	# Tail, body and dangling feet.
 	ellipse(Vector2(77, 47), Vector2(17, 15), pink, ink)
 	var dangle = 11.0 if is_held or is_falling else 0.0
 	for side in [-1, 1]:
 		var foot = Vector2(side * 43 + paw_angle * 22, 75 + dangle)
+		if dance_pose > 0 and not calm:
+			foot.y -= maxf(0,sin(dance_phase*TAU+side*PI/2))*13
 		if is_held:
 			draw_line(Vector2(side * 40, 53), foot, fur.darkened(0.08), 17, true)
 		ellipse(foot, Vector2(24, 13 if not is_held else 19), pink, ink)
@@ -311,7 +317,13 @@ func _draw() -> void:
 	# Paws: dangling, tucked, washing, or holding the current snack.
 	for side in [-1, 1]:
 		var hand = Vector2(side * 70, 33)
-		if is_held or is_falling:
+		if dance_pose == 1:
+			hand = Vector2(side*lerpf(16,58,(sin(dance_phase*TAU)+1)/2),9)
+		elif dance_pose == 2:
+			hand = Vector2(side*75,-22+(0 if calm else sin(dance_phase*TAU+side)*18))
+		elif dance_pose == 3:
+			hand = Vector2(side*86,-9)
+		elif is_held or is_falling:
 			hand += Vector2(paw_angle * 28, 15 + side * paw_angle * 8)
 		elif eating_time > 0:
 			hand = Vector2(side * 17, 9 + chew * 3)

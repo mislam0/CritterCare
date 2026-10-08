@@ -4,7 +4,14 @@ extends RefCounted
 const SAVE_PATH = "user://crittercare_save.json"
 const Shop = preload("res://data/shop.gd")
 const Curriculum = preload("res://data/curriculum.gd")
+const SHOP_ID_MIGRATIONS = {"knight_cape":"pixel_chestplate", "pixel_sword":"pixel_castle_banner"}
+
 const Lab = preload("res://data/logic_lab.gd")
+const Jam = preload("res://data/snack_jam.gd")
+var jam_mode: String = "chill"
+var jam_offset_ms: int = 0
+var jam_best: Dictionary = {}
+var jam_rounds: int = 0
 var lab_completed: Array = []
 var coins: int = 0
 var owned: Array = []
@@ -37,6 +44,19 @@ func load_progress() -> void:
 	var parsed = parser.data
 	if not parsed is Dictionary:
 		return
+	jam_mode = Jam.normalize_mode(str(parsed.get("jam_mode","chill")))
+	jam_offset_ms = clampi(int(parsed.get("jam_offset_ms",0)),-200,200)
+	jam_rounds = maxi(0,int(parsed.get("jam_rounds",0)))
+	jam_best.clear()
+	if parsed.get("jam_best") is Dictionary:
+		for mode in Jam.MODES:
+			if not parsed.jam_best.has(mode): continue
+			var record = parsed.jam_best.get(mode,{})
+			if record is Dictionary:
+				var accuracy = record.get("accuracy",0)
+				var combo = record.get("combo",0)
+				if (accuracy is int or accuracy is float) and (combo is int or combo is float):
+					jam_best[mode] = {"accuracy":clampi(int(accuracy),0,100),"combo":clampi(int(combo),0,Jam.chart(mode).size())}
 	lab_completed.clear()
 	if parsed.get("lab_completed") is Array:
 		for id in parsed.lab_completed:
@@ -74,14 +94,17 @@ func load_progress() -> void:
 	equipped.clear()
 	stage_badges.clear()
 	if parsed.get("owned") is Array:
-		for id in parsed.owned:
-			if id is String and Shop.ITEMS.has(id) and not owned.has(id):
-				owned.append(id)
+		for raw_id in parsed.owned:
+			if raw_id is String:
+				var id: String = str(SHOP_ID_MIGRATIONS.get(str(raw_id), str(raw_id)))
+				if Shop.ITEMS.has(id) and not owned.has(id):
+					owned.append(id)
 	if parsed.get("equipped") is Dictionary:
-		for slot in parsed.equipped:
-			var id = str(parsed.equipped[slot])
-			if owned.has(id) and Shop.slot_key(id) == slot:
-				equipped[slot] = id
+		for raw_slot in parsed.equipped:
+			var id: String = str(parsed.equipped[raw_slot])
+			id = str(SHOP_ID_MIGRATIONS.get(id, id))
+			if owned.has(id) and Shop.slot_key(id) != "":
+				equipped[Shop.slot_key(id)] = id
 	if parsed.get("stage_badges") is Dictionary:
 		for stage in range(Curriculum.STAGES.size()):
 			var wins = parsed.stage_badges.get(str(stage), [])
@@ -99,7 +122,7 @@ func load_progress() -> void:
 		scores = scores.slice(0, 3)
 
 func write() -> Error:
-	var payload = {"version":7, "lab_completed":lab_completed, "discovered":discovered, "pip_quotes":pip_quotes, "inventory":inventory, "fullness":fullness, "happiness":happiness, "pet_count":pet_count, "feed_count":feed_count, "games_won":games_won, "picnic_best":picnic_best, "picnic_rounds":picnic_rounds, "tutorial_completed":tutorial_completed, "sound":sound, "calm":calm, "game_level":game_level, "scores":scores, "coins":coins, "owned":owned, "equipped":equipped, "stage_badges":stage_badges, "practice_stage":practice_stage}
+	var payload = {"version":8, "jam_mode":jam_mode, "jam_offset_ms":jam_offset_ms, "jam_best":jam_best, "jam_rounds":jam_rounds, "lab_completed":lab_completed, "discovered":discovered, "pip_quotes":pip_quotes, "inventory":inventory, "fullness":fullness, "happiness":happiness, "pet_count":pet_count, "feed_count":feed_count, "games_won":games_won, "picnic_best":picnic_best, "picnic_rounds":picnic_rounds, "tutorial_completed":tutorial_completed, "sound":sound, "calm":calm, "game_level":game_level, "scores":scores, "coins":coins, "owned":owned, "equipped":equipped, "stage_badges":stage_badges, "practice_stage":practice_stage}
 	var file = FileAccess.open(save_path + ".tmp", FileAccess.WRITE)
 	if file == null:
 		return FileAccess.get_open_error()
@@ -109,6 +132,8 @@ func write() -> Error:
 
 func reset_progress(keep_preferences: bool = true) -> void:
 	lab_completed = []
+	jam_best = {}
+	jam_rounds = 0
 	var old_sound = sound
 	var old_calm = calm
 	var old_level = game_level
@@ -137,6 +162,14 @@ func reset_progress(keep_preferences: bool = true) -> void:
 		sound = true
 		calm = false
 		game_level = "kindergarten"
+		jam_mode = "chill"
+		jam_offset_ms = 0
+
+func record_jam(mode: String, accuracy: int, combo: int) -> void:
+	if not mode in Jam.MODES: return
+	var previous: Dictionary = jam_best.get(mode,{"accuracy":0,"combo":0})
+	jam_best[mode] = {"accuracy":maxi(int(previous.accuracy),clampi(accuracy,0,100)),"combo":maxi(int(previous.combo),clampi(combo,0,Jam.chart(mode).size()))}
+	jam_rounds += 1
 
 func unlock(key: String) -> bool:
 	if discovered.has(key):

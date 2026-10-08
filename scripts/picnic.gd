@@ -7,9 +7,14 @@ signal caught(kind: String)
 signal finished(report: Dictionary)
 signal pause_changed(value: bool)
 
+const Text = preload("res://data/game_text.gd")
+var game_level: String = "kindergarten"
+var last_outcome: int = 0
 const UI = preload("res://scripts/ui.gd")
 const Icon = preload("res://scripts/icon.gd")
 const Hamster = preload("res://scripts/hamster.gd")
+const PICNIC_BACKGROUND = preload("res://assets/minigames/picnic/background.png")
+const BASKET_TEXTURE = preload("res://assets/minigames/picnic/basket.png")
 const GOAL = 10
 var stage: int = 0
 var gentle: bool = false
@@ -35,30 +40,38 @@ var basket: Node2D
 var pause_shade: Panel
 var rng = RandomNumberGenerator.new()
 
-class Basket extends Node2D:
-	func _draw() -> void:
-		draw_colored_polygon(PackedVector2Array([Vector2(-55,0),Vector2(55,0),Vector2(43,38),Vector2(-43,38)]), Color("c99a5e"))
-		for x in range(-36, 45, 18):
-			draw_line(Vector2(x,4), Vector2(x*0.77,34), Color("e8c28a"), 4, true)
-		for y in [13,25]:
-			draw_line(Vector2(-48,y),Vector2(48,y),Color("ac7f4b"),2,true)
-		draw_line(Vector2(-55,0),Vector2(55,0),Color("f0d5a1"),8,true)
-
 func _ready() -> void:
 	name = "PicnicField"
+	feedback = Text.line("picnic_ready",game_level)
 	clip_contents = true
 	focus_mode = Control.FOCUS_ALL
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	rng.randomize()
 	player_x = size.x / 2
 	target_x = player_x
+	var background = TextureRect.new()
+	background.name = "PicnicBackground"
+	background.texture = PICNIC_BACKGROUND
+	background.position = Vector2.ZERO
+	background.size = size
+	background.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	background.stretch_mode = TextureRect.STRETCH_SCALE
+	background.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(background)
 	actor = Hamster.new()
 	actor.blocked = true
 	actor.calm = gentle
 	actor.cosmetic_items = cosmetics
 	actor.scale = Vector2.ONE * 0.42
 	add_child(actor)
-	basket = Basket.new()
+	basket = Node2D.new()
+	basket.name = "PicnicBasket"
+	var basket_image = Sprite2D.new()
+	basket_image.name = "BasketImage"
+	basket_image.texture = BASKET_TEXTURE
+	basket_image.centered = false
+	basket_image.position = Vector2(-58, 0)
+	basket.add_child(basket_image)
 	add_child(basket)
 	pause_shade = UI.panel(self, Rect2(Vector2.ZERO, size), Color(0.98,0.98,0.92,0.91), 18)
 	UI.label(pause_shade, "Picnic paused", Rect2(45,125,size.x-90,54), 32, UI.GREEN, true)
@@ -70,7 +83,8 @@ func start() -> void:
 	if running or completed:
 		return
 	running = true
-	feedback = "Move under a berry. IF the basket catches it THEN add one snack!"
+	feedback = Text.line("picnic_start",game_level)
+	last_outcome = 0
 	spawn_item("berry", player_x)
 	grab_focus()
 	changed.emit()
@@ -195,7 +209,14 @@ func advance_items(delta: float) -> void:
 			if item.kind != "leaf":
 				misses += 1
 				streak = 0
-				feedback = "Missed one? That's okay! Keep your snacks and try the next berry."
+				feedback = Text.line("picnic_miss",game_level)
+				last_outcome = -1
+				_pop("✕ MISSED!",UI.INCORRECT)
+				changed.emit()
+			else:
+				feedback = Text.line("picnic_dodge",game_level)
+				last_outcome = 1
+				_pop("✓ LEAF LEFT!",UI.CORRECT)
 				changed.emit()
 			item.node.queue_free()
 			items.remove_at(i)
@@ -205,18 +226,20 @@ func resolve_catch(kind: String) -> void:
 		return
 	if kind == "leaf":
 		streak = 0
-		feedback = "A leaf! ELSE means otherwise: leave it. Your snacks and earned gold are safe."
-		_pop("Oops, a leaf!", UI.MUTED)
+		feedback = Text.line("picnic_leaf",game_level)
+		last_outcome = -1
+		_pop("✕ A LEAF!", UI.INCORRECT)
 	else:
+		last_outcome = 1
 		collected += 1
 		streak += 1
 		best_streak = maxi(best_streak, streak)
 		if kind == "seed":
 			seed_gold += 2
-			feedback = "Golden seed! IF it is a seed THEN add one snack AND two bonus gold."
+			feedback = "✓ SEED! +1 snack and +2 gold."
 		else:
-			feedback = "Caught it! Snacks: %d + 1 = %d. That number is a variable: it remembers our count." % [collected-1, collected]
-		_pop("+1 snack" + (" · +2 gold" if kind == "seed" else ""), UI.GREEN)
+			feedback = "✓ CAUGHT! %d snacks. Keep going!" % collected if game_level == "kindergarten" else "✓ CAUGHT! Snack count: %d + 1 = %d." % [collected-1,collected]
+		_pop("✓ +1 SNACK" + (" +2 GOLD" if kind == "seed" else ""), UI.CORRECT)
 		actor.happy_time = 0.8
 		caught.emit(kind)
 	changed.emit()
@@ -227,19 +250,7 @@ func resolve_catch(kind: String) -> void:
 
 func _pop(words: String, color: Color) -> void:
 	for f in floaties:
-		f.node.position.y -= 32
-	var label = UI.label(self, words, Rect2(clampf(player_x-110, 0, size.x-220), catch_y()-110, 220, 31), 17, color, true)
+		f.node.position.y -= 43
+	var label = UI.label(self, words, Rect2(clampf(player_x-180,0,size.x-360),catch_y()-110,360,42),24, color, true)
+	UI.outcome_label(label,color == UI.CORRECT)
 	floaties.append({"node":label,"life":1.4})
-
-func _draw() -> void:
-	draw_style_box(UI.style(Color("e6efe1"),18), Rect2(Vector2.ZERO,size))
-	draw_circle(Vector2(size.x-63,57),29,Color("f4d785"))
-	for cloud in [Vector2(102,54),Vector2(389,79)]:
-		draw_style_box(UI.style(Color("fafaf0"),16),Rect2(cloud,Vector2(87,24)))
-	# Leaves frame the upper edge, outside the catching area.
-	for x in range(0, int(size.x)+30, 46):
-		draw_circle(Vector2(x,-14),38,Color("b8cfaa"))
-	draw_rect(Rect2(0,size.y-42,size.x,42),Color("c9d9b9"))
-	for x in range(22, int(size.x), 53):
-		draw_line(Vector2(x,size.y-17),Vector2(x+5,size.y-25),Color("a8bd97"),2,true)
-	draw_line(Vector2(17,catch_y()),Vector2(size.x-17,catch_y()),Color(0.4,0.57,0.36,0.22),1,true)

@@ -5,6 +5,8 @@ signal solved(challenge_id: String)
 signal back_requested
 signal next_requested
 
+const Text = preload("res://data/game_text.gd")
+var game_level: String = "kindergarten"
 const UI = preload("res://scripts/ui.gd")
 const Lab = preload("res://data/logic_lab.gd")
 const Hamster = preload("res://scripts/hamster.gd")
@@ -46,14 +48,42 @@ var highlighted: int = -1
 var seed_jar
 
 class SeedJar extends Control:
+	const JAR_TEXTURE = preload("res://assets/minigames/logic_lab/seed_jar.png")
+	const SEED_TEXTURE = preload("res://assets/minigames/logic_lab/seed.png")
 	var count: int = 0
-	func _draw() -> void:
-		draw_style_box(preload("res://scripts/ui.gd").style(Color("f8fcf2"),13,Color("96ac94")),Rect2(8,11,91,94))
-		draw_style_box(preload("res://scripts/ui.gd").style(Color("cbae79"),6),Rect2(5,3,97,17))
-		for i in range(mini(count,20)):
+	var seed_nodes: Array[TextureRect] = []
+
+	func _ready() -> void:
+		var jar = TextureRect.new()
+		jar.name = "JarImage"
+		jar.texture = JAR_TEXTURE
+		jar.position = Vector2.ZERO
+		jar.size = Vector2(108,110)
+		jar.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		jar.stretch_mode = TextureRect.STRETCH_SCALE
+		jar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		add_child(jar)
+		for i in range(20):
+			var seed = TextureRect.new()
+			seed.name = "Seed%02d" % i
+			seed.texture = SEED_TEXTURE
 			var point = Vector2(25+(i%4)*19,91-floori(float(i)/4)*15)
-			draw_circle(point,6,Color("d9b04e"))
-			draw_line(point+Vector2(0,-3),point+Vector2(0,3),Color("b28631"),1.5,true)
+			seed.position = point-Vector2(8,8)
+			seed.size = Vector2(16,16)
+			seed.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			seed.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			seed.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			add_child(seed)
+			seed_nodes.append(seed)
+		_refresh_seeds()
+
+	func set_count(value: int) -> void:
+		count = clampi(value,0,20)
+		_refresh_seeds()
+
+	func _refresh_seeds() -> void:
+		for i in range(seed_nodes.size()):
+			seed_nodes[i].visible = i < count
 
 class BlockCard extends Button:
 	var lab
@@ -87,7 +117,7 @@ func _ready() -> void:
 	size = Vector2(974,518)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	UI.scroll_text(self,"YOUR GOAL · " + mission.goal,Rect2(0,0,974,56),20,UI.GREEN).name = "LabGoal"
-	progress_label = UI.label(self,"Click blocks to add them. Drag or use the arrows to change their order.",Rect2(0,60,974,29),16,UI.MUTED)
+	progress_label = UI.label(self,Text.line("lab_order",game_level),Rect2(0,60,974,29),16,UI.MUTED)
 	UI.label(self,"1. CHOOSE BLOCKS",Rect2(0,91,226,24),14,UI.GREEN)
 	UI.label(self,"2. YOUR PROGRAM · TOP TO BOTTOM",Rect2(238,91,354,24),14,UI.GREEN)
 	UI.label(self,"3. WATCH WHAT HAPPENS",Rect2(604,91,370,24),14,UI.GREEN)
@@ -146,9 +176,8 @@ func _ready() -> void:
 	actor.cosmetic_items = cosmetics
 	actor.scale = Vector2.ONE * 0.34
 	world.add_child(actor)
-	UI.label(world,"Practice Pip · your real treats are safe",Rect2(12,228,346,25),14,UI.MUTED,true)
-	UI.panel(self,Rect2(0,391,974,73),Color("f5eed9"),16)
-	feedback = UI.scroll_text(self,"Pip: A program is a list of instructions. Add blocks, predict what I will do, then press Run. Step lets you follow one small action at a time.",Rect2(14,397,946,61),17)
+	UI.label(world,Text.line("lab_safe",game_level),Rect2(12,228,346,25),14,UI.MUTED,true)
+	feedback = UI.feedback_text(self,Text.line("lab_edit",game_level),Rect2(0,387,974,83),18)
 	feedback.name = "LabFeedback"
 	UI.button(self,"Lab menu",Rect2(0,477,114,39),func(): back_requested.emit()).name = "LabBack"
 	hint_button = UI.button(self,"Hint",Rect2(123,477,76,39),show_hint)
@@ -248,23 +277,27 @@ func clear_program() -> void:
 func _program_changed() -> void:
 	highlighted = -1
 	_reset_world()
-	feedback.words = "Pip: %d of %d spaces used. I follow the blocks from top to bottom. What do you think will happen?" % [program.size(),Lab.MAX_BLOCKS]
+	UI.neutral_feedback(feedback)
+	feedback.words = "%d / %d blocks. " % [program.size(),Lab.MAX_BLOCKS] + Text.line("lab_edit",game_level)
 	refresh_blocks()
 
 func show_hint() -> void:
+	UI.neutral_feedback(feedback)
 	feedback.words = "Pip's hint: " + mission.hints[mini(hint_index,mission.hints.size()-1)]
 	hint_index += 1
 
 func begin_run() -> bool:
-	report = Lab.execute(mission,program)
+	report = Lab.present_report(Lab.execute(mission,program),mission,game_level)
 	if not report.valid:
 		feedback.words = report.message
+		UI.show_feedback(feedback,false)
 		return false
 	active = true
 	trace_index = 0
 	clock = 0
 	attempts += 1
-	progress_label.words = "Test %d · Follow the highlighted block. You can pause, step, or stop to edit." % attempts
+	UI.neutral_feedback(feedback)
+	progress_label.words = "Try %d · " % attempts + Text.line("lab_test",game_level)
 	_reset_world()
 	return true
 
@@ -286,7 +319,8 @@ func stop_run() -> void:
 	active = false
 	autoplay = false
 	highlighted = -1
-	feedback.words = "Pip: Stopped. Change any blocks, then run from the beginning. There is no penalty for trying!"
+	UI.neutral_feedback(feedback)
+	feedback.words = Text.line("lab_stopped",game_level)
 	refresh_blocks()
 
 func stop() -> void:
@@ -303,6 +337,8 @@ func advance_trace() -> void:
 	state = current.state.duplicate(true)
 	highlighted = current.row
 	feedback.words = "Pip: " + current.words
+	if current.action in ["pass","error"]: UI.show_feedback(feedback,current.action == "pass")
+	else: UI.neutral_feedback(feedback)
 	visit_label.words = "Visit %d of %d · %s" % [current.visit,mission.cases.size(),"testing" if current.action != "pass" else "works!"]
 	if current.action == "setup":
 		actor.eating_time = 0
@@ -326,6 +362,7 @@ func finish_run() -> void:
 	autoplay = false
 	highlighted = -1
 	feedback.words = "Pip: " + report.message
+	UI.show_feedback(feedback,report.success,"✓ PLAN WORKS!" if report.success else "✕ TRY AGAIN!")
 	if report.success:
 		progress_label.words = "Program complete! " + ("Already collected: practice as often as you like." if already_completed else "First solution: +25 gold and +2 berries.")
 		next_button.show()
@@ -334,7 +371,7 @@ func finish_run() -> void:
 		solved.emit(mission.id)
 		already_completed = true
 	else:
-		progress_label.words = "Let's debug together: change a block, use Hint, then try again. No gold or treats lost."
+		progress_label.words = Text.line("lab_retry",game_level)
 	refresh_blocks()
 
 func _reset_world() -> void:
@@ -348,8 +385,7 @@ func _reset_world() -> void:
 func _update_world(snap: bool = false) -> void:
 	stats.words = "Seeds in jar: %d\nGoal: exactly 6" % state.seeds if mission.bowl < 0 else "Fullness %d   ·   Happiness %d\nHungry: %s   ·   Berry: %s" % [state.fullness,state.happiness,"yes" if state.fullness < 60 else "no","yes" if state.has_food else "no"]
 	food_icon.visible = mission.bowl >= 0 and state.has_food
-	seed_jar.count = state.seeds
-	seed_jar.queue_redraw()
+	seed_jar.set_count(state.seeds)
 	actor_target = Vector2(54+state.position*87 if mission.bowl >= 0 else 105,163)
 	if snap or gentle:
 		actor.position = actor_target
