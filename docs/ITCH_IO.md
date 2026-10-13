@@ -1,18 +1,14 @@
 # CritterCare on itch.io
 
-## Upload the included browser build
+## Upload the included v1.6.3 browser build
 
-1. Create or edit your game project on itch.io.
-2. Set **Kind of project** to **HTML Game**.
-3. Upload **CritterCare-itchio-v1.6.1.zip** (the versioned download) or **CritterCare-itchio.zip** from this project’s `builds/` folder. Use the standalone download or the identical copy in the Godot project's `builds/` folder.
-4. Mark that upload **This file will be played in the browser**.
-5. Choose **Embed in page**, with a **960 × 600** viewport, and enable the fullscreen button. The game also fits a 1280 × 800 canvas.
-6. Turn off **Click to Play** if you want the game to begin loading immediately when the page opens. Leave it on if you prefer an explicit launch button.
-7. Save your itch.io page and preview it. Publish when you are ready for visitors.
+The separate **CritterCare-itchio-v1.6.3.zip** is ready for upload. An identical copy is included in the editable project as `builds/CritterCare-itchio.zip`. It contains the new naming flow, manual save slots, clean feedback, teaching-only highlights, and all 36 image-based Shop items from the team's base.
 
-Upload the ZIP intact. It has `index.html` at its root, alongside `index.js`, `index.wasm`, `index.pck`, audio worklets, icons, and license notices. Do not upload the larger editable **CritterCare.zip** as the browser-play file. You can offer it as a separate source download if desired.
+1. Upload the browser ZIP to itch.io as an **HTML Game** and mark it **This file will be played in the browser**.
+2. Use **Embed in page**, a **960 × 600** viewport, and enable fullscreen. The game also fits its 1280 × 800 canvas.
+3. Use the preview checklist below. The footer should show **v1.6.3** followed by your pet's name.
 
-itch.io page settings are separate from the game files. This download prepares the game and export preset; it cannot change an itch.io account's project settings or publish a page.
+Upload the browser ZIP intact. Its `index.html` is at the root alongside the Godot Web files. The larger editable project ZIP is for Godot/F5. itch.io page settings must be selected on the itch.io page; this package does not publish it.
 
 ## Make a new browser build after editing
 
@@ -48,7 +44,7 @@ Open **http://127.0.0.1:8000/** in a browser. Press **Ctrl+C** in the terminal t
 | PWA / service worker | Off |
 | Cross-origin isolation headers | Not required for this single-thread build |
 | Canvas | Fills the embed and keeps the game's aspect ratio |
-| Browser start | Loads directly into Pip's room after downloading |
+| Browser start | First play offers a name choice, then the tutorial |
 | Export templates | Matching debug and release templates bundled |
 | Loading screen | Included, with progress and a readable failure message |
 | Pointer | Click to focus; held pointer capture; touch-to-mouse emulation |
@@ -63,21 +59,21 @@ Open **http://127.0.0.1:8000/** in a browser. Press **Ctrl+C** in the terminal t
 
 ## Quick check on the itch.io preview
 
-On a fresh save, follow the green-arrow tutorial: pet Pip, hold and drag him, drop him, feed one treat, and visit the highlighted menus. On an existing save, use Settings → Replay tutorial. Complete or skip the tour, reload, and confirm it stays completed. Use Reset progress on a disposable test save to verify that the tour restarts. Then complete a mini game. Open Knowledge, reload the page, and check that the discovered lesson and inventory persist. Play Picnic Catch with mouse and arrow keys, test Pause / Resume and switching tabs, complete a round, then reload to check the gold and personal best. Try the fullscreen button and return to the embedded view. Sound should begin after interacting.
+On a fresh save, choose a name or Keep Pip, then follow the green-arrow tutorial: pet Pip, hold and drag him, drop him, feed one treat, and visit the highlighted menus. On an existing save, use Settings → Replay tutorial. Complete or skip the tour, reload, and confirm it stays completed. Use Reset progress on a disposable test save to verify that naming precedes the restarted tour. Then complete a mini game. Open Knowledge, reload the page, and check that the discovered lesson and inventory persist. Play Picnic Catch with mouse and arrow keys, test Pause / Resume and switching tabs, complete a round, then reload to check the gold and personal best. Try the fullscreen button and return to the embedded view. Sound should begin after interacting.
 
 References: [itch.io HTML5 games](https://itch.io/docs/creators/html5) · [Godot 4.7 Web exports](https://docs.godotengine.org/en/4.7/tutorials/export/exporting_for_web.html)
 
 ## Updating an existing page
 
-Replace the previous browser upload with this release's `CritterCare-itchio.zip` and save the itch.io page. Reload the embedded game. The home-screen footer should read **v1.6.1 · Learn with Pip**; if a different version appears, check that the new upload is the one selected for browser play and refresh the page. The top display is only your gold balance; Shop is at the bottom right. New saves open the green-arrow tutorial; existing players can choose Settings → Replay tutorial. The normal Godot project ZIP is for editing/F5 and is not the file to upload as a browser game.
+Replace the previous browser upload with this release's `CritterCare-itchio.zip` and save the itch.io page. Reload the embedded game. The home-screen footer should read **v1.6.3**, followed by your pet's name; if a different version appears, check that the new upload is the one selected for browser play and refresh the page. The top display is only your gold balance; Shop is at the bottom right. New saves offer naming, then the green-arrow tutorial; existing players can choose Settings → Replay tutorial. The normal Godot project ZIP is for editing/F5 and is not the file to upload as a browser game.
 
 No progress reset is needed for this update. Keep the same itch.io project so existing browser saves remain associated with the same game page.
 
-Logic Lab is under **Games / Quizzes → Open Logic Lab** in both builds. Confirm the browser shows v1.6.1 before testing the new activity.
+Logic Lab is under **Games / Quizzes → Open Logic Lab** in both builds. Confirm the browser shows v1.6.3 before testing the consolidated build.
 
-## Highlighting check (v1.4.1)
+## Teaching-only highlighting and clean feedback (v1.6.3)
 
-Open a teaching bubble and confirm terms such as IF, THEN, Boolean, and true/false have bold dark text on a pale yellow background. Visit Knowledge, scroll to the code, and try a quiz and a Logic Lab block. Check the same styling in their explanations and answers. Use Next/Back to read a long speech lesson and verify its last sentence is present. Existing saves should retain their progress and complete quotes.
+Open a teaching bubble and confirm terms such as IF, THEN, Boolean, and true/false have bold dark text on a pale yellow background. Visit Knowledge and scroll to the code. In quizzes and Logic Lab, check that explanations and hints are highlighted while questions, choices, controls, and blocks stay plain. Correct/Incorrect headings should be large green/red text on light backgrounds, with readable dark explanations. Use Next/Back to read a long speech lesson and verify its last sentence is present. Existing saves should retain their progress and complete quotes.
 
 ## Snack Jam check (v1.6.1)
 
@@ -87,8 +83,24 @@ The rhythm player uses streamed audio and the measured music clock to keep notes
 
 ## Feedback and beginner wording check (v1.6.1)
 
-Confirm the footer says **v1.6.1 · Learn with Pip**. Try a wrong and a correct quiz answer, sort, loop count, and Lab program. Check for large bold red/green outcomes, plus words and symbols. In Picnic Catch, miss a snack and catch one; in Snack Jam, miss, tap early, and hit a note. Select Kindergarten–Elementary to see short instructions and thought-sized speech pages. Pick Pip up repeatedly: the same lesson should stay quiet for 60 seconds after it is shown. Knowledge → Read with Pip should still work during that delay. Change Game level to check explanation depth without resetting progress.
+Confirm the footer says **v1.6.3**, followed by your pet's name. Try a wrong and a correct quiz answer, sort, loop count, and Lab program. Check for large bold red/green outcomes, plus words and symbols. In Picnic Catch, miss a snack and catch one; in Snack Jam, miss, tap early, and hit a note. Select Kindergarten–Elementary to see short instructions and thought-sized speech pages. Pick Pip up repeatedly: the same lesson should stay quiet for 60 seconds after it is shown. Knowledge → Read with Pip should still work during that delay. Change Game level to check explanation depth without resetting progress.
+
+## PNG runtime-art check
+
+On the home screen, verify the HUD/navigation icons are crisp images and the base room still layers Shop wallpaper, rugs, garlands, and lights correctly. Play Picnic Catch and confirm the PNG basket moves with Pip and collisions still happen on the same catch line. In Snack Jam, check all three lane/note images, the stage/glow, hit feedback, and the beat pulse while testing Chill/Standard/Lively timing. In Logic Lab, run a seed-count challenge and confirm individual PNG seeds appear/disappear in the jar as the state changes.
+
+## Scrollable PNG Shop check (v1.6.2)
+
+Open Shop and switch between **Pet accessories** and **Room decorations**. Each tab should show a vertical scrollbar and allow mouse-wheel scrolling; Tab should move through item buttons and reveal the focused card. Scroll one tab, switch away, and return to confirm its scroll position is remembered separately. Buy and equip a pet accessory, then verify the same image appears on Pip and in minigames. Buy and equip a room decoration and verify the image appears in Pip's room. Ownership, prices, slot conflicts, Equip/Unequip, saving, and Reset behavior should match previous releases.
 
 ## Scrolling games menu check (v1.6.1)
 
 Open Games / Quizzes. The first three cards appear at the top. Scroll down with the mouse wheel or green scrollbar to reach Picnic Catch, Logic Lab, and Snack Jam. Each card includes its title, instructions, goal, rewards, and a Play button. Try each button, Tab between games, then return to the menu; it should remember where you were. Change Game level to check the different descriptions. Replay tutorial to confirm the green arrow reveals the Picnic Catch button. Also check scrolling on your target touch devices; native injected raw touch events did not verify swipe scrolling in the desktop test environment.
+
+## Name and Save / Load checks (v1.6.3)
+
+Choose a custom name on first play and confirm it appears in the tutorial and game labels. Reload and check that naming is not repeated. Rename through Settings and verify prior recorded quotes retain their original wording.
+
+Open Settings → Save / Load. Save a named story in slot 1, change the current gold/equipment/name through play, and save slot 2. Load slot 1 and check that all its progress and settings return. Reload the page and confirm the loaded story is now the automatic save. Confirm that slot 2 is unchanged. Cancel an overwrite and a deletion; then delete slot 2 and reuse it. Try Reset progress on a disposable test save: naming/tutorial return, and the explicit slots remain. Load one to restore its saved story. Check the 960 × 600 embed and fullscreen.
+
+Native and Web saves are separate. Browser slots depend on the same per-page browser storage as the automatic save. Actual browser persistence, audio timing, iframe controls, and fullscreen require testing on your hosting page; native tests do not establish those behaviors.

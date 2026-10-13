@@ -1,44 +1,42 @@
-# Editing dialogue and highlighted terms
+# Teaching-only vocabulary highlights
 
-Open the whole extracted `CritterCare` folder in VS Code. Continue writing dialogue as ordinary GDScript strings; you do not need to add color tags.
+Keep dialogue as ordinary GDScript strings. The shared renderer escapes literal brackets and adds bold dark text on a pale yellow background only to teaching controls.
 
-| What to edit | File |
+## Where highlighting belongs
+
+| Highlight | Keep plain |
 | --- | --- |
-| Pip's lesson bubbles, explanations, code, quiz questions and answers | `data/lessons.gd` |
-| Stage descriptions and sorting rules | `data/curriculum.gd` |
-| Logic Lab challenges, block titles, hints, and execution explanations | `data/logic_lab.gd` |
-| Live Logic Lab editor messages and controls | `scripts/logic_lab_screen.gd` |
-| Green-arrow tutorial text | `scripts/tutorial.gd`, in `STEPS` |
-| General menus, care messages, game feedback and results | `scripts/main.gd` |
-| Picnic Catch's live feedback | `scripts/picnic.gd` |
-| Shop names, descriptions and prices | `data/shop.gd` |
-| Which terms are highlighted, and highlight colors | `scripts/teaching_terms.gd` |
-| Shared rich-text rendering and sizing | `scripts/learning_text.gd` and `scripts/ui.gd` |
+| The pet's programming lesson bubbles | Ordinary greetings and menus |
+| Knowledge quotes, explanations, and code examples | Quiz questions and answer choices |
+| Guided lesson introductions | Game rules, controls, scores, and rewards |
+| Explanations of a submitted answer | Correct/Incorrect outcome headings |
+| Logic Lab educational hints and execution explanations | Logic Lab instruction blocks |
+| Teaching steps in the tutorial | Navigation-only tutorial instructions |
+| The post-song programming explanation | Live rhythm judgements |
 
-## Vocabulary and appearance
+The default for `UI.label`, `UI.paragraph`, `UI.scroll_text`, `UI.code`, and `UI.teaching_button` is **plain text**. Opt in on an actual teaching explanation:
 
-`CONCEPTS` contains case-insensitive, whole-word regular-expression alternatives separated by `|`. For example, `variables?` matches both `variable` and `variables`. `EXPLICIT` contains uppercase words such as AND/OR/NOT; ordinary lowercase conjunctions in prose stay plain. `CODE_WORDS` also highlights lowercase GDScript keywords inside code examples.
-
-The palette uses `PAPER` for the soft yellow background and `INK` for the dark text. Terms also use the bundled ExtraBold font, so emphasis does not depend on color alone. Monospaced code keeps its fixed-width font and gains the same background and ink. Formatting is applied uniformly to every quiz choice; it never consults the answer key.
-
-The formatter escapes literal square brackets before adding its own markup. Keep examples such as `[1, 3, 2]`, `steps[index]`, indentation, and line breaks exactly as you want players to read them. Quotes saved in progress stay plain; old saves receive the highlighting when displayed.
-
-## Adding a new teaching control
-
-Use `UI.label` for a short fixed area, `UI.paragraph` inside a container, or `UI.scroll_text` for a longer explanation. Set the returned control's **`words`** property to change its message. Use `UI.code` for an example, or `UI.use_code_font` on an existing paragraph. `UI.teaching_button` puts passive highlighted text inside a normal keyboard/mouse/touch button.
-
-Do not assign preformatted BBCode to dialogue fields or saved quotes. The renderer builds presentation markup separately. Speech pagination uses the rendered content height, including emphasized text, and keeps exact plain source slices for Next/Back.
-
-## Check and rebuild both versions
-
-From the project directory:
-
-```sh
-godot --headless --editor --import --quit --path .
-godot --headless --path . --script res://tests/verify.gd -- --test-mode
-godot --headless --path . --script res://tests/verify_lab.gd -- --test-mode
-godot --headless --path . --script res://tests/verify_highlights.gd -- --test-mode
-godot --headless --path . --script res://tools/export_web.gd
+```gdscript
+var explanation = UI.paragraph(parent, "IF {pet_name} is hungry THEN feed him.")
+UI.teach(explanation)
+# Equivalent: explanation.teaching = true
 ```
 
-Use Godot 4.7.2 for the bundled export templates. For a visual check, run the tests without `--headless` on a computer with a display. F5 always uses the current source; update itch.io by uploading the newly rebuilt `builds/CritterCare-itchio.zip`.
+Set the control's `words` property to update its content. `UI.code` / `UI.use_code_font` choose a monospaced font; they do not opt into highlights by themselves. `UI.show_feedback` marks the answer explanation as the pet's teaching, while keeping its outcome heading plain and brightly colored.
+
+For home speech, `_say()` highlights only when a lesson key or its explicit `teaching` argument is provided. Do not mark an ordinary message as teaching just because it contains IF or another term.
+
+## Vocabulary and rendering
+
+- `scripts/teaching_terms.gd`: vocabulary and highlight colors. `CONCEPTS` uses whole-word regular expressions. `EXPLICIT` recognizes uppercase AND/OR/NOT; normal lowercase conjunctions stay plain. `CODE_WORDS` adds lowercase GDScript keywords inside teaching code examples.
+- `scripts/learning_text.gd`: plain source, optional rendering, name expansion, and measured sizing.
+- `scripts/ui.gd`: shared controls and clean answer feedback.
+- `data/lesson_language.gd`, `data/lessons.gd`: level-specific lesson text. See [EDITING_TEXT.md](EDITING_TEXT.md) for other sources.
+
+Do not store BBCode in dialogue or saves. Literal brackets, code indentation, and line breaks must survive. Speech pagination measures rich-text height and preserves every plain character. Knowledge retains the complete quote.
+
+Use `{pet_name}` / `{PET_NAME}` in authored messages. Those tokens expand once to the chosen display name. Existing saved quotes retain their original wording when the pet is renamed.
+
+## Check and ship
+
+Use Godot 4.7.2. Run `tests/verify_highlights.gd`, `tests/verify_identity.gd`, and the affected game suites with `--test-mode`. Visually check a teaching bubble, Knowledge, a quiz question, all answer choices, game controls, and both answer outcomes. Then rebuild `builds/CritterCare-itchio.zip` using **Project → Tools → Export CritterCare for itch.io** so F5 and Web match.

@@ -4,7 +4,7 @@ extends Node2D
 
 signal interacted(action: String)
 
-const CosmeticArt = preload("res://scripts/cosmetic_art.gd")
+const Shop = preload("res://data/shop.gd")
 var costumes: Node2D
 var cosmetic_items: Dictionary = {}
 
@@ -50,13 +50,25 @@ func set_cosmetics(items: Dictionary) -> void:
 		remove_child(costumes)
 		costumes.queue_free()
 	costumes = Node2D.new()
+	costumes.name = "Cosmetics"
 	add_child(costumes)
 	for slot in items:
-		var art = CosmeticArt.new()
-		art.kind = items[slot]
-		art.position = {"head":Vector2(0,-109), "neck":Vector2(0,25), "face":Vector2(0,-46)}.get(slot, Vector2.ZERO)
-		art.scale = Vector2.ONE * (2.25 if slot == "face" else 1.65)
-		costumes.add_child(art)
+		var id: String = str(items[slot])
+		if not Shop.ITEMS.has(id) or Shop.ITEMS[id].category != "pet":
+			continue
+		var item: Dictionary = Shop.ITEMS[id]
+		var layout: Dictionary = Shop.pet_layout(str(slot), id)
+		var sprite = Sprite2D.new()
+		sprite.name = "Cosmetic_" + id
+		sprite.texture = item.texture
+		sprite.position = layout.offset
+		# Shop pet art is intentionally high-resolution. Always fit it down to
+		# the catalog display width so curves stay crisp during Pip's motion.
+		var source_width := maxf(1.0, float(sprite.texture.get_width()))
+		sprite.scale = Vector2.ONE * (float(layout.width) / source_width)
+		# Preserve hard-edged user-authored pixel art on the Pixel Knight set.
+		sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST if item.theme == "pixel_knight" else CanvasItem.TEXTURE_FILTER_LINEAR
+		costumes.add_child(sprite)
 	_update_costume_pose()
 
 func _update_costume_pose() -> void:

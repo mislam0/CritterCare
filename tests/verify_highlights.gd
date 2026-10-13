@@ -34,11 +34,12 @@ func run() -> void:
 	root.add_child(game)
 	current_scene = game
 	await frames(5)
+	if game.modal_name == "name_pet": game._complete_pet_name("Pip")
 	game.progress.sound = false
 	var tour = game.tutorial
 	tour.step = 1
 	tour._enter_step()
-	check_surface(tour.words,preload("res://data/game_text.gd").TOUR_KIDS.pet,"Tutorial instructions highlight their IF / THEN explanation")
+	check_surface(tour.words,UI.Names.present(preload("res://data/game_text.gd").TOUR_KIDS.pet),"Tutorial instructions highlight their IF / THEN explanation")
 	await snap("highlight-tutorial")
 	tour.finish()
 	game.progress.save_path = "user://crittercare_highlight_acceptance.json"
@@ -53,7 +54,7 @@ func run() -> void:
 	check_surface(content.get_node("Explanation"),game._lesson("boolean").body,"Knowledge explanations share the term styling")
 	check_surface(content.get_node("Code"),game._lesson("boolean").code,"Knowledge code retains indentation and exact source")
 	await snap("highlight-knowledge")
-	var sample = UI.paragraph(game.ui,"",18)
+	var sample = UI.teach(UI.paragraph(game.ui,"",18))
 	var exact = "IF [b]literal[/b] THEN list [1, 3, 2]; steps[index] < 3.\n\t[unknown] — café ✓"
 	sample.words = exact
 	check(sample.get_parsed_text() == exact,"Brackets, literal markup, accents, tabs, newlines, and symbols survive formatting")
@@ -102,7 +103,7 @@ func run() -> void:
 	game._lab_setup()
 	var lab = game.lab_screen
 	lab.add_block("hungry")
-	check_surface(lab.row_cards[0].get_node("Words"),Lab.BLOCKS.hungry.title,"Newly placed Lab blocks highlight IF, THEN, and ELSE")
+	check(not lab.row_cards[0].get_node("Words").teaching and not lab.row_cards[0].get_node("Words").text.contains("[bgcolor="),"Lab instruction blocks stay plain during gameplay")
 	lab.step_run()
 	lab.step_run()
 	check_surface(lab.feedback,lab.feedback.words,"Live Lab trace feedback is highlighted after updates")

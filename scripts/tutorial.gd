@@ -6,20 +6,20 @@ const Text = preload("res://data/game_text.gd")
 const UI = preload("res://scripts/ui.gd")
 const GREEN = Color("29924c")
 const STEPS = [
-	{"id":"welcome", "title":"Welcome to CritterCare!", "words":"I'm Pip, your little hamster friend. Click Let's begin to learn how to care for me and explore my home. Then follow the green arrows at your own pace!"},
-	{"id":"pet", "title":"Say hello to Pip", "words":"Click or tap my head once. IF you pet me THEN I feel happier! A short tap pets me; holding your click picks me up."},
+	{"id":"welcome", "title":"Welcome to CritterCare!", "words":"I'm {pet_name}, your little hamster friend. Click Let's begin to learn how to care for me and explore my home. Then follow the green arrows at your own pace!"},
+	{"id":"pet", "title":"Say hello to {pet_name}", "words":"Click or tap my head once. IF you pet me THEN I feel happier! A short tap pets me; holding your click picks me up."},
 	{"id":"carry", "title":"Pick me up gently", "words":"Hold your click or finger on me, move me to a new spot, then let go. IF you hold me THEN I follow you. Release me for a soft landing."},
-	{"id":"needs", "title":"How is Pip feeling?", "words":"Fullness shows how fed I am. Happiness shows how cheerful I feel. Petting and snacks help! GOLD is your money for the Shop. You earn it by playing games."},
+	{"id":"needs", "title":"How is {pet_name} feeling?", "words":"Fullness shows how fed I am. Happiness shows how cheerful I feel. Petting and snacks help! GOLD is your money for the Shop. You earn it by playing games."},
 	{"id":"feed", "title":"Let's find a snack", "words":"Click Feed Critter at the bottom. This opens your treat pouch. You begin with berries, seeds, and carrots to share with me."},
-	{"id":"snack", "title":"Offer Pip one treat", "words":"Click the highlighted Offer one button. It spends one treat and raises my fullness. IF I have room AND you have that treat THEN I can eat it."},
-	{"id":"speech", "title":"Pip explains the why", "words":"My speech teaches the logic behind your actions. Highlighted words are coding ideas to notice. Click Next to read another page, then Done. Nothing disappears while you are reading. The full words are saved in Knowledge."},
+	{"id":"snack", "title":"Offer {pet_name} one treat", "words":"Click the highlighted Offer one button. It spends one treat and raises my fullness. IF I have room AND you have that treat THEN I can eat it."},
+	{"id":"speech", "title":"{pet_name} explains the why", "words":"My speech teaches the logic behind your actions. Highlighted words are coding ideas to notice. Click Next to read another page, then Done. Nothing disappears while you are reading. The full words are saved in Knowledge."},
 	{"id":"knowledge", "title":"Your learning book", "words":"Click Knowledge at the bottom. It keeps the lessons you have already met, so you can look them up whenever you want."},
-	{"id":"book", "title":"Read it again anytime", "words":"Each discovery includes Pip says, a plain explanation, and a code example. Scroll down to read it all. Read with Pip replays the complete explanation."},
+	{"id":"book", "title":"Read it again anytime", "words":"Each discovery includes {pet_name} says, a plain explanation, and a code example. Scroll down to read it all. Read with {pet_name} replays the complete explanation."},
 	{"id":"shop", "title":"Make this home yours", "words":"Click Shop at the bottom right. You can browse now, even with zero gold. Game rewards help you buy your favorite looks later."},
-	{"id":"catalog", "title":"Dress Pip and the room", "words":"Use these tabs for pet accessories or room decorations. Buy once, then Equip or Unequip for free. Your purchases stay yours until Reset progress. No purchase is needed for this tour."},
+	{"id":"catalog", "title":"Dress {pet_name} and the room", "words":"Use these tabs for pet accessories or room decorations. Buy once, then Equip or Unequip for free. Your purchases stay yours until Reset progress. No purchase is needed for this tour."},
 	{"id":"settings", "title":"Make yourself comfy", "words":"Click the three dots at the top right. Settings lets you choose your Game level, sound, gentler movement, and more."},
 	{"id":"level", "title":"Choose your Game level", "words":"Everyone starts with easy lessons. Higher Game levels unlock more concepts as you progress. Keep this level or choose another. You can replay this tour in Settings anytime."},
-	{"id":"games", "title":"Time to play and learn", "words":"Click Games / Quizzes. Complete activities to earn gold and treats. Pip explains each activity before you begin, with hints when you need help."},
+	{"id":"games", "title":"Time to play and learn", "words":"Click Games / Quizzes. Complete activities to earn gold and treats. {pet_name} explains each activity before you begin, with hints when you need help."},
 	{"id":"activities", "title":"You're ready to explore!", "words":"Scroll through six game cards. Each explains how to play and what you can earn. We've scrolled to Picnic Catch: move a basket to catch snacks! Finish the tour, or click its highlighted button to play."}
 ]
 
@@ -102,19 +102,21 @@ func _enter_step() -> void:
 		game.speech_queue.erase("events")
 		game._show_lesson("events")
 	game.pip.blocked = id not in ["pet","carry","speech"] or not game.modal_name.is_empty()
-	counter.words = "PIP'S FIRST-PLAY TOUR  ·  %d / %d" % [step+1,STEPS.size()]
+	counter.words = "FIRST-PLAY TOUR  ·  %d / %d" % [step+1,STEPS.size()]
 	heading.words = STEPS[step].title
+	words.teaching = id in ["pet","carry","needs","snack","speech"]
 	words.words = Text.TOUR_KIDS[id] if game.progress.game_level == "kindergarten" else STEPS[step].words
 	var action_step = id in ["pet","carry","feed","snack","speech","knowledge","shop","settings","games"]
 	next_button.disabled = action_step
 	next_button.text = "Follow arrow" if action_step else ("Let's begin →" if id == "welcome" else ("Finish tour" if id == "activities" else "Next →"))
 	skip_step.visible = action_step
 	if id == "snack" and _snack_button().disabled:
-		words.words = "No snack yet!\nPip needs tummy room and a treat.\nClick Next. We can feed him later!" if game.progress.game_level == "kindergarten" else "Pip may be full, chewing, or out of treats. Games earn more treats. Click Next to continue."
+		words.words = "No snack yet!\nPip needs tummy room and a treat.\nClick Next. We can feed him later!" if game.progress.game_level == "kindergarten" else "{pet_name} may be full, chewing, or out of treats. Games earn more treats. Click Next to continue."
 		next_button.disabled = false
 		next_button.text = "Next →"
 		skip_step.hide()
 	_resize_card(350 if id == "speech" else 430)
+	heading.fit_name()
 	_refresh_layout(true)
 	_update_focus()
 	next_button.grab_focus() if not next_button.disabled else skip_step.grab_focus()

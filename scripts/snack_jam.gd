@@ -11,6 +11,20 @@ const UI = preload("res://scripts/ui.gd")
 const Rules = preload("res://data/snack_jam.gd")
 const Hamster = preload("res://scripts/hamster.gd")
 const SONG = preload("res://assets/audio/snack_jam.ogg")
+const LANE_TEXTURES = [
+	preload("res://assets/minigames/snack_jam/lane_0.png"),
+	preload("res://assets/minigames/snack_jam/lane_1.png"),
+	preload("res://assets/minigames/snack_jam/lane_2.png")
+]
+const NOTE_TEXTURES = [
+	preload("res://assets/minigames/snack_jam/note_0.png"),
+	preload("res://assets/minigames/snack_jam/note_1.png"),
+	preload("res://assets/minigames/snack_jam/note_2.png")
+]
+const STAGE_BASE = preload("res://assets/minigames/snack_jam/stage_base.png")
+const STAGE_GLOW = preload("res://assets/minigames/snack_jam/stage_glow.png")
+const HIT_FEEDBACK_RING = preload("res://assets/minigames/snack_jam/hit_feedback_ring.png")
+const BEAT_DOT = preload("res://assets/minigames/snack_jam/beat_dot.png")
 const LANE_COLORS = [Color("b96684"),Color("aa8739"),Color("c77949")]
 const LANE_X = [105.0,303.0,501.0]
 const HIT_Y = 326.0
@@ -51,6 +65,15 @@ var pads: Array[Button] = []
 var start_button: Button
 var pause_button: Button
 var music_button: Button
+var progress_bar: ProgressBar
+var lane_flash_overlays: Array[ColorRect] = []
+var notes_layer: Control
+var note_nodes: Array[TextureRect] = []
+var feedback_panels: Array[Panel] = []
+var feedback_labels: Array[UI.LearningText] = []
+var feedback_rings: Array[TextureRect] = []
+var stage_glow: TextureRect
+var beat_dot: TextureRect
 
 func _ready() -> void:
 	name = "SnackJam"
@@ -69,6 +92,8 @@ func _ready() -> void:
 	music.playback_type = AudioServer.PLAYBACK_TYPE_STREAM
 	add_child(music)
 	music.finished.connect(_music_finished)
+	_build_art()
+	_rebuild_note_nodes()
 	score_label = UI.label(self,"0 / %d snacks" % round_state.notes.size(),Rect2(0,0,250,31),21)
 	combo_label = UI.label(self,"Combo 0 · Best 0",Rect2(269,0,440,31),20,UI.GREEN)
 	time_label = UI.label(self,"53 seconds",Rect2(792,0,182,31),18,UI.GREEN,true)
@@ -145,7 +170,7 @@ func choose_mode(selected: String) -> void:
 	shown_misses.clear()
 	_refresh_preferences()
 	_refresh_score()
-	queue_redraw()
+	_sync_art()
 
 func adjust_timing(amount: int) -> void:
 	if started: return
@@ -168,7 +193,7 @@ func start() -> void:
 	output_latency = AudioServer.get_output_latency()
 	ready_panel.hide()
 	start_button.disabled = true
-	start_button.text = "Have fun, Pip!"
+	start_button.text = "Have fun!"
 	pause_button.disabled = false
 	pause_button.text = "Pause"
 	helper_label.words = Text.line("jam_playing",game_level)
@@ -202,7 +227,7 @@ func restart() -> void:
 	UI.clear_outcome(cue)
 	helper_label.words = Text.line("jam_restart",game_level)
 	_refresh_score()
-	queue_redraw()
+	_sync_art()
 
 func set_paused(value: bool) -> void:
 	if not started or stopped or finished_once or paused == value: return
@@ -214,7 +239,7 @@ func set_paused(value: bool) -> void:
 	pause_layer.visible = value
 	pause_button.text = "Resume" if value else "Pause"
 	if value: pause_button.grab_focus()
-	queue_redraw()
+	_sync_art()
 
 func stop() -> void:
 	stopped = true
@@ -268,7 +293,7 @@ func tap(lane: int) -> void:
 		actor.happy_time = 0.9
 		if round_state.combo > 0 and round_state.combo%8 == 0 and not gentle:
 			twirl_time = 0.65
-			helper_label.words = "%d in a row! Pip loves your groove." % round_state.combo
+			helper_label.words = "%d in a row! {pet_name} loves your groove." % round_state.combo
 	elif rating == "extra":
 		cue.words = "✕ EXTRA TAP!"
 		UI.outcome_label(cue,false)
@@ -278,7 +303,7 @@ func tap(lane: int) -> void:
 		cue.words = "Feel the beat"
 		UI.clear_outcome(cue)
 	_refresh_score()
-	queue_redraw()
+	_sync_art()
 
 func advance_to(seconds: float) -> void:
 	if not started or paused or resume_countdown > 0 or stopped or finished_once: return
@@ -305,6 +330,7 @@ func _refresh_score() -> void:
 	score_label.words = "%d / %d snacks" % [round_state.perfect+round_state.good,round_state.notes.size()]
 	combo_label.words = ("In a row: %d · Best: %d" if game_level == "kindergarten" else "Combo %d · Best %d") % [round_state.combo,round_state.best_combo]
 	time_label.words = "%ds left" % ceili(Rules.DURATION-round_state.clock) if started else "53 seconds"
+	_sync_art()
 
 func _process(delta: float) -> void:
 	if paused or stopped: return
@@ -337,73 +363,131 @@ func _process(delta: float) -> void:
 	actor.scale.x = 0.68*(cos((1-twirl_time/0.65)*TAU) if twirl_time>0 and not gentle else 1.0)
 	actor._update_costume_pose()
 	actor.queue_redraw()
-	queue_redraw()
+	_sync_art()
 
-func _star(center: Vector2, radius: float, color: Color) -> void:
-	var points = PackedVector2Array()
-	for i in range(10):
-		points.append(center+Vector2.from_angle(-PI/2+i*PI/5)*radius*(1 if i%2==0 else 0.46))
-	draw_colored_polygon(points,color)
+func _art_texture(node_name: String, image: Texture2D, rect: Rect2, _layer: int) -> TextureRect:
+	var node = TextureRect.new()
+	node.name = node_name
+	node.texture = image
+	node.position = rect.position
+	node.size = rect.size
+	node.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	node.stretch_mode = TextureRect.STRETCH_SCALE
+	node.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	node.z_index = 0
+	add_child(node)
+	return node
 
-func _note(lane: int, y: float) -> void:
-	var x: float = LANE_X[lane]
-	draw_style_box(UI.style(UI.CREAM,12,LANE_COLORS[lane]),Rect2(x-37,y-21,74,42))
-	var c: Color = LANE_COLORS[lane]
-	if lane == 0:
-		draw_circle(Vector2(x-18,y+3),9,c)
-		draw_circle(Vector2(x-22,y-3),6,c)
-		draw_circle(Vector2(x-13,y-3),6,c)
-		draw_line(Vector2(x-18,y-7),Vector2(x-12,y-13),UI.GREEN,3,true)
-	elif lane == 1:
-		draw_colored_polygon(PackedVector2Array([Vector2(x-19,y-13),Vector2(x-10,y),Vector2(x-18,y+13),Vector2(x-27,y)]),c)
-		draw_line(Vector2(x-18,y-8),Vector2(x-18,y+8),UI.CREAM,2,true)
-	else:
-		draw_colored_polygon(PackedVector2Array([Vector2(x-27,y-7),Vector2(x-9,y-7),Vector2(x-22,y+14)]),c)
-		draw_line(Vector2(x-18,y-8),Vector2(x-16,y-15),UI.GREEN,3,true)
-	draw_string(UI.HEADING_FONT,Vector2(x+4,y+7),["A","S","D"][lane],HORIZONTAL_ALIGNMENT_LEFT,-1,20,UI.INK)
+func _build_art() -> void:
+	progress_bar = ProgressBar.new()
+	progress_bar.name = "JamProgress"
+	progress_bar.position = Vector2(0,38)
+	progress_bar.size = Vector2(974,5)
+	progress_bar.min_value = 0
+	progress_bar.max_value = Rules.DURATION
+	progress_bar.show_percentage = false
+	progress_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	progress_bar.add_theme_stylebox_override("background",UI.style(Color("e7e4d9"),3))
+	progress_bar.add_theme_stylebox_override("fill",UI.style(UI.GREEN,3))
+	add_child(progress_bar)
 
-func _draw() -> void:
-	if round_state == null: return
-	draw_style_box(UI.style(Color("e7e4d9"),3),Rect2(0,38,974,5))
-	if round_state.clock>0:
-		draw_style_box(UI.style(UI.GREEN,3),Rect2(0,38,974*round_state.clock/Rules.DURATION,5))
-	draw_style_box(UI.style(Color("ede9dc"),20),Rect2(0,49,606,357))
+	var lane_shell = UI.panel(self,Rect2(0,49,606,357),Color("ede9dc"),20)
+	lane_shell.name = "JamLaneShell"
 	for i in range(3):
-		draw_style_box(UI.style(Color("f7f4e9").lerp(LANE_COLORS[i],lane_flash[i]*0.75),16),Rect2(11+i*198,59,188,340))
-		draw_line(Vector2(LANE_X[i],71),Vector2(LANE_X[i],337),Color("e0dbc9"),2,true)
-		draw_circle(Vector2(LANE_X[i],HIT_Y),28,LANE_COLORS[i].lightened(0.77))
-		draw_arc(Vector2(LANE_X[i],HIT_Y),28,0,TAU,40,LANE_COLORS[i],3,true)
-	if started:
-		var approach: float = Rules.SETTINGS[mode].approach
-		for note in round_state.notes:
-			if note.status != "waiting": continue
-			var ahead: float = note.time-round_state.clock
-			if ahead <= approach and ahead >= -Rules.SETTINGS[mode].window:
-				_note(note.lane,HIT_Y-(HIT_Y-TOP_Y)*ahead/approach)
-	for i in range(3):
-		if not lane_results[i].is_empty():
-			var color = UI.CORRECT if lane_results[i].correct else UI.INCORRECT
-			draw_style_box(UI.style(UI.FEEDBACK_BG,9,color),Rect2(22+i*198,65,166,37))
-			draw_string(UI.HEADING_FONT,Vector2(28+i*198,92),lane_results[i].words,HORIZONTAL_ALIGNMENT_CENTER,154,24,color)
-			draw_arc(Vector2(LANE_X[i],HIT_Y),30,0,TAU,40,color,4,true)
-	var glow = minf(round_state.combo/24.0,1.0)
-	draw_style_box(UI.style(Color("eae4ef").lerp(Color("f6e7bc"),glow*0.65),20),Rect2(621,49,353,357))
-	# Soft stage decorations, with no full-screen flashes or camera shaking.
-	for x in [659,936]:
-		draw_colored_polygon(PackedVector2Array([Vector2(x,135),Vector2(x-28,313),Vector2(x+28,313)]),Color(1,0.95,0.76,0.25+glow*0.15))
-	for i in range(5):
-		_star(Vector2(675+i*60,153+(i%2)*10),7+glow*2,Color("c5b69e").lerp(Color("bc9443"),glow))
-	draw_style_box(UI.style(Color("c5b59b"),8),Rect2(638,323,319,15))
-	draw_ellipse_shadow()
-	for x in [640,923]:
-		draw_style_box(UI.style(Color("777d78"),7),Rect2(x,268,33,54))
-		draw_circle(Vector2(x+16,283),8,Color("515e55"))
-		draw_circle(Vector2(x+16,305),11,Color("515e55"))
-	var pulse_time = Rules.BEAT*3-resume_countdown if resume_countdown>0 else (round_state.clock if started else idle_clock)
-	var pulse = (cos(pulse_time/Rules.BEAT*TAU)+1)/2 if not gentle else 0.5
-	draw_circle(Vector2(795,339),4+pulse*2,UI.GREEN)
+		_art_texture("JamLane%d" % i,LANE_TEXTURES[i],Rect2(11+i*198,59,188,340),-19)
+		var flash = ColorRect.new()
+		flash.name = "JamLaneFlash%d" % i
+		flash.position = Vector2(11+i*198,59)
+		flash.size = Vector2(188,340)
+		flash.color = Color.TRANSPARENT
+		flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		add_child(flash)
+		lane_flash_overlays.append(flash)
 
-func draw_ellipse_shadow() -> void:
-	draw_set_transform(Vector2(794,318),0,Vector2(1,0.13))
-	draw_circle(Vector2.ZERO,57,Color(0.28,0.28,0.22,0.13))
-	draw_set_transform(Vector2.ZERO)
+	notes_layer = Control.new()
+	notes_layer.name = "JamNotes"
+	notes_layer.position = Vector2.ZERO
+	notes_layer.size = size
+	notes_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(notes_layer)
+
+	for i in range(3):
+		var feedback_panel = UI.panel(self,Rect2(22+i*198,65,166,37),UI.FEEDBACK_BG,9)
+		feedback_panel.name = "JamLaneFeedback%d" % i
+		feedback_panel.hide()
+		var feedback_label = UI.label(feedback_panel,"",Rect2(6,0,154,37),24,UI.CORRECT,true)
+		feedback_labels.append(feedback_label)
+		feedback_panels.append(feedback_panel)
+		var ring = _art_texture("JamHitFeedback%d" % i,HIT_FEEDBACK_RING,Rect2(LANE_X[i]-32,HIT_Y-32,64,64),-16)
+		ring.hide()
+		feedback_rings.append(ring)
+
+	_art_texture("JamStage",STAGE_BASE,Rect2(621,49,353,357),-20)
+	stage_glow = _art_texture("JamStageGlow",STAGE_GLOW,Rect2(621,49,353,357),-19)
+	stage_glow.modulate.a = 0.0
+	beat_dot = _art_texture("JamBeatDot",BEAT_DOT,Rect2(785,329,20,20),-18)
+	beat_dot.pivot_offset = Vector2(10,10)
+
+func _rebuild_note_nodes() -> void:
+	if not is_instance_valid(notes_layer) or round_state == null:
+		return
+	for node in note_nodes:
+		if is_instance_valid(node):
+			node.hide()
+			node.queue_free()
+	note_nodes.clear()
+	for i in range(round_state.notes.size()):
+		var note: Dictionary = round_state.notes[i]
+		var lane: int = int(note.lane)
+		var node = TextureRect.new()
+		node.name = "JamNote%03d" % i
+		node.texture = NOTE_TEXTURES[lane]
+		node.size = Vector2(74,42)
+		node.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		node.stretch_mode = TextureRect.STRETCH_SCALE
+		node.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		node.hide()
+		notes_layer.add_child(node)
+		note_nodes.append(node)
+
+func _sync_art() -> void:
+	if round_state == null or not is_instance_valid(progress_bar):
+		return
+	progress_bar.value = clampf(round_state.clock,0.0,Rules.DURATION)
+	if note_nodes.size() != round_state.notes.size():
+		_rebuild_note_nodes()
+	for i in range(3):
+		var flash_color: Color = LANE_COLORS[i]
+		flash_color.a = clampf(lane_flash[i]/0.24*0.18,0.0,0.18)
+		lane_flash_overlays[i].color = flash_color
+		if lane_results[i].is_empty():
+			feedback_panels[i].hide()
+			feedback_rings[i].hide()
+		else:
+			var result_color: Color = UI.CORRECT if lane_results[i].correct else UI.INCORRECT
+			feedback_panels[i].add_theme_stylebox_override("panel",UI.style(UI.FEEDBACK_BG,9))
+			feedback_labels[i].words = lane_results[i].words
+			feedback_labels[i].add_theme_color_override("default_color",result_color)
+			feedback_labels[i].add_theme_font_override("normal_font",UI.HEADING_FONT)
+			feedback_panels[i].show()
+			feedback_rings[i].modulate = result_color
+			feedback_rings[i].show()
+
+	var approach: float = Rules.SETTINGS[mode].approach
+	for i in range(note_nodes.size()):
+		var node = note_nodes[i]
+		var note: Dictionary = round_state.notes[i]
+		node.hide()
+		if not started or note.status != "waiting":
+			continue
+		var ahead: float = note.time-round_state.clock
+		if ahead <= approach and ahead >= -Rules.SETTINGS[mode].window:
+			var y: float = HIT_Y-(HIT_Y-TOP_Y)*ahead/approach
+			node.position = Vector2(LANE_X[int(note.lane)]-37,y-21)
+			node.show()
+
+	var glow := minf(round_state.combo/24.0,1.0)
+	stage_glow.modulate.a = glow*0.65
+	var pulse_time: float = Rules.BEAT*3-resume_countdown if resume_countdown>0 else (round_state.clock if started else idle_clock)
+	var pulse: float = (cos(pulse_time/Rules.BEAT*TAU)+1)/2 if not gentle else 0.5
+	beat_dot.scale = Vector2.ONE*(0.65+pulse*0.35)

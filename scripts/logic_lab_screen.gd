@@ -48,14 +48,42 @@ var highlighted: int = -1
 var seed_jar
 
 class SeedJar extends Control:
+	const JAR_TEXTURE = preload("res://assets/minigames/logic_lab/seed_jar.png")
+	const SEED_TEXTURE = preload("res://assets/minigames/logic_lab/seed.png")
 	var count: int = 0
-	func _draw() -> void:
-		draw_style_box(preload("res://scripts/ui.gd").style(Color("f8fcf2"),13,Color("96ac94")),Rect2(8,11,91,94))
-		draw_style_box(preload("res://scripts/ui.gd").style(Color("cbae79"),6),Rect2(5,3,97,17))
-		for i in range(mini(count,20)):
+	var seed_nodes: Array[TextureRect] = []
+
+	func _ready() -> void:
+		var jar = TextureRect.new()
+		jar.name = "JarImage"
+		jar.texture = JAR_TEXTURE
+		jar.position = Vector2.ZERO
+		jar.size = Vector2(108,110)
+		jar.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		jar.stretch_mode = TextureRect.STRETCH_SCALE
+		jar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		add_child(jar)
+		for i in range(20):
+			var seed = TextureRect.new()
+			seed.name = "Seed%02d" % i
+			seed.texture = SEED_TEXTURE
 			var point = Vector2(25+(i%4)*19,91-floori(float(i)/4)*15)
-			draw_circle(point,6,Color("d9b04e"))
-			draw_line(point+Vector2(0,-3),point+Vector2(0,3),Color("b28631"),1.5,true)
+			seed.position = point-Vector2(8,8)
+			seed.size = Vector2(16,16)
+			seed.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			seed.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			seed.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			add_child(seed)
+			seed_nodes.append(seed)
+		_refresh_seeds()
+
+	func set_count(value: int) -> void:
+		count = clampi(value,0,20)
+		_refresh_seeds()
+
+	func _refresh_seeds() -> void:
+		for i in range(seed_nodes.size()):
+			seed_nodes[i].visible = i < count
 
 class BlockCard extends Button:
 	var lab
@@ -255,7 +283,8 @@ func _program_changed() -> void:
 
 func show_hint() -> void:
 	UI.neutral_feedback(feedback)
-	feedback.words = "Pip's hint: " + mission.hints[mini(hint_index,mission.hints.size()-1)]
+	feedback.teaching = true
+	feedback.words = "{pet_name}'s hint: " + mission.hints[mini(hint_index,mission.hints.size()-1)]
 	hint_index += 1
 
 func begin_run() -> bool:
@@ -308,9 +337,10 @@ func advance_trace() -> void:
 	var current: Dictionary = report.trace[trace_index]
 	state = current.state.duplicate(true)
 	highlighted = current.row
-	feedback.words = "Pip: " + current.words
+	feedback.words = "{pet_name}: " + current.words
 	if current.action in ["pass","error"]: UI.show_feedback(feedback,current.action == "pass")
 	else: UI.neutral_feedback(feedback)
+	feedback.teaching = true
 	visit_label.words = "Visit %d of %d · %s" % [current.visit,mission.cases.size(),"testing" if current.action != "pass" else "works!"]
 	if current.action == "setup":
 		actor.eating_time = 0
@@ -333,7 +363,7 @@ func finish_run() -> void:
 	active = false
 	autoplay = false
 	highlighted = -1
-	feedback.words = "Pip: " + report.message
+	feedback.words = "{pet_name}: " + report.message
 	UI.show_feedback(feedback,report.success,"✓ PLAN WORKS!" if report.success else "✕ TRY AGAIN!")
 	if report.success:
 		progress_label.words = "Program complete! " + ("Already collected: practice as often as you like." if already_completed else "First solution: +25 gold and +2 berries.")
@@ -357,8 +387,7 @@ func _reset_world() -> void:
 func _update_world(snap: bool = false) -> void:
 	stats.words = "Seeds in jar: %d\nGoal: exactly 6" % state.seeds if mission.bowl < 0 else "Fullness %d   ·   Happiness %d\nHungry: %s   ·   Berry: %s" % [state.fullness,state.happiness,"yes" if state.fullness < 60 else "no","yes" if state.has_food else "no"]
 	food_icon.visible = mission.bowl >= 0 and state.has_food
-	seed_jar.count = state.seeds
-	seed_jar.queue_redraw()
+	seed_jar.set_count(state.seeds)
 	actor_target = Vector2(54+state.position*87 if mission.bowl >= 0 else 105,163)
 	if snap or gentle:
 		actor.position = actor_target

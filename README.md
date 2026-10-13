@@ -1,12 +1,24 @@
 # CritterCare
 
-**Release 1.6.1 · Learn with Pip**
+**Release v1.6.3 · Learn with your little friend**
 
-A complete, offline 2D pet-care game that teaches beginner programming through play. Meet Pip, a little hamster with a lot of curiosity.
+## Update v1.6.3
 
-![Scrollable game cards](docs/games-menu-preview.png)
+Built on the teammate's consolidated image-based version. All 36 Shop PNGs and six themes are preserved.
 
-## What changed in 1.6.1
+- **Clean answer feedback:** light panels, large bold green/red outcome words, and readable explanation text.
+- **Teaching-only highlights:** vocabulary stands out in the pet's lessons, hints, explanations, and Knowledge entries. Menus, game rules, quiz questions/choices, and instruction blocks stay plain.
+- **Choose your pet's name:** keep Pip or name him before the first tutorial. Rename him later in Settings. Reset asks again. Earlier saves keep their achievements and get the name choice once.
+- **Save / Load:** Settings now has three named manual slots, each with Save, Load, and Delete. Automatic saving continues. Replacing, loading, or deleting asks for confirmation. Reset clears the current game; manual slots stay until deleted.
+- **Easier PNG additions:** run `python tools/add_shop_item.py` to register a correctly sized image with category, slot, theme, price, and description. See [SHOP_IMAGES.md](docs/SHOP_IMAGES.md).
+- Both the editable F5 project and a freshly rebuilt itch.io ZIP are included.
+
+## Earlier update: 1.6.2
+
+- Added themed outfits and room PNGs.
+- Updated the image-based art pipeline and colors.
+
+## Earlier update: 1.6.1
 
 - **Games / Quizzes now scrolls.** Use the mouse wheel or drag the green scrollbar to browse all six activities. Tab reveals the focused Play button. Stage selection and Close stay in place.
 - Every game has a matching card with its **title, how to play, goal, and rewards**, including Picnic Catch, Logic Lab, and Snack Jam. Descriptions follow your selected Game level, with short, playful wording for Kindergarten–Elementary.
@@ -14,9 +26,9 @@ A complete, offline 2D pet-care game that teaches beginner programming through p
 - The tutorial automatically scrolls its highlighted Picnic Catch button into view.
 - The normal project and itch.io build include the same update. No progress reset is needed.
 
-## Previous update: 1.6.0
+## Earlier update: 1.6.0
 
-- Every incorrect quiz answer, sort, loop attempt, Lab plan, picnic catch/miss, and rhythm tap/miss gets bold **pure red** feedback. Correct attempts use **bright green**, with check/cross symbols and clear words as well as color.
+- Every incorrect quiz answer, sort, loop attempt, Lab plan, picnic catch/miss, and rhythm tap/miss gets bold **red** feedback. Correct attempts use **bright green**, with check/cross symbols and clear words as well as color.
 - All 34 lessons have short beginner versions. Kindergarten–Elementary gets small, playful thoughts, simple quiz wording, and plain-word rules. Middle–Highschool adds worked examples; College adds definitions and deeper explanations. All levels start from zero programming knowledge.
 - The selected **Game level** now controls teaching and game-screen wording even at the first stage. It still controls how far the existing learning path can grow. Snack Jam's Chill/Standard/Lively settings remain separate.
 - Repeated automatic lessons wait **60 seconds per concept** after display. Repeated Shop explanations are also limited. Other new concepts can still appear. Answer feedback, manual Knowledge reading, Hint, and the tutorial remain immediately available.
@@ -46,7 +58,9 @@ On Windows, you can also drag `project.godot` into Godot's Project Manager. Open
 
 ## Confirm you opened the update
 
-The bottom-right footer should say **v1.6.1 · Learn with Pip**. If it does not, that is an older copy of the game. Extract this download into a fresh folder and import the `project.godot` from that folder rather than launching a previous Project Manager entry. Updating the source folder does not update an already uploaded itch.io game: replace the browser upload with the new **CritterCare-itchio-v1.6.1.zip**, save the itch.io page, and reload it. This release is also supplied with versioned filenames so it is easy to identify the current download. New saves and Reset progress start the guided tour automatically. With an existing save, choose Settings → Replay tutorial to see it without losing progress.
+The bottom-right footer should show **v1.6.3**, followed by your pet's name. If it does not, that is an older copy of the game. Extract this download into a fresh folder and import the `project.godot` from that folder rather than launching a previous Project Manager entry. New saves and Reset progress ask for a name, then start the guided tour. With an existing save, choose Settings → Replay tutorial to see it without losing progress.
+
+The matching browser build is `builds/CritterCare-itchio.zip`. After future edits, use **Project → Tools → Export CritterCare for itch.io** to rebuild it. Generated browser files live in `builds/web/`; the older duplicate `critter_care_web_version/` export is not shipped.
 
 ## New: Pip’s Snack Jam
 
@@ -62,11 +76,9 @@ See **[Snack Jam guide](docs/SNACK_JAM.md)** for controls, scoring, timing setti
 
 ## Easier-to-notice teaching terms
 
-Programming ideas now use **bold, dark text on a soft yellow highlight** throughout Pip's speech, the Knowledge book, tutorial, lesson introductions, quiz questions and choices, mini-game rules and feedback, and Logic Lab blocks, hints, and live explanations. This includes IF, THEN, ELSE, Boolean, true/false, variables, loops, input/output, and the higher-stage concepts.
+Programming terms use **bold dark text on soft yellow** only when the pet is teaching: lesson bubbles, Knowledge quotes/explanations/code, guided lessons, educational hints, and answer explanations. Ordinary greetings, menus, game rules, quiz questions and choices, Logic Lab blocks, scores, and buttons stay plain.
 
-Highlights appear automatically at every Game level. The same treatment applies to vocabulary in every quiz choice, independent of whether it is the correct answer. Ordinary lowercase “and”, “or”, “not”, and “for” in prose remain plain; explicit logic words and lowercase code keywords stand out. Highlighting uses both weight and a background, not color alone.
-
-Long speech is measured with the highlighted font before pagination. Knowledge and feedback remain scrollable, and long code examples now scroll too. Dialogue files and saved quotes remain plain text. See **[editing text and highlighting](docs/TEXT_HIGHLIGHTING.md)** to extend the vocabulary or change its appearance.
+This applies at every Game level. Dialogue and saved quotes remain plain strings; the UI decides whether a particular message is teaching. Long teaching speech is measured before pagination, and Knowledge and feedback remain scrollable. See [TEXT_HIGHLIGHTING.md](docs/TEXT_HIGHLIGHTING.md) for the explicit `UI.teach()` opt-in.
 
 ## Pip's Logic Lab
 
@@ -78,17 +90,27 @@ Each first solution earns **25 gold + 2 berries**. Completions save permanently 
 
 ![Pip's Logic Lab](docs/logic-lab-preview.png)
 
+## Save, load, and name your pet
+
+![Manual save slots](docs/save-slots-preview.png)
+
+Open **Settings (···) → Save / Load** for three manual save slots. Choose **Save here**, enter a title, and confirm. Each slot keeps the pet name, treats, gold, purchases, equipment, discoveries, full quotes, game records, tutorial state, and settings from that moment. **Load** returns to that saved point and makes it the current automatic save. Save the current game in another slot first if you want to keep both.
+
+**Delete** empties only the selected slot after confirmation. It does not reset the current game. Reset progress starts the current game over, while saved slots remain available to restore or delete. Slots are local to this device/browser; native and Web saves are separate. See [SAVE_LOAD.md](docs/SAVE_LOAD.md).
+
+First play offers **Keep Pip** or **Use this name**. Names can contain up to 12 letters/numbers, spaces, apostrophes, and hyphens. **Settings → Rename pet** changes the name later. New dialogue and labels use it; previously captured Knowledge quotes keep their exact original wording.
+
 ## A first-play tutorial
 
 ![Green arrows guide the first-play tutorial](docs/tutorial-preview.png)
 
-A new save starts a **15-step guided tour**. A **green arrow and outline** point to the real control or part of Pip to use, and short instructions explain what it does. Players pet Pip, hold and drag him, let him land, offer a treat, and read a complete speech lesson. The tour then introduces needs and gold, Knowledge, the pet/room Shop tabs, Game level settings, and Games / Quizzes including Picnic Catch.
+After choosing a pet name, a new save starts a **15-step guided tour**. A **green arrow and outline** point to the real control or part of Pip to use, and short instructions explain what it does. Players pet Pip, hold and drag him, let him land, offer a treat, and read a complete speech lesson. The tour then introduces needs and gold, Knowledge, the pet/room Shop tabs, Game level settings, and Games / Quizzes including Picnic Catch.
 
 The tour waits for the actual action on interaction steps. Informational steps have **Next**; **Skip step** can bypass a difficult gesture. **Skip tutorial** or **Esc** ends the tour. Normal needs do not drain while the tour is open, and other lesson bubbles wait their turn. Green arrow movement stops when Gentler movement is enabled. Mouse/touch guidance and keyboard focus use the same targets; Tab cycles between the highlighted control and tutorial controls.
 
-Completing or skipping the tour saves that choice. It does not repeat on ordinary launches. If you close the game before finishing or skipping, the tour starts from the welcome next time. **Reset progress** clears completion and immediately starts the tour again, while retaining the selected Game level and comfort settings. **Settings → Replay tutorial** starts it without resetting your save. The practice pet/feed actions affect care and inventory normally; no gold or purchases are required. If Pip is full, still chewing, or the pouch is empty during a replay, the feeding step offers a way to continue.
+Completing or skipping the tour saves that choice. It does not repeat on ordinary launches. If you close the game before finishing or skipping, the tour starts from the welcome next time. **Reset progress** clears completion, asks for a pet name, and starts the tour again, while retaining the selected Game level and comfort settings. **Settings → Replay tutorial** starts it without resetting your save. The practice pet/feed actions affect care and inventory normally; no gold or purchases are required. If Pip is full, still chewing, or the pouch is empty during a replay, the feeding step offers a way to continue.
 
-Existing saves from before this release retain their progress and open normally; use Replay tutorial to take the new tour.
+Existing saves retain their progress and receive a one-time name choice. Their tutorial completion stays intact; use Replay tutorial to take the tour again.
 
 ## Meet Pip
 
@@ -100,6 +122,8 @@ Existing saves from before this release retain their progress and open normally;
 | Release the mouse | Drop or put him down; gravity, a soft bounce, and a settling animation take over |
 | Feed Critter | Choose a berry, seed, or carrot from your inventory |
 | Games / Quizzes | Follow the learning path, practice earlier stages, and earn treats and coins |
+| Settings → Save / Load | Save a named story, load it, or delete its slot |
+| Settings → Rename pet | Change the name without resetting progress |
 | Settings → Replay tutorial | Follow the green arrows through the basics again |
 | Games / Quizzes → Play Snack Jam | Tap three rhythm lanes, dance with Pip, and earn gold |
 | Games / Quizzes → Open Logic Lab | Build and run a program with Pip |
@@ -114,9 +138,9 @@ Existing saves from before this release retain their progress and open normally;
 | `Esc` | Return home from a menu or game |
 | `Tab`, `Enter` | Move through and activate UI buttons |
 
-Pip breathes, blinks, looks toward the pointer, washes his face, reacts happily, chews snacks, dangles, leans in all four movement directions, falls, and settles after a landing. The animations are built from vector shapes and damped springs, so there is no sprite-sheet dependency. This is an animated spring-based ragdoll, implemented in GDScript; it does not require a physics-joint rig.
+Pip breathes, blinks, looks toward the pointer, washes his face, reacts happily, chews snacks, dangles, leans in all four movement directions, falls, and settles after a landing. Pip's base body animations are built from vector shapes and damped springs, while purchasable accessories are transparent PNG layers. This is an animated spring-based ragdoll implemented in GDScript; it does not require a physics-joint rig or a separate animation set for each hat.
 
-The `···` button opens sound, gentler-movement, game-level, and reset settings. Gentler movement reduces swaying and breathing and removes landing bounce. **Reset progress** asks for confirmation, then clears discoveries, coins, purchases, equipped items, stage badges, scores, picnic records, Snack Jam records, Logic Lab completions, wins, and care counts. It restores the starter treats and default room/Pip appearance, restarts the tutorial, and keeps comfort settings and the selected game level.
+The `···` button opens Save / Load, Rename pet, sound, gentler-movement, game-level, and reset settings. Gentler movement reduces swaying and breathing and removes landing bounce. **Reset progress** asks for confirmation, then clears discoveries, coins, purchases, equipped items, stage badges, scores, picnic records, Snack Jam records, Logic Lab completions, wins, and care counts. It restores the starter treats and default room/Pip appearance, asks for a name and restarts the tutorial, and keeps comfort settings and the selected game level. Manual save slots remain available until you delete them in Save / Load.
 
 ## Care, rewards, and learning
 
@@ -168,16 +192,9 @@ Kindergarten–Elementary always stays at Stage 1. Higher levels start there too
 
 Each completed curriculum activity awards **12 + floor(score / 10) + 5 × stage index** coins, plus **8 extra coins for a win**. Stage indexes are 0–3. A perfect beginner activity therefore gives 30 coins; even a completed 0% attempt gives 12 practice coins. Coins are earned through play only.
 
-The top **GOLD** display shows only your balance. Open Shop with the **gold Shop button at the bottom right**. **S** also opens it from the home screen. Shop is available immediately, even with zero coins. The Shop has **Pet accessories** and **Room decorations** tabs. Buy an item once, then use its **Equip** and **Unequip** buttons at no further cost. Ownership and the current look save automatically. Equipping another item for the same spot replaces only the active appearance; both items remain owned. Hats, neck accessories, and spectacles combine. Room rugs, wallpaper, lighting, and bunting combine.
+The top **GOLD** display shows only your balance. Open Shop with the **gold Shop button at the bottom right**. **S** also opens it from the home screen. Shop is available immediately, even with zero coins. The Shop has **Pet accessories** and **Room decorations** tabs. Buy an item once, then use its **Equip** and **Unequip** buttons at no further cost. Ownership and the current look save automatically. Equipping another item for the same slot replaces only the active appearance; both items remain owned. Pet slots are Head, Face, and Neck. Room slots are Wallpaper, Room Decor, and Rug.
 
-| Pet accessory | Coins | Room decoration | Coins |
-| --- | ---: | --- | ---: |
-| Little leaf hat | 20 | Berry blush rug | 25 |
-| Berry bow tie | 35 | Cloud blue rug | 50 |
-| Round spectacles | 60 | Peach wallpaper | 60 |
-| Cozy blue scarf | 75 | Firefly lantern | 90 |
-| Daisy sunhat | 110 | Twilight wallpaper | 120 |
-| Starlight crown | 180 | Party bunting | 150 |
+The catalog is organized into six complete sets, and each set occupies exactly one 3-card row in both tabs: **Nature, Study, Smart Casual, Halloween, Christmas, and Pixel Knight**. This creates 18 Pet accessories and 18 Room decorations, for 36 themed Shop items total.
 
 Accessories follow Pip's swaying, carrying, and landing motion. Decorations update the actual home room. These are cosmetic purchases and do not change learning requirements or game rewards. Reset progress clears all purchases; ordinary unequipping, switching levels, or reopening the game does not.
 
@@ -187,7 +204,7 @@ GDScript snippets in the book are deliberately simplified teaching examples of t
 
 The game automatically saves inventory, needs, discoveries, care counts, wins, local scores, sound, gentler movement, the selected game level, coins, permanent purchases, equipped items, stage badges, the chosen practice stage, picnic best streak and completed rounds, Logic Lab completions, Snack Jam bests by rhythm mode, completed songs, rhythm/timing preferences, tutorial completion, and the full encountered explanation for each lesson. Saves happen after important actions, every 30 seconds, and on focus loss/close. Live animation poses and unfinished mini-game rounds are not saved; Pip returns to his resting place when the game starts again.
 
-The save is `user://crittercare_save.json`. On Windows, this is normally:
+The current automatic save is `user://crittercare_save.json`. Manual snapshots live beside it in `.slot_1.json` through `.slot_3.json` files. See [Save / Load](docs/SAVE_LOAD.md). On Windows, this is normally:
 
 ```text
 %APPDATA%\Godot\app_userdata\CritterCare\crittercare_save.json
@@ -204,14 +221,20 @@ The browser build saves in that browser's storage for the game page. Browser and
 | `project.godot` | Resolution, renderer, icon, and startup scene |
 | `scenes/main.tscn` | Home scene: coordinator, room, Pip, and interface layer |
 | `scripts/main.gd` | Home UI, learning bubbles, feeding, mini games, quizzes, and rewards |
-| `scripts/hamster.gd` | Mouse input, spring motion, animation states, and hamster vector artwork |
-| `scripts/room.gd` | Editable room, window, furniture, mat, plants, and colors |
+| `scripts/hamster.gd` | Mouse input, spring motion, animation states, and Pip's procedural body artwork |
+| `scripts/room.gd` | Layered PNG base room plus PNG decoration layers from the Shop catalog |
 | `scripts/ui.gd` | Shared UI styles, typography, and layout helpers |
-| `scripts/icon.gd` | Original vector icons and mini-game objects |
+| `scripts/icon.gd` | PNG-backed UI and mini-game icon loader |
 | `scripts/save_data.gd` | Persistence, needs, inventory validation, and scoring |
+| `scripts/save_slots.gd` | Manual save-slot metadata, validation, save, and delete |
+| `scripts/pet_name.gd` | Chosen display name and authored text tokens |
+| `docs/SAVE_LOAD.md` | Save/load/delete behavior and editing locations |
+| `docs/SHOP_IMAGES.md` | PNG accessory/decoration import guide |
+| `tools/add_shop_item.py` | Optional interactive PNG catalog importer |
 | `data/curriculum.gd` | Stage availability, prerequisites, rules, and deterministic sort outcomes |
-| `data/shop.gd` | One catalog for prices, ownership validation, categories, and equipment slots |
-| `scripts/cosmetic_art.gd` | Shared vector artwork for Shop previews and equipped accessories |
+| `data/shop.gd` | One catalog for prices, PNG textures, categories, equipment slots, and placement |
+| `assets/shop/` | PNG artwork for every purchasable pet accessory and room decoration, plus the asset-adding guide |
+| `assets/ui/icons/`, `assets/room/base/`, `assets/minigames/` | PNG-backed runtime art; sizes and replacement notes are in `assets/ART_ASSETS.md` |
 | `data/lessons.gd` | Lesson identities, middle-level worked examples/questions, and level selection |
 | `data/lesson_language.gd` | Short beginner lessons, quiz questions, and College explanation extensions |
 | `data/game_text.gd` | Tutorial and game instructions for each Game level |
@@ -246,7 +269,7 @@ The room, Pip, and most controls are drawn or created when the game runs. It is 
 
 The included **`builds/CritterCare-itchio.zip`** is already exported. A separate copy of that ZIP is also supplied with this release. Upload the browser ZIP to an itch.io **HTML Game** project and mark the upload **This file will be played in the browser**. Choose **Embed in page**, set the viewport to **960 × 600**, and enable the fullscreen button. To start loading as soon as someone opens the page, turn off itch.io's **Click to Play** option. These are settings on your itch.io page, so they cannot be switched on by a downloaded Godot project.
 
-Upload the browser ZIP intact: its `index.html` is at the ZIP root with all required companion files. The game begins at Pip's room after its initial download; no install or player account is required. Sound may wait for a player's first click. See **[docs/ITCH_IO.md](docs/ITCH_IO.md)** for the full checklist and a local browser-preview command.
+Upload the browser ZIP intact: its `index.html` is at the ZIP root with all required companion files. On a fresh save, the game asks for a pet name before the tutorial; no install or player account is required. Sound may wait for a player's first click. See **[docs/ITCH_IO.md](docs/ITCH_IO.md)** for the full checklist and a local browser-preview command.
 
 **Both downloads are built from this single source project. Every future game update must rebuild both the editable project ZIP and the itch.io ZIP.** The export helper always includes the current gameplay, learning content, and Shop data.
 
@@ -269,6 +292,9 @@ godot --headless --path . --script res://tests/verify_lab.gd -- --test-mode
 godot --headless --path . --script res://tests/verify_highlights.gd -- --test-mode
 godot --headless --path . --script res://tests/verify_jam.gd -- --test-mode
 godot --headless --path . --script res://tests/verify_feedback.gd -- --test-mode
+godot --headless --path . --script res://tests/verify_game_menu.gd -- --test-mode
+godot --headless --path . --script res://tests/verify_identity.gd -- --test-mode
+godot --headless --path . --script res://tests/verify_save_slots.gd -- --test-mode
 ```
 
 For rendered screenshots and actual pointer tests, run a test command without `--headless`, on a computer with a graphical display. You can add `--capture=/absolute/path/to/screenshots` after `--test-mode`. Always keep `--test-mode` when running the test script: it uses separate temporary save files. The tests do not modify a player's normal save.

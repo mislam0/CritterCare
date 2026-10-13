@@ -75,6 +75,7 @@ func run() -> void:
 	root.add_child(game)
 	current_scene = game
 	await frames(5)
+	if game.modal_name == "name_pet": game._complete_pet_name("Pip")
 	game.progress.sound = false
 	check(game.progress.inventory.berry == 6, "Fresh start has starter treats")
 	check(game.progress.discovered.is_empty(), "Unseen lessons are locked")
@@ -308,7 +309,10 @@ func verify_additions() -> void:
 		game.progress.game_level = level
 		check(game.progress.unlocked_stage() == 0, "Fresh " + level + " starts with the same easy stage")
 	check(not game.progress.buy("leaf_hat") and game.progress.coins == 0, "Insufficient coins cannot buy an item or create debt")
-	check(not game.progress.toggle_equip("crown"), "Unowned items cannot be equipped")
+	check(not game.progress.toggle_equip("scholar_cap"), "Unowned items cannot be equipped")
+	for id in Shop.ITEMS:
+		var texture = Shop.ITEMS[id].texture
+		check(texture is Texture2D and texture.resource_path.ends_with(".png"), "Shop item uses a PNG asset: " + str(id))
 	# The OR, NOT, ELIF, freshness, and boundary cases have independently specified outcomes.
 	check(Curriculum.sort_answer(1, 0, "button") == 0, "OR accepts a red non-berry")
 	check(Curriculum.sort_answer(1, 0, "blueberry") == 0, "OR accepts a non-red berry")
@@ -337,28 +341,44 @@ func verify_additions() -> void:
 	# Check the real shop actions, permanent ownership, and mutually exclusive slots.
 	game.progress.coins = 400
 	game.open_shop()
+	await frames(3)
+	var shop_bar = game.shop_scroll.get_v_scroll_bar()
+	check(game.shop_scroll.vertical_scroll_mode == ScrollContainer.SCROLL_MODE_SHOW_ALWAYS and shop_bar.max_value > shop_bar.page, "Shop uses a real vertical scrolling catalog")
+	var leaf_card = game.overlay.find_child("ShopCard_leaf_hat", true, false)
+	var leaf_preview = leaf_card.find_child("Preview", true, false) if is_instance_valid(leaf_card) else null
+	check(leaf_preview is TextureRect and leaf_preview.texture.resource_path.ends_with("leaf_hat.png"), "Shop cards preview the same PNG assets used by cosmetics")
+	game.shop_scroll.scroll_vertical = 80
+	await frames(2)
+	var remembered_shop_offset: int = game.shop_scroll.scroll_vertical
+	game._set_shop_category("room")
+	await frames(3)
+	game._set_shop_category("pet")
+	await frames(3)
+	check(remembered_shop_offset > 0 and abs(game.shop_scroll.scroll_vertical - remembered_shop_offset) <= 1, "Each Shop category remembers its scroll position")
 	await snap("20-shop-new")
 	game._shop_action("leaf_hat")
-	check(game.progress.coins == 380 and game.progress.owned.has("leaf_hat"), "Shop purchase charges its catalog price once")
+	check(game.progress.coins == 375 and game.progress.owned.has("leaf_hat"), "Shop purchase charges its catalog price once")
 	check(not game.progress.equipped.has("pet:head"), "Buying unlocks an item before equipping")
-	check(not game.progress.buy("leaf_hat") and game.progress.coins == 380, "Owned items cannot be purchased twice")
+	check(not game.progress.buy("leaf_hat") and game.progress.coins == 375, "Owned items cannot be purchased twice")
 	game._shop_action("leaf_hat")
 	check(game.pip.cosmetic_items.get("head") == "leaf_hat", "Equip updates Pip's actual accessory art")
+	var equipped_hat = game.pip.costumes.get_child(0) if game.pip.costumes.get_child_count() > 0 else null
+	check(equipped_hat is Sprite2D and equipped_hat.texture.resource_path.ends_with("leaf_hat.png"), "Equipped Pip accessories render from PNG sprites")
 	game._shop_action("leaf_hat")
 	check(game.progress.owned.has("leaf_hat") and not game.pip.cosmetic_items.has("head"), "Unequip removes art and preserves ownership")
 	game._shop_action("leaf_hat")
-	game._shop_action("crown")
-	game._shop_action("crown")
-	check(game.progress.equipped.get("pet:head") == "crown" and game.progress.owned.has("leaf_hat"), "Another hat replaces only the equipped hat")
+	game._shop_action("scholar_cap")
+	game._shop_action("scholar_cap")
+	check(game.progress.equipped.get("pet:head") == "scholar_cap" and game.progress.owned.has("leaf_hat"), "Another hat replaces only the equipped hat")
 	game._shop_action("bow")
 	game._shop_action("bow")
 	check(game.pip.cosmetic_items.size() == 2, "Different accessory slots can be equipped together")
 	game.shop_category = "room"
-	game._shop_action("rose_mat")
-	game._shop_action("rose_mat")
-	game._shop_action("peach_wall")
-	game._shop_action("peach_wall")
-	check(game.get_node("Room").cosmetic_items.get("rug") == "rose_mat" and game.get_node("Room").cosmetic_items.get("wall") == "peach_wall", "Room purchases change the real rug and walls together")
+	game._shop_action("leaf_rug")
+	game._shop_action("leaf_rug")
+	game._shop_action("sage_wallpaper")
+	game._shop_action("sage_wallpaper")
+	check(game.get_node("Room").cosmetic_items.get("rug") == "leaf_rug" and game.get_node("Room").cosmetic_items.get("wall") == "sage_wallpaper", "Room purchases change the real rug and walls together")
 	await snap("21-shop-room")
 	game.close_modal()
 	game.pip.position = Vector2(640,516)
@@ -466,13 +486,22 @@ func verify_additions() -> void:
 	check(legacy.inventory.berry == 17 and legacy.discovered == ["idle"], "Version 2 saves keep care progress during migration")
 	check(legacy.coins == 0 and legacy.owned.is_empty() and legacy.unlocked_stage() == 0, "Older win totals do not bypass the new beginner stages")
 	file = FileAccess.open(old_path, FileAccess.WRITE)
-	file.store_string(JSON.stringify({"coins":-50,"owned":["bow","bow","unknown"],"equipped":{"pet:head":"bow","pet:neck":"crown","room:wall":"peach_wall"},"practice_stage":99}))
+	file.store_string(JSON.stringify({"coins":-50,"owned":["bow","bow","unknown"],"equipped":{"pet:head":"bow","pet:neck":"pixel_knight_helmet","room:wall":"sage_wallpaper"},"practice_stage":99}))
 	file.close()
 	legacy = SaveData.new()
 	legacy.save_path = old_path
 	legacy.load_progress()
-	check(legacy.coins == 0 and legacy.owned == ["bow"] and legacy.equipped.is_empty(), "Invalid wallet, duplicate ownership, wrong slots, and unowned gear are sanitized")
+	check(legacy.coins == 0 and legacy.owned == ["bow"] and legacy.equipped == {"pet:neck":"bow"}, "Invalid coins, duplicate ownership, and unowned gear are sanitized; owned gear moves to its canonical slot")
 	check(legacy.active_stage() == 0, "Edited practice index cannot unlock advanced stages")
+	# Removed Pixel Knight IDs must migrate to the replacement items, including equipment.
+	file = FileAccess.open(old_path, FileAccess.WRITE)
+	file.store_string(JSON.stringify({"coins":41,"owned":["knight_cape","pixel_sword"],"equipped":{"pet:neck":"knight_cape","room:decor":"pixel_sword"}}))
+	file.close()
+	legacy = SaveData.new()
+	legacy.save_path = old_path
+	legacy.load_progress()
+	check(legacy.owned.has("pixel_chestplate") and legacy.owned.has("pixel_castle_banner") and legacy.owned.size() == 2, "Pixel Knight owned cosmetics migrate to chestplate and banner")
+	check(legacy.equipped.get("pet:neck") == "pixel_chestplate" and legacy.equipped.get("room:decor") == "pixel_castle_banner", "Old Pixel Knight equipped cosmetics migrate to the correct slots")
 	DirAccess.remove_absolute(old_path)
 
 func verify_readability() -> void:
@@ -747,6 +776,7 @@ func verify_picnic() -> void:
 
 func reset_for_checks() -> void:
 	game._reset_progress()
+	game._complete_pet_name("Pip")
 	game.tutorial.finish()
 
 func activate_tour_button(button: Button) -> void:
@@ -760,6 +790,7 @@ func activate_tour_button(button: Button) -> void:
 func verify_tutorial() -> void:
 	game.close_modal()
 	game._reset_progress()
+	game._complete_pet_name("Pip")
 	game.progress.sound = false
 	var tour = game.tutorial
 	check(tour.active and tour.step_id() == "welcome" and not game.progress.tutorial_completed, "Reset progress restarts the tutorial from its welcome")
@@ -886,6 +917,7 @@ func verify_tutorial() -> void:
 	check(legacy.tutorial_completed and legacy.coins == 75, "Pre-tutorial saves keep their progress and can use Replay without a forced tour")
 	DirAccess.remove_absolute(legacy.save_path)
 	game._reset_progress()
+	game._complete_pet_name("Pip")
 	check(tour.active and tour.step_id() == "welcome" and not game.progress.tutorial_completed and game.progress.game_level == "middle", "Reset starts the tour again while retaining the selected Game level")
 	game.tutorial.finish()
 	game.progress.sound = false
