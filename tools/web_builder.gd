@@ -42,7 +42,11 @@ static func package_web(project_dir: String) -> Dictionary:
 		"assets/fonts/OFL.txt":"Nunito-OFL.txt",
 		"assets/fonts/Code-LICENSE.txt":"DejaVu-LICENSE.txt",
 		"export_templates/4.7.2/Godot-LICENSE.txt":"Godot-LICENSE.txt",
-		"export_templates/4.7.2/Godot-COPYRIGHT.txt":"Godot-COPYRIGHT.txt"
+		"export_templates/4.7.2/Godot-COPYRIGHT.txt":"Godot-COPYRIGHT.txt",
+		"third_party/name_filter/NOTICE.md":"Name-filter-NOTICE.txt",
+		"third_party/name_filter/LDNOOBW-CC-BY-4.0.txt":"LDNOOBW-CC-BY-4.0.txt",
+		"third_party/name_filter/better-profanity-MIT.txt":"better-profanity-MIT.txt",
+		"third_party/name_filter/Unicode-LICENSE.txt":"Unicode-LICENSE.txt"
 	}
 	for source in notices:
 		var err = DirAccess.copy_absolute(project_dir.path_join(source), license_dir.path_join(notices[source]))

@@ -31,3 +31,5 @@ Unreadable slots remain visible so you can replace or delete them. Load is disab
 - `scripts/save_slots.gd`: three slot paths, names, metadata, validation, save, and delete.
 - `scripts/main.gd`: `open_save_slots()`, confirmation screens, and applying a loaded story to the current UI.
 - `tests/verify_save_slots.gd`: pointer-driven save/load/delete, cancellation, persistence, failed writes, reset retention, and both supported window sizes.
+
+As of v1.6.4, names and slot titles pass the offline friendly-name filter. Invalid new titles cannot overwrite a slot. Old blocked titles display as My story; loading a blocked pet name substitutes Pip and requests a new name while retaining progress. See [NAME_FILTER.md](NAME_FILTER.md).

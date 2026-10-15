@@ -51,8 +51,9 @@ func load_progress() -> void:
 func apply_snapshot(parsed: Variant) -> bool:
 	if not parsed is Dictionary:
 		return false
-	pet_name = Names.clean(str(parsed.get("pet_name",Names.DEFAULT)))
-	name_chosen = bool(parsed.get("name_chosen",false))
+	var previous_name = str(parsed.get("pet_name",Names.DEFAULT))
+	pet_name = Names.clean(previous_name)
+	name_chosen = bool(parsed.get("name_chosen",false)) and Names.Filter.accepts(previous_name)
 	jam_mode = Jam.normalize_mode(str(parsed.get("jam_mode","chill")))
 	jam_offset_ms = clampi(int(parsed.get("jam_offset_ms",0)),-200,200)
 	jam_rounds = maxi(0,int(parsed.get("jam_rounds",0)))
@@ -81,7 +82,7 @@ func apply_snapshot(parsed: Variant) -> bool:
 	if parsed.get("pip_quotes") is Dictionary:
 		for key in parsed.pip_quotes:
 			if key is String and discovered.has(key) and parsed.pip_quotes[key] is String:
-				pip_quotes[key] = parsed.pip_quotes[key]
+				pip_quotes[key] = Names.repair_quote(parsed.pip_quotes[key],previous_name)
 	if parsed.get("inventory") is Dictionary:
 		for key in inventory:
 			inventory[key] = clampi(int(parsed.inventory.get(key, inventory[key])), 0, 9999)
@@ -133,6 +134,12 @@ func apply_snapshot(parsed: Variant) -> bool:
 
 func snapshot() -> Dictionary:
 	var payload = {"version":9, "pet_name":pet_name, "name_chosen":name_chosen, "jam_mode":jam_mode, "jam_offset_ms":jam_offset_ms, "jam_best":jam_best, "jam_rounds":jam_rounds, "lab_completed":lab_completed, "discovered":discovered, "pip_quotes":pip_quotes, "inventory":inventory, "fullness":fullness, "happiness":happiness, "pet_count":pet_count, "feed_count":feed_count, "games_won":games_won, "picnic_best":picnic_best, "picnic_rounds":picnic_rounds, "tutorial_completed":tutorial_completed, "sound":sound, "calm":calm, "game_level":game_level, "scores":scores, "coins":coins, "owned":owned, "equipped":equipped, "stage_badges":stage_badges, "practice_stage":practice_stage}
+	if not Names.Filter.accepts(pet_name):
+		payload.pet_name = Names.DEFAULT
+		payload.name_chosen = false
+		payload.pip_quotes = pip_quotes.duplicate()
+		for key in payload.pip_quotes:
+			payload.pip_quotes[key] = Names.repair_quote(str(payload.pip_quotes[key]),pet_name)
 	return payload.duplicate(true)
 
 func write() -> Error:

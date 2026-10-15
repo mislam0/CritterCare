@@ -1,8 +1,16 @@
 # CritterCare
 
-**Release v1.6.3 · Learn with your little friend**
+**Release v1.6.4 · Learn with your little friend**
 
-## Update v1.6.3
+## Update v1.6.4
+
+- **Friendly-name filter:** first-play naming, Settings rename, and naming after Reset now reject listed inappropriate terms and common obfuscations. The preview gives a friendly red message; the name is not applied, and Enter cannot bypass the check.
+- **Offline data:** 3,246 compiled entries from 28 language lists and an English supplement, Unicode look-alike normalization, spacing/number/repetition checks, word combinations, reversed forms, and selected typo rules. All checks run locally.
+- **Saved names stay protected:** older blocked names fall back to Pip and invite a new name, preserving progress. Save-slot titles receive the same checks.
+- **Team-editable policy:** see [NAME_FILTER.md](docs/NAME_FILTER.md) for adding entries and rebuilding. Common innocent names have exact whole-name exceptions. No blacklist can catch every possible future bypass; this is deliberately strict, not a guarantee.
+- Source and browser packages both include this update and the necessary data licenses.
+
+## Earlier update: v1.6.3
 
 Built on the teammate's consolidated image-based version. All 36 Shop PNGs and six themes are preserved.
 
@@ -58,7 +66,7 @@ On Windows, you can also drag `project.godot` into Godot's Project Manager. Open
 
 ## Confirm you opened the update
 
-The bottom-right footer should show **v1.6.3**, followed by your pet's name. If it does not, that is an older copy of the game. Extract this download into a fresh folder and import the `project.godot` from that folder rather than launching a previous Project Manager entry. New saves and Reset progress ask for a name, then start the guided tour. With an existing save, choose Settings → Replay tutorial to see it without losing progress.
+The bottom-right footer should show **v1.6.4**, followed by your pet's name. If it does not, that is an older copy of the game. Extract this download into a fresh folder and import the `project.godot` from that folder rather than launching a previous Project Manager entry. New saves and Reset progress ask for a name, then start the guided tour. With an existing save, choose Settings → Replay tutorial to see it without losing progress.
 
 The matching browser build is `builds/CritterCare-itchio.zip`. After future edits, use **Project → Tools → Export CritterCare for itch.io** to rebuild it. Generated browser files live in `builds/web/`; the older duplicate `critter_care_web_version/` export is not shipped.
 
@@ -295,6 +303,7 @@ godot --headless --path . --script res://tests/verify_feedback.gd -- --test-mode
 godot --headless --path . --script res://tests/verify_game_menu.gd -- --test-mode
 godot --headless --path . --script res://tests/verify_identity.gd -- --test-mode
 godot --headless --path . --script res://tests/verify_save_slots.gd -- --test-mode
+godot --headless --path . --script res://tests/verify_name_filter.gd -- --test-mode
 ```
 
 For rendered screenshots and actual pointer tests, run a test command without `--headless`, on a computer with a graphical display. You can add `--capture=/absolute/path/to/screenshots` after `--test-mode`. Always keep `--test-mode` when running the test script: it uses separate temporary save files. The tests do not modify a player's normal save.
@@ -304,6 +313,10 @@ To build the itch.io ZIP from the command line, using **Godot 4.7.2**:
 ```sh
 godot --headless --path . --script res://tools/export_web.gd
 ```
+
+## Name-filter data
+
+The offline lists and Unicode data have separate licenses and attribution in [third_party/name_filter/NOTICE.md](third_party/name_filter/NOTICE.md). Copies accompany the browser ZIP. See [the filtering guide](docs/NAME_FILTER.md) for coverage, maintenance, saved-name repair, and limits.
 
 ## Credits and references
 

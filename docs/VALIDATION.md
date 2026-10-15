@@ -1,4 +1,4 @@
-# Validation — v1.6.3
+# Validation — v1.6.4
 
 This release uses the teammate's uploaded consolidated image-based project as its base. It targets **Godot 4.7.2 stable** (`4.7.2.stable.official.ed1daf0bf`), standard GDScript, and Compatibility rendering. One source tree powers native/F5 and the itch.io export.
 
@@ -16,11 +16,14 @@ Rendered Linux tests use an X11 display with software OpenGL. Test mode isolates
 | Scrollable game menu | 46 |
 | Naming and teaching-only scope | 23 |
 | Manual save/load/delete slots | 36 |
-| **Total** | **754** |
+| Offline name filtering and safe save migration | 190 |
+| **Total** | **944** |
 
-The new slot suite exercises real pointer clicks at 1280 × 800 and 960 × 600. It checks independent named snapshots, timestamps, overwrite/cancel, load/cancel, delete/cancel, reuse, exact quotes, saved names, inventory, gold, PNG equipment, badges, game records, preferences, current-autosave replacement, reset retention, unreadable files, and failed writes that must leave active progress intact.
+The new filter suite checks the compiled vocabulary, generated evasions, Unicode look-alikes and formatting, spacing, case, repeated letters, number substitutions, reversed terms, combinations, padding, selected misspellings, and friendly-name exceptions. It exercises first-play naming, Enter submission, renaming, Reset, old autosaves and manual slots, saved quote repair, and invalid slot titles without overwriting progress. Two hundred varied inputs took approximately 50–62 ms in the native test environment; this is not a browser performance measurement. Rejection screenshots were inspected at 1280 × 800 and 960 × 600.
 
-Naming checks cover Keep Pip, a custom name, Enter submission, Settings rename, names containing Pip, Unicode and blank names, longest allowed names, save/reload, old-save migration, and reset before the tutorial. Exact earlier Knowledge quotes survive renaming. Screenshots of naming, the tutorial, clean feedback, slot selection, and deletion were inspected; layout checks cover both supported sizes.
+The slot suite exercises real pointer clicks at 1280 × 800 and 960 × 600. It checks independent named snapshots, timestamps, overwrite/cancel, load/cancel, delete/cancel, reuse, exact quotes, saved names, inventory, gold, PNG equipment, badges, game records, preferences, current-autosave replacement, reset retention, unreadable files, and failed writes that must leave active progress intact.
+
+Naming checks cover Keep Pip, a custom name, Enter submission, Settings rename, names containing Pip, Unicode and blank names, longest allowed names, save/reload, old-save migration, and reset before the tutorial. Exact earlier Knowledge quotes survive ordinary renaming; a rejected legacy name is replaced with Pip in its recorded quotes. Screenshots of naming, the tutorial, clean feedback, slot selection, and deletion were inspected; layout checks cover both supported sizes.
 
 Teaching checks confirm ordinary menus, greetings, game rules, controls, quiz questions/choices, and Lab blocks stay plain. Actual lesson speech, Knowledge explanations/code, answer explanations, and educational hints opt into the shared vocabulary highlight. Feedback uses cream/light panels, large bold green/red outcomes, and normal dark explanation text.
 
@@ -42,7 +45,7 @@ The importer does not resize or generate artwork. New images must follow the exi
 
 The project bundles the official matching single-thread Web templates. `tools/export_web.gd` builds the browser files and `builds/CritterCare-itchio.zip` from the current source. The separate versioned browser download is the same ZIP included inside the editable project.
 
-Release packaging checks verify ZIP integrity, `index.html` at the browser ZIP root, nonempty engine/game files, license notices, and source/browser version agreement. The exported PCK is checked independently with headless Godot for version 1.6.3 and the new naming, teaching scope, and save-slot controls. Editor caches, Git metadata, Python caches, temporary files, and the older duplicate `critter_care_web_version/` export are excluded from the source download.
+Release packaging checks verify ZIP integrity, `index.html` at the browser ZIP root, nonempty engine/game files, license notices, and source/browser version agreement. The exported PCK is checked independently with headless Godot for version 1.6.4 and the bundled filter, naming controls, and protected save-slot titles. The source and browser ZIPs include the word-list and Unicode attribution/license notices. Editor caches, Git metadata, Python caches, temporary files, and the older duplicate `critter_care_web_version/` export are excluded from the source download.
 
 **An actual browser playthrough is not verified for this release.** Native tests and a successful export do not establish browser persistence, audio timing, iframe focus, fullscreen, or mobile behavior. Use [ITCH_IO.md](ITCH_IO.md) to check the intended hosting page, especially saving/loading/deleting and reloading the browser. Native mouse/keyboard and injected touch checks do not replace testing on target touch devices.
 
@@ -51,3 +54,5 @@ Release packaging checks verify ZIP integrity, `index.html` at the browser ZIP r
 The retained UI/room/activity/Shop art uses PNG assets. Pip and the tutorial pointer retain their procedural animation/drawing. Room items are decorative and do not add collision; cosmetics do not alter rewards or puzzle difficulty. Lessons and questions are authored content.
 
 Progress and manual slots are local to the device/browser profile. F5 and browser saves are separate. There are no accounts, analytics, cloud sync, or real-money purchases. Native tests ran on Linux; Windows/macOS standalone executables and a hosted itch.io page were not tested. Optional standalone desktop exports need their matching templates.
+
+The blacklist is deliberately strict but cannot guarantee every future bypass or every language. It does not defend against modification of the local game files. See [NAME_FILTER.md](NAME_FILTER.md) for coverage, maintenance, and limitations.

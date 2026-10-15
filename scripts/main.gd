@@ -13,6 +13,7 @@ const SaveData = preload("res://scripts/save_data.gd")
 const SaveSlots = preload("res://scripts/save_slots.gd")
 var save_slots = SaveSlots.new()
 var slot_name_input: LineEdit
+var slot_name_feedback: UI.LearningText
 const Lessons = preload("res://data/lessons.gd")
 const Curriculum = preload("res://data/curriculum.gd")
 const Shop = preload("res://data/shop.gd")
@@ -1664,23 +1665,30 @@ func open_name_prompt(first_choice: bool = true) -> void:
 	name_input.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	name_input.accessibility_name = "Your pet's name"
 	name_input.add_theme_font_size_override("font_size",26)
+	name_input.add_theme_color_override("font_color",UI.INK)
+	name_input.add_theme_color_override("caret_color",UI.GREEN)
 	name_input.add_theme_stylebox_override("normal",UI.style(UI.CREAM,14,UI.GREEN))
 	overlay.add_child(name_input)
 	name_preview = UI.label(overlay,"",Rect2(310,452,660,41),26,UI.GREEN,true)
 	UI.label(overlay,"Up to 12 letters or numbers. Spaces, ' and - are okay.",Rect2(307,495,666,29),16,UI.MUTED,true)
-	name_input.text_changed.connect(func(value): name_preview.words = "Hello, I'm " + UI.Names.clean(value) + "!")
-	name_input.text_changed.emit(name_input.text)
+	name_input.text_changed.connect(_refresh_name_preview)
 	name_input.text_submitted.connect(_complete_pet_name)
 	UI.button(overlay,"Keep Pip",Rect2(316,548,304,48),func(): _complete_pet_name("Pip")).name = "KeepPip"
 	UI.button(overlay,"Use this name",Rect2(659,548,304,48),func(): _complete_pet_name(name_input.text),true).name = "UsePetName"
+	_refresh_name_preview(name_input.text)
 	UI.label(overlay,"You can change his name later in Settings.",Rect2(314,637,652,40),19,UI.GREEN,true)
 	name_input.grab_focus()
 	name_input.select_all()
 
 func _complete_pet_name(value: String) -> void:
 	if modal_name != "name_pet": return
+	var checked = UI.Names.validate(value)
+	if not checked.ok:
+		_refresh_name_preview(value)
+		name_input.grab_focus()
+		return
 	var resume = name_first_choice
-	progress.pet_name = UI.Names.clean(value)
+	progress.pet_name = checked.name
 	progress.name_chosen = true
 	UI.Names.current = progress.pet_name
 	_save()
@@ -1691,6 +1699,13 @@ func _complete_pet_name(value: String) -> void:
 	_refresh_home()
 	if resume: _resume_after_name()
 	else: open_settings()
+
+func _refresh_name_preview(value: String) -> void:
+	var checked = UI.Names.validate(value)
+	name_preview.words = "Hello, I'm " + str(checked.name) + "!" if checked.ok else "Let's pick a different friendly name."
+	name_preview.add_theme_color_override("default_color",UI.GREEN if checked.ok else UI.INCORRECT)
+	var submit = overlay.get_node_or_null("UsePetName")
+	if submit != null: submit.disabled = not checked.ok
 
 func open_save_slots(notice: String = "", failed: bool = false) -> void:
 	_screen("save_slots","Save / Load","Keep three saved stories. Your current game also saves itself.")
@@ -1746,24 +1761,39 @@ func _confirm_save_slot(index: int) -> void:
 	slot_name_input.accessibility_name = "Name for this save slot"
 	slot_name_input.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	slot_name_input.add_theme_font_size_override("font_size",22)
+	slot_name_input.add_theme_color_override("font_color",UI.INK)
+	slot_name_input.add_theme_color_override("caret_color",UI.GREEN)
 	slot_name_input.add_theme_stylebox_override("normal",UI.style(UI.CREAM,14,UI.GREEN))
 	overlay.add_child(slot_name_input)
 	UI.label(overlay,"Your pet, gold, things, lessons, wins, and settings will be saved.",Rect2(278,408,724,49),20,UI.INK,true)
 	UI.label(overlay,"The old copy in this slot will be replaced." if occupied else "Up to 24 letters or numbers. A blank name becomes My story.",Rect2(278,471,724,35),17,UI.MUTED,true)
 	UI.button(overlay,"Cancel",Rect2(284,555,336,57),open_save_slots).name = "CancelSlot"
 	UI.button(overlay,"Replace save" if occupied else "Save here",Rect2(655,555,336,57),func(): _save_manual_slot(index,slot_name_input.text),true).name = "ConfirmSlot"
+	slot_name_feedback = UI.label(overlay,"",Rect2(245,632,790,42),22,UI.INCORRECT,true)
+	slot_name_feedback.name = "SlotNameFeedback"
+	slot_name_input.text_changed.connect(_refresh_slot_name)
+	_refresh_slot_name(slot_name_input.text)
 	slot_name_input.text_submitted.connect(func(value): _save_manual_slot(index,value))
 	slot_name_input.grab_focus()
 	slot_name_input.select_all()
 
 func _save_manual_slot(index: int, label: String) -> void:
 	if modal_name != "save_slot": return
+	if not SaveSlots.label_allowed(label):
+		_refresh_slot_name(label)
+		slot_name_input.grab_focus()
+		return
 	var error = save_slots.save_slot(index,label,progress)
 	if error != OK:
 		open_save_slots("Couldn't save. Your old slot is safe. Please check available storage.",true)
 		return
 	_save()
 	open_save_slots("Saved in slot %d. You can come back to this story!" % (index+1))
+
+func _refresh_slot_name(value: String) -> void:
+	var accepted = SaveSlots.label_allowed(value)
+	slot_name_feedback.words = "" if accepted else "Let's pick a different friendly save name."
+	overlay.get_node("ConfirmSlot").disabled = not accepted
 
 func _confirm_slot_action(index: int, action: String) -> void:
 	var record: Dictionary = save_slots.read_slot(index)

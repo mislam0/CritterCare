@@ -37,3 +37,5 @@ For catalog text or layout changes, also run `tests/verify_game_menu.gd`. Run `t
 Use `{pet_name}` for the chosen name and `{PET_NAME}` for uppercase headings inside new authored strings. Do not replace the node name `$Pip`, resource paths, or stable data IDs. Saved Knowledge quotes remain verbatim after a rename.
 
 See [SAVE_LOAD.md](SAVE_LOAD.md) for save-slot behavior. Run `tests/verify_identity.gd` and `tests/verify_save_slots.gd` with `--test-mode` after changing names or persistence.
+
+Name moderation wording is in `scripts/main.gd` → `_refresh_name_preview()` and `_refresh_slot_name()`. Edit the actual policy in `data/moderation/policy.json` and regenerate it as described in [NAME_FILTER.md](NAME_FILTER.md). Do not use the name filter on teaching content.

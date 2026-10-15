@@ -9,12 +9,17 @@ func slot_path(index: int) -> String:
 	return "" if index < 0 or index >= COUNT else base_path + ".slot_%d.json" % (index + 1)
 
 static func clean_label(value: String) -> String:
+	if not SaveData.Names.Filter.accepts(value): return "My story"
 	var allowed = RegEx.new()
 	allowed.compile("[^\\p{L}\\p{M}\\p{N} '\\-]")
 	var result = allowed.sub(value,"",true).strip_edges()
 	while result.contains("  "): result = result.replace("  "," ")
 	result = result.left(LABEL_LENGTH).strip_edges()
+	if not SaveData.Names.Filter.accepts(result): return "My story"
 	return "My story" if result.is_empty() else result
+
+static func label_allowed(value: String) -> bool:
+	return SaveData.Names.Filter.accepts(value) and SaveData.Names.Filter.accepts(value.left(LABEL_LENGTH))
 
 func read_slot(index: int) -> Dictionary:
 	var path = slot_path(index)
@@ -44,6 +49,7 @@ func read_slot(index: int) -> Dictionary:
 func save_slot(index: int, label: String, progress) -> Error:
 	var path = slot_path(index)
 	if path.is_empty(): return ERR_INVALID_PARAMETER
+	if not label_allowed(label): return ERR_INVALID_DATA
 	return SaveData.write_json(path,{
 		"slot_version":1,
 		"label":clean_label(label),
