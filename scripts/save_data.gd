@@ -1,7 +1,11 @@
 extends RefCounted
-## One local save, no accounts or networking. Never decreases needs while closed.
+## Current local progress and the shared snapshot format for manual save slots.
+## Never decreases needs while closed. No accounts or networking.
 
 const SAVE_PATH = "user://crittercare_save.json"
+const Names = preload("res://scripts/pet_name.gd")
+var pet_name: String = Names.DEFAULT
+var name_chosen: bool = false
 const Shop = preload("res://data/shop.gd")
 const Curriculum = preload("res://data/curriculum.gd")
 const SHOP_ID_MIGRATIONS = {"knight_cape":"pixel_chestplate", "pixel_sword":"pixel_castle_banner"}
@@ -23,6 +27,13 @@ var pip_quotes: Dictionary = {}
 var inventory: Dictionary = {"berry": 6, "seed": 3, "carrot": 2}
 var fullness: float = 64.0
 var happiness: float = 72.0
+const PET_HAPPINESS_GAIN: float = 4.0
+const PET_HAPPINESS_COOLDOWN_MSEC: int = 30_000
+const FEED_HAPPINESS_GAIN: float = 3.0
+const GAME_WIN_HAPPINESS_GAIN: float = 6.0
+# A session-local monotonic timestamp: no wall-clock jumps and no save format change.
+# Successful petting still counts and animates while the happiness reward cools down.
+var last_pet_happiness_msec: int = -1
 var pet_count: int = 0
 var feed_count: int = 0
 var games_won: int = 0
@@ -42,8 +53,14 @@ func load_progress() -> void:
 	if parser.parse(FileAccess.get_file_as_string(save_path)) != OK:
 		return
 	var parsed = parser.data
+	apply_snapshot(parsed)
+
+func apply_snapshot(parsed: Variant) -> bool:
 	if not parsed is Dictionary:
-		return
+		return false
+	var previous_name = str(parsed.get("pet_name",Names.DEFAULT))
+	pet_name = Names.clean(previous_name)
+	name_chosen = bool(parsed.get("name_chosen",false)) and Names.Filter.accepts(previous_name)
 	jam_mode = Jam.normalize_mode(str(parsed.get("jam_mode","chill")))
 	jam_offset_ms = clampi(int(parsed.get("jam_offset_ms",0)),-200,200)
 	jam_rounds = maxi(0,int(parsed.get("jam_rounds",0)))
@@ -72,13 +89,14 @@ func load_progress() -> void:
 	if parsed.get("pip_quotes") is Dictionary:
 		for key in parsed.pip_quotes:
 			if key is String and discovered.has(key) and parsed.pip_quotes[key] is String:
-				pip_quotes[key] = parsed.pip_quotes[key]
+				pip_quotes[key] = Names.repair_quote(parsed.pip_quotes[key],previous_name)
 	if parsed.get("inventory") is Dictionary:
 		for key in inventory:
 			inventory[key] = clampi(int(parsed.inventory.get(key, inventory[key])), 0, 9999)
 	fullness = clampf(float(parsed.get("fullness", 64.0)), 0, 100)
 	happiness = clampf(float(parsed.get("happiness", 72.0)), 0, 100)
 	pet_count = maxi(0, int(parsed.get("pet_count", 0)))
+	last_pet_happiness_msec = -1
 	feed_count = maxi(0, int(parsed.get("feed_count", 0)))
 	games_won = maxi(0, int(parsed.get("games_won", 0)))
 	picnic_best = clampi(int(parsed.get("picnic_best", 0)), 0, 10)
@@ -116,21 +134,41 @@ func load_progress() -> void:
 	practice_stage = clampi(int(parsed.get("practice_stage", 0)), 0, unlocked_stage())
 	if parsed.get("scores") is Array:
 		for entry in parsed.scores:
-			if entry is Dictionary and entry.get("mode") is String and entry.get("score") is float:
+			if entry is Dictionary and entry.get("mode") is String and (entry.get("score") is float or entry.get("score") is int):
 				scores.append({"mode":entry.mode, "score":clampi(int(entry.score), 0, 100)})
 		scores.sort_custom(func(a, b): return a.score > b.score)
 		scores = scores.slice(0, 3)
+	return true
+
+func snapshot() -> Dictionary:
+	var payload = {"version":9, "pet_name":pet_name, "name_chosen":name_chosen, "jam_mode":jam_mode, "jam_offset_ms":jam_offset_ms, "jam_best":jam_best, "jam_rounds":jam_rounds, "lab_completed":lab_completed, "discovered":discovered, "pip_quotes":pip_quotes, "inventory":inventory, "fullness":fullness, "happiness":happiness, "pet_count":pet_count, "feed_count":feed_count, "games_won":games_won, "picnic_best":picnic_best, "picnic_rounds":picnic_rounds, "tutorial_completed":tutorial_completed, "sound":sound, "calm":calm, "game_level":game_level, "scores":scores, "coins":coins, "owned":owned, "equipped":equipped, "stage_badges":stage_badges, "practice_stage":practice_stage}
+	if not Names.Filter.accepts(pet_name):
+		payload.pet_name = Names.DEFAULT
+		payload.name_chosen = false
+		payload.pip_quotes = pip_quotes.duplicate()
+		for key in payload.pip_quotes:
+			payload.pip_quotes[key] = Names.repair_quote(str(payload.pip_quotes[key]),pet_name)
+	return payload.duplicate(true)
 
 func write() -> Error:
-	var payload = {"version":8, "jam_mode":jam_mode, "jam_offset_ms":jam_offset_ms, "jam_best":jam_best, "jam_rounds":jam_rounds, "lab_completed":lab_completed, "discovered":discovered, "pip_quotes":pip_quotes, "inventory":inventory, "fullness":fullness, "happiness":happiness, "pet_count":pet_count, "feed_count":feed_count, "games_won":games_won, "picnic_best":picnic_best, "picnic_rounds":picnic_rounds, "tutorial_completed":tutorial_completed, "sound":sound, "calm":calm, "game_level":game_level, "scores":scores, "coins":coins, "owned":owned, "equipped":equipped, "stage_badges":stage_badges, "practice_stage":practice_stage}
-	var file = FileAccess.open(save_path + ".tmp", FileAccess.WRITE)
+	return write_json(save_path, snapshot())
+
+static func write_json(path: String, payload: Dictionary) -> Error:
+	var file = FileAccess.open(path + ".tmp", FileAccess.WRITE)
 	if file == null:
 		return FileAccess.get_open_error()
 	file.store_string(JSON.stringify(payload, "\t"))
+	file.flush()
+	var result = file.get_error()
 	file.close()
-	return DirAccess.rename_absolute(save_path + ".tmp", save_path)
+	if result != OK:
+		DirAccess.remove_absolute(path + ".tmp")
+		return result
+	return DirAccess.rename_absolute(path + ".tmp", path)
 
 func reset_progress(keep_preferences: bool = true) -> void:
+	pet_name = Names.DEFAULT
+	name_chosen = false
 	lab_completed = []
 	jam_best = {}
 	jam_rounds = 0
@@ -143,6 +181,7 @@ func reset_progress(keep_preferences: bool = true) -> void:
 	fullness = 64.0
 	happiness = 72.0
 	pet_count = 0
+	last_pet_happiness_msec = -1
 	feed_count = 0
 	games_won = 0
 	picnic_best = 0
@@ -234,6 +273,17 @@ func cosmetics(category: String) -> Dictionary:
 func award_coins(amount: int) -> void:
 	coins = clampi(coins + maxi(0, amount), 0, 999999)
 
+func reward_petting(now_msec: int) -> bool:
+	# Keep the first pet immediately rewarding, and let subsequent successful pets
+	# animate normally without restoring happiness until 30 real seconds pass.
+	if last_pet_happiness_msec >= 0 and now_msec - last_pet_happiness_msec < PET_HAPPINESS_COOLDOWN_MSEC:
+		return false
+	if happiness >= 100.0:
+		return false
+	happiness = minf(100.0, happiness + PET_HAPPINESS_GAIN)
+	last_pet_happiness_msec = now_msec
+	return true
+
 func can_feed(kind: String) -> bool:
 	return fullness < 95.0 and int(inventory.get(kind, 0)) > 0
 
@@ -243,7 +293,7 @@ func feed(kind: String) -> bool:
 	inventory[kind] -= 1
 	var amounts = {"berry":14.0, "seed":9.0, "carrot":20.0}
 	fullness = minf(100.0, fullness + amounts.get(kind, 10.0))
-	happiness = minf(100.0, happiness + 5.0)
+	happiness = minf(100.0, happiness + FEED_HAPPINESS_GAIN)
 	feed_count += 1
 	return true
 
@@ -257,4 +307,4 @@ func reward(mode: String, points: int, berries: int, seeds: int, carrots: int = 
 	scores.append({"mode":mode, "score":points})
 	scores.sort_custom(func(a, b): return a.score > b.score)
 	scores = scores.slice(0, 3)
-	happiness = minf(100.0, happiness + 12.0)
+	happiness = minf(100.0, happiness + GAME_WIN_HAPPINESS_GAIN)

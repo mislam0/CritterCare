@@ -9,18 +9,29 @@ text=SHOP.read_text(encoding='utf-8')
 errors=[]
 pat=re.compile(r'^\s*"([^"]+)":\{"name":"([^"]+)", "theme":"([^"]+)", "category":"(pet|room)", "slot":"([^"]+)"',re.M)
 entries=[m.groups() for m in pat.finditer(text)]
-if len(entries)!=36: errors.append(f'expected 36 Shop items, found {len(entries)}')
+if len(entries)!=60: errors.append(f'expected exactly 60 Shop items, found {len(entries)}')
 slot_counts=collections.Counter((x[3],x[4]) for x in entries)
-expected={('pet','head'):6,('pet','face'):6,('pet','neck'):6,('room','wall'):6,('room','decor'):6,('room','rug'):6}
+expected={('pet','head'):10,('pet','face'):10,('pet','neck'):10,('room','wall'):10,('room','decor'):10,('room','rug'):10}
 for key,count in expected.items():
-    if slot_counts[key]!=count: errors.append(f'{key}: expected {count}, got {slot_counts[key]}')
-for theme in ['nature','study','smart_casual','halloween','christmas','pixel_knight']:
+    if slot_counts[key]<count: errors.append(f'{key}: expected {count}, got {slot_counts[key]}')
+for theme in ['nature','study','smart_casual','halloween','christmas','pixel_knight','easter','brainrot','thanksgiving','bear_spirit']:
     for cat in ['pet','room']:
         got=sum(1 for x in entries if x[2]==theme and x[3]==cat)
-        if got!=3: errors.append(f'{theme}/{cat}: expected 3 items, got {got}')
+        if got<3: errors.append(f'{theme}/{cat}: expected at least 3 items, got {got}')
 paths=re.findall(r'preload\("res://(assets/shop/[^"\)]+)"\)',text)
-if len(paths)!=36: errors.append(f'expected 36 Shop PNG references, found {len(paths)}')
+if len(paths)!=len(entries): errors.append(f'expected {len(entries)} Shop PNG references, found {len(paths)}')
+for item_id, name, theme, cat, slot in entries:
+    line=next((l for l in text.splitlines() if l.lstrip().startswith('"'+item_id+'":')), '')
+    texture=re.search(r'"texture":preload\("res://(assets/shop/[^"\)]+)"\)',line)
+    if not texture or not texture.group(1).startswith(f'assets/shop/{cat}/{slot}/'):
+        errors.append(f'{item_id}: PNG is not inside {cat}/{slot} category folder')
+
 for rel in paths:
+    importer=ROOT/(rel+'.import')
+    if not importer.is_file():
+        errors.append(f'missing Godot .import sidecar: {rel}.import')
+    elif f'source_file="res://{rel}"' not in importer.read_text(encoding='utf-8'):
+        errors.append(f'outdated Godot source path in .import: {rel}')
     path=ROOT/rel
     if not path.is_file():
         errors.append(f'missing {rel}'); continue
@@ -43,4 +54,4 @@ if errors:
     print('Themed Shop validation FAILED')
     for e in errors: print(' -',e)
     sys.exit(1)
-print('Themed Shop validation passed: 6 themes, 36 catalog items, 36 referenced PNGs, no orphan Shop PNGs.')
+print(f'Themed Shop validation passed: 10 themes, {len(entries)} catalog items, {len(paths)} referenced PNGs, no orphan Shop PNGs.')

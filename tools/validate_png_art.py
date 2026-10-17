@@ -43,6 +43,10 @@ PET_ACCESSORIES = [
     'pumpkin_hat','bat_mask','halloween_scarf',
     'santa_hat','red_nose','holiday_scarf',
     'pixel_knight_helmet','pixel_visor','pixel_chestplate',
+    'bunny_ears','egg_cheek_sticker','spring_bow_tie',
+    'brainrot_shark_cap','brainrot_coffee_glasses','brainrot_banana_bow',
+    'thanksgiving_turkey_hat','thanksgiving_leaf_glasses','thanksgiving_harvest_bow',
+    'bear_spirit_hood','bear_spirit_glasses','bear_spirit_scarf',
 ]
 
 
@@ -72,7 +76,30 @@ for rel, expected in REQUIRED.items():
 # Pip accessories should be high-resolution, tightly cropped source art that is
 # downscaled in-game. This prevents thin shapes from being blurred by enlargement.
 for name in PET_ACCESSORIES:
-    rel=f'assets/shop/pet/{name}.png'
+    shop_catalog=(ROOT/'data/shop.gd').read_text(encoding='utf-8')
+    entry=re.search(r'^\s*"' + re.escape(name) + r'":\{[^\n]*"category":"pet", "slot":"(head|face|neck)"', shop_catalog, re.M)
+    if not entry:
+        errors.append(f'{name}: missing pet slot in Shop catalog')
+        continue
+    filename = {
+      'egg_cheek_sticker':'carrot_glasses',
+      'red_nose':'holly_glasses',
+      'pumpkin_hat':'witch_hat',
+      'scholar_cap':'study_beret',
+      'flower_clip':'leaf_glasses',
+      'vine_scarf':'vine_collar',
+      'bow':'study_scarf',
+      'flat_cap':'brown_flat_cap',
+      'bat_mask':'pumpkin_mask',
+      'halloween_scarf':'candy_corn_bowtie',
+      'pixel_visor':'pixel_knight_plume',
+      'pixel_chestplate':'pixel_knight_chest',
+      'bunny_ears':'cracked_egg_head',
+      'brainrot_shark_cap':'brainrot_propeller_hat',
+      'brainrot_coffee_glasses':'brainrot_67_glasses',
+      'brainrot_banana_bow':'brainrot_tung_tung_tie',
+    }.get(name,name)
+    rel=f'assets/shop/pet/{entry.group(1)}/{filename}.png'
     path=ROOT/rel
     if not path.is_file():
         errors.append(f'missing {rel}')

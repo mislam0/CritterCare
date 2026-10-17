@@ -6,9 +6,10 @@ const MUTED = Color("778176")
 const GREEN = Color("426d53")
 const PALE = Color("e7edde")
 const CREAM = Color("fffdf7")
-const CORRECT = Color("00ff00")
-const INCORRECT = Color("ff0000")
-const FEEDBACK_BG = Color("101510")
+const CORRECT = Color("13883e")
+const INCORRECT = Color("d92332")
+const FEEDBACK_BG = CREAM
+const Names = preload("res://scripts/pet_name.gd")
 const ORANGE = Color("c4764b")
 const FONT = preload("res://assets/fonts/Nunito-SemiBold.ttf")
 const HEADING_FONT = preload("res://assets/fonts/Nunito-ExtraBold.ttf")
@@ -78,12 +79,14 @@ static func label(parent: Node, value: String, rect: Rect2, size: int = 20, colo
 	if center:
 		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	parent.add_child(l)
+	l.set_meta("name_font_size",size)
 	l.words = value
+	l.fit_name()
 	return l
 
 static func button(parent: Node, value: String, rect: Rect2, action: Callable, primary: bool = false) -> Button:
 	var b = Button.new()
-	b.text = value
+	b.text = Names.present(value)
 	b.position = rect.position
 	b.size = rect.size
 	b.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
@@ -138,7 +141,7 @@ static func teaching_button(parent: Node, value: String, rect: Rect2, action: Ca
 	# The native button keeps focus, mouse/touch and keyboard activation.
 	# Its passive rich-text child never intercepts a click or drag.
 	var b = button(parent, "", rect, action, primary)
-	b.accessibility_name = value
+	b.accessibility_name = Names.present(value)
 	var l = label(b, value, Rect2(14, 3, rect.size.x-28, rect.size.y-6), font_size, CREAM if primary else INK, not left)
 	l.name = "TeachingWords"
 	l.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -163,9 +166,12 @@ static func show_feedback(body: LearningText, correct: bool, heading: String = "
 	var shell: Panel = body.get_meta("feedback_shell")
 	var title: LearningText = body.get_meta("feedback_heading")
 	var color = CORRECT if correct else INCORRECT
+	body.teaching = true
+	if not body.words.begins_with(Names.current + ":"):
+		body.words = Names.current + ": " + body.words
 	body.set_meta("outcome",1 if correct else -1)
-	shell.add_theme_stylebox_override("panel",style(FEEDBACK_BG,12,color))
-	title.words = heading if not heading.is_empty() else ("✓ CORRECT!" if correct else "✕ TRY AGAIN!")
+	shell.add_theme_stylebox_override("panel",style(FEEDBACK_BG,12))
+	title.words = heading if not heading.is_empty() else ("✓ Correct!" if correct else "✕ Incorrect")
 	title.add_theme_color_override("default_color",color)
 	title.add_theme_font_override("normal_font",HEADING_FONT)
 	title.show()
@@ -173,9 +179,10 @@ static func show_feedback(body: LearningText, correct: bool, heading: String = "
 	scroll.position.y = 42
 	scroll.size.y = shell.size.y-46
 	scroll.scroll_vertical = 0
-	body.add_theme_color_override("default_color",CREAM)
+	body.add_theme_color_override("default_color",INK)
 
 static func neutral_feedback(body: LearningText) -> void:
+	body.teaching = false
 	var shell: Panel = body.get_meta("feedback_shell")
 	body.set_meta("outcome",0)
 	body.get_meta("feedback_heading").hide()
@@ -190,7 +197,7 @@ static func outcome_label(l: LearningText, correct: bool) -> void:
 	var color = CORRECT if correct else INCORRECT
 	l.add_theme_color_override("default_color",color)
 	l.add_theme_font_override("normal_font",HEADING_FONT)
-	l.add_theme_stylebox_override("normal",style(FEEDBACK_BG,9,color))
+	l.add_theme_stylebox_override("normal",StyleBoxEmpty.new())
 	l.set_meta("outcome",1 if correct else -1)
 
 static func clear_outcome(l: LearningText) -> void:
@@ -200,10 +207,18 @@ static func clear_outcome(l: LearningText) -> void:
 
 static func mark_answer(b: Button, correct: bool) -> void:
 	var color = CORRECT if correct else INCORRECT
-	b.add_theme_stylebox_override("disabled",style(FEEDBACK_BG,15,color))
+	b.add_theme_stylebox_override("disabled",style(CREAM,15))
 	b.add_theme_color_override("font_disabled_color",color)
 	b.add_theme_font_override("font",HEADING_FONT)
 	b.set_meta("outcome",1 if correct else -1)
 	if b.has_node("TeachingWords"):
 		b.get_node("TeachingWords").add_theme_color_override("default_color",color)
 		b.get_node("TeachingWords").add_theme_font_override("normal_font",HEADING_FONT)
+
+static func teach(l: LearningText) -> LearningText:
+	l.teaching = true
+	return l
+
+static func refresh_names(node: Node) -> void:
+	if node is LearningText: node.refresh_name()
+	for child in node.get_children(): refresh_names(child)

@@ -13,6 +13,9 @@ func clips(node: Node) -> Array:
 
 func outcome(body, correct: bool) -> bool:
 	var title = body.get_meta("feedback_heading")
+	var shell = body.get_meta("feedback_shell")
+	if shell.get_theme_stylebox("panel").bg_color != UI.CREAM or body.get_theme_color("default_color") != UI.INK: return false
+	if title.teaching or title.text.contains("[bgcolor="): return false
 	return body.get_meta("outcome") == (1 if correct else -1) and title.visible and title.get_theme_color("default_color") == (UI.CORRECT if correct else UI.INCORRECT) and title.get_theme_font_size("normal_font_size") >= 26
 
 func run() -> void:
@@ -38,6 +41,7 @@ func run() -> void:
 	root.add_child(game)
 	current_scene = game
 	await frames(5)
+	if game.modal_name == "name_pet": game._complete_pet_name("Pip")
 	game.tutorial.finish()
 	game.progress.sound = false
 	game.progress.save_path = "user://crittercare_feedback_acceptance.json"
@@ -167,8 +171,9 @@ func run() -> void:
 	game.open_knowledge("boolean")
 	await snap("simple-knowledge-small")
 	game._reset_progress()
+	game._complete_pet_name("Pip")
 	check(game.teaching_cooldowns.shown.is_empty() and game.auto_speech.is_empty() and game.tutorial.active,"Reset clears queued reminders and timers, then starts tutorial")
-	check(game.tutorial.words.words==Text.TOUR_KIDS.welcome,"First-play/reset tour uses short beginner instructions")
+	check(game.tutorial.words.words==UI.Names.present(Text.TOUR_KIDS.welcome),"First-play/reset tour uses short beginner instructions")
 	await snap("simple-tutorial-small")
 	game.queue_free()
 	await frames()

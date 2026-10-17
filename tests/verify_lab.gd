@@ -69,6 +69,7 @@ func run() -> void:
 	root.add_child(game)
 	current_scene = game
 	await frames(5)
+	if game.modal_name == "name_pet": game._complete_pet_name("Pip")
 	game.tutorial.finish()
 	game.progress.save_path = "user://crittercare_lab_acceptance.json"
 	game.progress.sound = false
@@ -200,6 +201,7 @@ func run() -> void:
 	legacy.load_progress()
 	check(legacy.lab_completed.is_empty() and legacy.coins == 73 and legacy.owned.has("leaf_hat"),"Old saves gain an empty lab record without losing coins or purchases")
 	game._reset_progress()
+	game._complete_pet_name("Pip")
 	check(game.progress.lab_completed.is_empty() and game.progress.coins == 0 and game.tutorial.active,"Reset clears lab rewards and completion and restarts the tutorial")
 	check(game.progress.game_level == "college","Reset keeps the selected Game level")
 	game.tutorial.finish()

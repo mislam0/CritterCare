@@ -235,11 +235,11 @@ func resolve_catch(kind: String) -> void:
 		streak += 1
 		best_streak = maxi(best_streak, streak)
 		if kind == "seed":
-			seed_gold += 2
-			feedback = "✓ SEED! +1 snack and +2 gold."
+			seed_gold += 1
+			feedback = "✓ SEED! +1 snack and +1 gold."
 		else:
 			feedback = "✓ CAUGHT! %d snacks. Keep going!" % collected if game_level == "kindergarten" else "✓ CAUGHT! Snack count: %d + 1 = %d." % [collected-1,collected]
-		_pop("✓ +1 SNACK" + (" +2 GOLD" if kind == "seed" else ""), UI.CORRECT)
+		_pop("✓ +1 SNACK" + (" +1 GOLD" if kind == "seed" else ""), UI.CORRECT)
 		actor.happy_time = 0.8
 		caught.emit(kind)
 	changed.emit()

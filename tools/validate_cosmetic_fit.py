@@ -40,8 +40,7 @@ for line in shop.splitlines():
         # Their intentional silhouette reaches beyond the generic guide boxes.
         # Keep their native pixels/positions instead of silently shrinking them.
         artist_fitted_limits={
-            'pumpkin_hat':(-55,-180,60,-55),
-            'bat_mask':(-90,-120,90,42),
+            'bat_mask':(-90,-130,90,15),
             'pixel_knight_helmet':(-95,-150,95,42),
         }
         limit=artist_fitted_limits.get(key, limit)
@@ -51,12 +50,13 @@ for line in shop.splitlines():
         if (rect[0] < limit[0]-edge_tolerance or rect[1] < limit[1]-edge_tolerance
                 or rect[2] > limit[2]+edge_tolerance or rect[3] > limit[3]+edge_tolerance):
             errors.append(f'{key}: visible art outside {slot} target region: {tuple(round(n,1) for n in rect)}')
-if len(entries)!=18: errors.append(f'expected 18 Pet cosmetics, measured {len(entries)}')
-# These visual landmarks are part of the real Pip model in scripts/hamster.gd:
-# the red nose is centered near (0,-17), the knight helmet crown is near y=-110.
+if len(entries)!=30: errors.append(f'expected 30 Pet cosmetics, measured {len(entries)}')
+# Replaced the old red-nose asset with holly glasses while retaining its save ID.
+# Check that the new eyewear spans both eyes instead of occupying the nose only.
 if 'red_nose' in entries:
     _, b=entries['red_nose']
-    if not b[0]<0<b[2] or not b[1] < -17 < b[3]: errors.append('Red Nose misses actual nose landmark (0,-17)')
+    if not b[0] < -25 or not b[2] > 25 or not b[1] < -45 < b[3]:
+        errors.append('Holly Glasses must sit across both of Pip’s eyes')
 if 'pixel_visor' in entries and 'pixel_knight_helmet' in entries:
     _, plume=entries['pixel_visor']; _, helmet=entries['pixel_knight_helmet']
     # plume must overlap the helmet crown by a few pixels while staying above it
@@ -66,4 +66,4 @@ if errors:
     print('Cosmetic fit validation FAILED:')
     for e in errors: print(' -',e)
     sys.exit(1)
-print(f'Cosmetic fit validation passed: {len(entries)}/18 full-canvas PNGs with slot bounding checks, red nose target, and connected knight plume.')
+print(f'Cosmetic fit validation passed: {len(entries)}/30 full-canvas PNGs with slot bounding checks, holly eyewear target, and connected knight plume.')

@@ -193,7 +193,7 @@ func start() -> void:
 	output_latency = AudioServer.get_output_latency()
 	ready_panel.hide()
 	start_button.disabled = true
-	start_button.text = "Have fun, Pip!"
+	start_button.text = "Have fun!"
 	pause_button.disabled = false
 	pause_button.text = "Pause"
 	helper_label.words = Text.line("jam_playing",game_level)
@@ -293,7 +293,7 @@ func tap(lane: int) -> void:
 		actor.happy_time = 0.9
 		if round_state.combo > 0 and round_state.combo%8 == 0 and not gentle:
 			twirl_time = 0.65
-			helper_label.words = "%d in a row! Pip loves your groove." % round_state.combo
+			helper_label.words = "%d in a row! {pet_name} loves your groove." % round_state.combo
 	elif rating == "extra":
 		cue.words = "✕ EXTRA TAP!"
 		UI.outcome_label(cue,false)
@@ -465,7 +465,7 @@ func _sync_art() -> void:
 			feedback_rings[i].hide()
 		else:
 			var result_color: Color = UI.CORRECT if lane_results[i].correct else UI.INCORRECT
-			feedback_panels[i].add_theme_stylebox_override("panel",UI.style(UI.FEEDBACK_BG,9,result_color))
+			feedback_panels[i].add_theme_stylebox_override("panel",UI.style(UI.FEEDBACK_BG,9))
 			feedback_labels[i].words = lane_results[i].words
 			feedback_labels[i].add_theme_color_override("default_color",result_color)
 			feedback_labels[i].add_theme_font_override("normal_font",UI.HEADING_FONT)

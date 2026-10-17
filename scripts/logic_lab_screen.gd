@@ -283,7 +283,8 @@ func _program_changed() -> void:
 
 func show_hint() -> void:
 	UI.neutral_feedback(feedback)
-	feedback.words = "Pip's hint: " + mission.hints[mini(hint_index,mission.hints.size()-1)]
+	feedback.teaching = true
+	feedback.words = "{pet_name}'s hint: " + mission.hints[mini(hint_index,mission.hints.size()-1)]
 	hint_index += 1
 
 func begin_run() -> bool:
@@ -336,9 +337,10 @@ func advance_trace() -> void:
 	var current: Dictionary = report.trace[trace_index]
 	state = current.state.duplicate(true)
 	highlighted = current.row
-	feedback.words = "Pip: " + current.words
+	feedback.words = "{pet_name}: " + current.words
 	if current.action in ["pass","error"]: UI.show_feedback(feedback,current.action == "pass")
 	else: UI.neutral_feedback(feedback)
+	feedback.teaching = true
 	visit_label.words = "Visit %d of %d · %s" % [current.visit,mission.cases.size(),"testing" if current.action != "pass" else "works!"]
 	if current.action == "setup":
 		actor.eating_time = 0
@@ -361,7 +363,7 @@ func finish_run() -> void:
 	active = false
 	autoplay = false
 	highlighted = -1
-	feedback.words = "Pip: " + report.message
+	feedback.words = "{pet_name}: " + report.message
 	UI.show_feedback(feedback,report.success,"✓ PLAN WORKS!" if report.success else "✕ TRY AGAIN!")
 	if report.success:
 		progress_label.words = "Program complete! " + ("Already collected: practice as often as you like." if already_completed else "First solution: +25 gold and +2 berries.")

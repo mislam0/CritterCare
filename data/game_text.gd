@@ -82,28 +82,28 @@ const COPY = {
 		"Compare your prediction with the result. The trace, a step-by-step record, helps find a mistake."
 	],
 	"lab_test": [
-		"Watch Pip follow your plan!",
+		"Watch {pet_name} follow your plan!",
 		"Watch the highlighted block. Pause, Step, or Stop to edit.",
 		"The highlighted block is executing now. Pause or Step to inspect each action."
 	],
 	"lab_safe": [
-		"Practice Pip. Your treats stay safe!",
+		"Practice {pet_name}. Your treats stay safe!",
 		"Practice treats; your pouch stays the same.",
 		"Practice state; real inventory stays unchanged."
 	]
 }
 const TOUR_KIDS = {
-	"welcome": "Hi! I'm Pip. Let's play!\nClick Let's begin. Follow the green arrow.",
+	"welcome": "Hi! I'm {pet_name}. Let's play!\nClick Let's begin. Follow the green arrow.",
 	"pet": "Boop my head!\nIF you tap me, THEN I feel happy.",
 	"carry": "Hold me. Move me. Let go!\nWhee! I'll land softly.",
 	"needs": "Fullness is my tummy number.\nHappiness is my happy number.\nGOLD buys fun things!",
 	"feed": "Click Feed Critter.\nLet's open your snack pouch!",
-	"snack": "Click Offer one.\nOne treat for Pip. Munch!",
+	"snack": "Click Offer one.\nOne treat for {pet_name}. Munch!",
 	"speech": "Read my little idea.\nBright words are coding words.\nClick Next, then Done. Take your time!",
 	"knowledge": "Click Knowledge.\nIt's our book of things we learned!",
-	"book": "Pip says keeps my words.\nScroll to see more.\nRead with Pip lets us read again!",
+	"book": "{pet_name} says keeps my words.\nScroll to see more.\nRead with {pet_name} lets us read again!",
 	"shop": "Click Shop.\nLet's look at hats and room things!",
-	"catalog": "Pet things or room things? Pick a tab!\nBuy means keep it. Equip means put it on.\nJust looking is free!",
+	"catalog": "Pet accessories or room sets? Pick a tab!\nBuy means keep it. Equip means use it.\nJust looking is free!",
 	"settings": "Click the three dots.\nWe can change sound and Game level here.",
 	"level": "Pick your Game level.\nWe all start small. Bigger levels add more later.\nYou can change it anytime!",
 	"games": "Click Games / Quizzes.\nLet's play for gold and treats!",

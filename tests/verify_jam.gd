@@ -96,6 +96,7 @@ func run() -> void:
 	root.add_child(game)
 	current_scene = game
 	await frames(5)
+	if game.modal_name == "name_pet": game._complete_pet_name("Pip")
 	game.tutorial.finish()
 	game.progress.save_path = "user://crittercare_jam_acceptance.json"
 	game.progress.sound = false
@@ -257,6 +258,7 @@ func run() -> void:
 	game.progress.jam_mode = "lively"
 	game.progress.jam_offset_ms = 40
 	game._reset_progress()
+	game._complete_pet_name("Pip")
 	check(game.progress.jam_best.is_empty() and game.progress.jam_rounds==0 and game.progress.coins==0 and game.tutorial.active,"Reset clears rhythm records/rewards and restarts the tutorial")
 	check(game.progress.jam_mode=="lively" and game.progress.jam_offset_ms==40,"Reset preserves selected rhythm and timing comfort settings")
 	game.queue_free()

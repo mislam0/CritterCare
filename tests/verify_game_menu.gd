@@ -43,6 +43,7 @@ func run() -> void:
 	root.add_child(game)
 	current_scene = game
 	await frames(5)
+	if game.modal_name == "name_pet": game._complete_pet_name("Pip")
 	game.tutorial.finish()
 	game.progress.sound = false
 	game.open_games()
@@ -135,6 +136,7 @@ func run() -> void:
 		check(not game.tutorial.active and game.modal_name in ["intro","picnic"],"Tutorial target accepts the real click after scrolling: %s" % window)
 	game.games_scroll_offset = 300
 	game._reset_progress()
+	game._complete_pet_name("Pip")
 	check(game.games_scroll_offset == 0,"Reset starts the catalog at the beginning")
 	game.tutorial.finish()
 	game.queue_free()

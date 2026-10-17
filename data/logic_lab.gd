@@ -6,13 +6,13 @@ const MAX_BLOCKS = 5
 const BLOCKS = {
 	"right":{"title":"Step right", "icon":"paw", "kind":"action"},
 	"feed":{"title":"Offer one berry", "icon":"berry", "kind":"action"},
-	"pet":{"title":"Pet Pip", "icon":"heart", "kind":"action"},
+	"pet":{"title":"Pet {pet_name}", "icon":"heart", "kind":"action"},
 	"repeat2":{"title":"REPEAT 2 times: step right", "icon":"paw", "kind":"repeat"},
 	"repeat3":{"title":"REPEAT 3 times: step right", "icon":"paw", "kind":"repeat"},
-	"hungry":{"title":"IF hungry: offer berry\nELSE: pet Pip", "icon":"berry", "kind":"check"},
-	"swapped":{"title":"IF hungry: pet Pip\nELSE: offer berry", "icon":"heart", "kind":"check"},
-	"both":{"title":"IF hungry AND berry: feed\nELSE: pet Pip", "icon":"berry", "kind":"check"},
-	"either":{"title":"IF hungry OR berry: feed\nELSE: pet Pip", "icon":"berry", "kind":"check"},
+	"hungry":{"title":"IF hungry: offer berry\nELSE: pet {pet_name}", "icon":"berry", "kind":"check"},
+	"swapped":{"title":"IF hungry: pet {pet_name}\nELSE: offer berry", "icon":"heart", "kind":"check"},
+	"both":{"title":"IF hungry AND berry: feed\nELSE: pet {pet_name}", "icon":"berry", "kind":"check"},
+	"either":{"title":"IF hungry OR berry: feed\nELSE: pet {pet_name}", "icon":"berry", "kind":"check"},
 	"add1":{"title":"Add 1 seed to the jar", "icon":"seed", "kind":"action"},
 	"add2":{"title":"Add 2 seeds to the jar", "icon":"seed", "kind":"action"},
 	"add3":{"title":"Add 3 seeds to the jar", "icon":"seed", "kind":"action"},
@@ -29,28 +29,28 @@ const BLOCKS = {
 }
 
 const CHALLENGES = [
-	{"id":"delivery", "stage":0, "title":"A snack for Pip", "lesson":"lab_sequence",
-	 "goal":"Move Pip to the berry on tile 1, then offer it to him.", "bowl":1,
+	{"id":"delivery", "stage":0, "title":"A snack for {pet_name}", "lesson":"lab_sequence",
+	 "goal":"Move {pet_name} to the berry on tile 1, then offer it to him.", "bowl":1,
 	 "palette":["right","feed","pet"], "cases":[{"fullness":30}],
-	 "hints":["Pip begins on tile 0. His berry is on the next tile.", "The instructions run from top to bottom. Move first, then offer the berry."]},
+	 "hints":["{pet_name} begins on tile 0. His berry is on the next tile.", "The instructions run from top to bottom. Move first, then offer the berry."]},
 	{"id":"repeats", "stage":0, "title":"Three tiny steps", "lesson":"lab_repeat",
 	 "goal":"Reach the berry on tile 3, then offer it. Try a REPEAT block!", "bowl":3,
 	 "palette":["right","repeat2","repeat3","feed"], "cases":[{"fullness":30}],
 	 "hints":["The berry is three little steps away.", "REPEAT 3 takes all three steps. Put Offer one berry after it."]},
 	{"id":"choice", "stage":0, "title":"Hungry or happy?", "lesson":"lab_branch",
-	 "goal":"Hungry Pip needs a berry. Otherwise, pet him. Make one program work for both visits.", "bowl":1,
+	 "goal":"Hungry {pet_name} needs a berry. Otherwise, pet him. Make one program work for both visits.", "bowl":1,
 	 "palette":["hungry","swapped","feed","pet"], "cases":[{"position":1,"fullness":30},{"position":1,"fullness":80}],
-	 "hints":["Hungry means fullness is below 60. Our two visits begin at 30 and 80.", "IF hungry: offer berry. ELSE: pet Pip. One check can choose the right action for each visit."]},
+	 "hints":["Hungry means fullness is below 60. Our two visits begin at 30 and 80.", "IF hungry: offer berry. ELSE: pet {pet_name}. One check can choose the right action for each visit."]},
 	{"id":"both_checks", "stage":1, "title":"Two little checks", "lesson":"lab_checks",
-	 "goal":"Feed only IF Pip is hungry AND a berry is available. Otherwise, pet him. Test all 3 visits.", "bowl":1,
+	 "goal":"Feed only IF {pet_name} is hungry AND a berry is available. Otherwise, pet him. Test all 3 visits.", "bowl":1,
 	 "palette":["hungry","both","either","pet"], "cases":[{"position":1,"fullness":30},{"position":1,"fullness":30,"has_food":false},{"position":1,"fullness":80}],
-	 "hints":["Hungry Pip cannot eat a berry that is not there. Check both things.", "AND needs two yes answers. OR accepts just one yes, which can choose feeding when the berry is missing."]},
+	 "hints":["Hungry {pet_name} cannot eat a berry that is not there. Check both things.", "AND needs two yes answers. OR accepts just one yes, which can choose feeding when the berry is missing."]},
 	{"id":"seed_counter", "stage":1, "title":"Fill the seed jar", "lesson":"lab_counter",
 	 "goal":"Start with 0 seeds. Make the jar remember a total of exactly 6.", "bowl":-1,
 	 "palette":["add1","add2","add3","repeat_add"], "cases":[{}],
 	 "hints":["The jar keeps the seeds from every addition. 2 + 2 + 2 makes 6.", "REPEAT 3 times: add 2 reaches 6. Two Add 3 blocks work too. Programs can have different correct solutions!"]},
 	{"id":"cozy_recipe", "stage":2, "title":"A reusable recipe", "lesson":"lab_recipe",
-	 "goal":"Define cozy, reach tile 2, then CALL cozy to offer one berry and pet Pip once.", "bowl":2,
+	 "goal":"Define cozy, reach tile 2, then CALL cozy to offer one berry and pet {pet_name} once.", "bowl":2,
 	 "palette":["define","right","repeat2","call","feed"], "cases":[{"fullness":30}],
 	 "hints":["DEFINE remembers the recipe; it does not perform it. CALL performs it later.", "Try DEFINE cozy, REPEAT 2 steps, then CALL cozy. Calling the recipe before reaching the berry is too soon."]},
 	{"id":"recipe_input", "stage":2, "title":"A recipe with an input", "lesson":"lab_parameter",
@@ -114,9 +114,9 @@ static func perform(action: String, state: Dictionary, mission: Dictionary, trac
 				words = "IF you offer this berry THEN fullness changes: %d + 20 = %d." % [old,state.fullness]
 		"pet":
 			var old: int = state.happiness
-			state.happiness = mini(100, old + 8)
+			state.happiness = mini(100, old + 4)
 			state.petted += 1
-			words = "IF you pet me THEN happiness changes: %d + 8 = %d." % [old,state.happiness]
+			words = "IF you pet me THEN happiness changes: %d + 4 = %d." % [old,state.happiness]
 		_:
 			var amount = int(action.trim_prefix("add"))
 			var old: int = state.seeds
@@ -251,10 +251,10 @@ static func present_mission(source: Dictionary, level: String) -> Dictionary:
 static func short_error(words: String, mission: Dictionary) -> String:
 	if words.contains("BEFORE"): return "Move to tile %d BEFORE offering the berry." % mission.bowl
 	if words.contains("edge"): return "Too far! Try fewer steps."
-	if words.contains("no berry"): return "No berry here. Try petting Pip!"
+	if words.contains("no berry"): return "No berry here. Try petting {pet_name}!"
 	if words.contains("between 1"): return "Add 1 to 5 blocks. THEN press Run!"
 	if words.contains("tray"): return "Use the blocks on this card."
-	if mission.id == "choice": return "Hungry Pip needs food. Full Pip needs a pet. Try IF / ELSE!"
+	if mission.id == "choice": return "Hungry {pet_name} needs food. Full {pet_name} needs a pet. Try IF / ELSE!"
 	if mission.id in ["delivery","repeats"]: return "Reach tile %d. THEN offer one berry. Try again!" % mission.bowl
 	return words
 
@@ -265,7 +265,7 @@ static func present_report(source: Dictionary, mission: Dictionary, level: Strin
 	for item in result.trace:
 		var state: Dictionary = item.state
 		match item.action:
-			"setup": item.words = "Visit %d. %s Let's try our plan!" % [item.visit,"Hungry Pip." if state.fullness < 60 else "Pip has a full tummy."]
+			"setup": item.words = "Visit %d. %s Let's try our plan!" % [item.visit,"Hungry {pet_name}." if state.fullness < 60 else "{pet_name} has a full tummy."]
 			"right": item.words = "One step right! Now I am on tile %d." % state.position
 			"feed": item.words = "Munch! IF fed, THEN fullness grows to %d." % state.fullness
 			"pet": item.words = "IF you pet me, THEN happiness grows to %d!" % state.happiness

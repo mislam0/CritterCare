@@ -1,9 +1,6 @@
-# Browser builds
+# Browser build
 
-This source package intentionally does not include the older v1.6.1 browser export.
-
-For consolidated v1.6.2, open the project in Godot 4.7.2, run the game/tests, then use:
-
-**Project → Tools → Export CritterCare for itch.io**
-
-Godot will create `builds/CritterCare-itchio.zip` from the same source.
+`CritterCare-itchio.zip` is the matching v1.6.5 browser game. Upload it intact
+to itch.io as an HTML game. The editable source runs in Godot 4.7.2 with F5.
+Rebuild this ZIP after future edits using Project → Tools → Export CritterCare
+for itch.io, or `godot --headless --path . --script res://tools/export_web.gd`.

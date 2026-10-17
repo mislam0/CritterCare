@@ -17,21 +17,21 @@ const KIDS = {
 	"events": {
 		"title": "A happy boop",
 		"bubble": "Boop! Your tap is input.\nMy happy face is output.\nIF you pet me, THEN I feel happier!",
-		"body": "Input is something you do. Output is what the game does back.\nYou tap. Pip smiles!\nAn event is something that happens, like your tap.",
+		"body": "Input is something you do. Output is what the game does back.\nYou tap. {pet_name} smiles!\nAn event is something that happens, like your tap.",
 		"code": "IF head tapped:\n    add happiness",
 		"question": "Which one is input?",
 		"choices": [
 			"Your tap",
-			"Pip smiling",
-			"Pip breathing"
+			"{pet_name} smiling",
+			"{pet_name} breathing"
 		],
 		"why": "Your tap goes in. My happy reaction comes out!"
 	},
 	"variables": {
 		"title": "My happy number",
-		"bubble": "A variable remembers something.\nMine remembers my happy number!\nIF you pet me, THEN add 8.",
-		"body": "Think of a named number box.\nThe happiness box starts at 40.\nAdd 8: now it holds 48!\nMy numbers stop at 100.",
-		"code": "happiness: 40\npet Pip: add 8\nnew happiness: 48",
+		"bubble": "A variable remembers something.\nMine remembers my happy number!\nA rewarded pet adds 4.",
+		"body": "Think of a named number box.\nThe happiness box starts at 40.\nAdd 4: now it holds 44!\nYou can earn that bonus once every 30 seconds. My number stops at 100.",
+		"code": "happiness: 40\nrewarded pet: add 4\nnew happiness: 44",
 		"question": "What does a variable do?",
 		"choices": [
 			"Remembers a value",
@@ -56,9 +56,9 @@ const KIDS = {
 	"vectors": {
 		"title": "Where am I?",
 		"bubble": "Two numbers tell my place.\nx goes left and right. y goes up and down.\nIF you move right, THEN x grows!",
-		"body": "A position tells where Pip is.\nA vector holds two numbers together: x and y.\nOn this screen, right makes x bigger. Down makes y bigger.",
+		"body": "A position tells where {pet_name} is.\nA vector holds two numbers together: x and y.\nOn this screen, right makes x bigger. Down makes y bigger.",
 		"code": "move right: bigger x\nmove down: bigger y",
-		"question": "Which number changes when Pip moves right?",
+		"question": "Which number changes when {pet_name} moves right?",
 		"choices": [
 			"x",
 			"Only y",
@@ -71,20 +71,20 @@ const KIDS = {
 		"bubble": "IF you let go, THEN I fall.\nIF I reach the floor, THEN I stop.\nPlop! A soft landing.",
 		"body": "Gravity pulls me down.\nThe game keeps checking: have I reached the floor?\nThat check helps me stop safely.",
 		"code": "IF in the air: fall\nIF at the floor: stop",
-		"question": "What tells Pip to stop falling?",
+		"question": "What tells {pet_name} to stop falling?",
 		"choices": [
 			"Reaching the floor",
 			"Getting a hat",
 			"Opening the Shop"
 		],
-		"why": "The game checks for the floor. At the floor, Pip stops falling."
+		"why": "The game checks for the floor. At the floor, {pet_name} stops falling."
 	},
 	"condition": {
 		"title": "Snack or wait?",
 		"bubble": "A condition is a yes-or-no check.\nIF I have tummy room AND you have a treat, THEN I can eat!",
 		"body": "AND means both things must be yes.\nTummy room? Treat ready?\nBoth yes: munch!\nOne no: wait.",
 		"code": "IF room AND treat:\n    eat one treat",
-		"question": "When can Pip eat?",
+		"question": "When can {pet_name} eat?",
 		"choices": [
 			"Room AND a treat",
 			"An empty pouch",
@@ -123,7 +123,7 @@ const KIDS = {
 		"bubble": "A timer counts time. Tick, tick!\nIF quiet time is up, THEN I wash my face.",
 		"body": "The timer waits while I am quiet.\nWhen enough time passes, I groom.\nThen the timer starts over.",
 		"code": "IF quiet timer is ready:\n    wash face",
-		"question": "What does Pip's timer count?",
+		"question": "What does {pet_name}'s timer count?",
 		"choices": [
 			"Time",
 			"Hats",
@@ -147,7 +147,7 @@ const KIDS = {
 	"repeat": {
 		"title": "Hop to the star",
 		"bubble": "Count my hops!\nIF we repeat 3 times, THEN I hop 3 times.\nOne, two, three!",
-		"body": "Pick how many hops to repeat.\nOne repeat makes one hop.\nTry your number. Did Pip reach the star?\nYou can change it and try again.",
+		"body": "Pick how many hops to repeat.\nOne repeat makes one hop.\nTry your number. Did {pet_name} reach the star?\nYou can change it and try again.",
 		"code": "REPEAT 3 times:\n    hop right",
 		"question": "How many hops does REPEAT 3 make?",
 		"choices": [
@@ -303,13 +303,13 @@ const KIDS = {
 	"picnic": {
 		"title": "Catch a snack!",
 		"bubble": "Your move is input. My move is output!\nIF my basket catches a berry, THEN add one snack.",
-		"body": "Input goes in: move the mouse or press a key.\nOutput comes out: Pip moves!\nCatch a snack to grow our number. Miss one? Try the next!",
+		"body": "Input goes in: move the mouse or press a key.\nOutput comes out: {pet_name} moves!\nCatch a snack to grow our number. Miss one? Try the next!",
 		"code": "IF move: move basket\nIF catch: add 1 snack",
 		"question": "What is input in Picnic Catch?",
 		"choices": [
 			"Your mouse move",
 			"The snack count",
-			"Pip's smile"
+			"{pet_name}'s smile"
 		],
 		"why": "Your move is input. The game moves the basket back!"
 	},
@@ -318,7 +318,7 @@ const KIDS = {
 		"bubble": "A program is a plan of steps.\nRun means try the plan. Step tries one part.\nMove first. THEN feed me!",
 		"body": "Order matters!\nMy berry is one step away.\nStep right. Offer the berry.\nFeeding before moving will not work. Try changing the order!",
 		"code": "step right\nTHEN offer berry",
-		"question": "What should Pip do first?",
+		"question": "What should {pet_name} do first?",
 		"choices": [
 			"Step to the berry",
 			"Feed from far away",
@@ -329,9 +329,9 @@ const KIDS = {
 	"lab_repeat": {
 		"title": "Three little steps",
 		"bubble": "A loop repeats a step.\nREPEAT 3 means do it three times.\nTHEN offer my berry!",
-		"body": "My berry is three tiles away.\nOne step is not enough.\nRepeat three steps. Then feed me.\nCount with Pip: one, two, three!",
+		"body": "My berry is three tiles away.\nOne step is not enough.\nRepeat three steps. Then feed me.\nCount with {pet_name}: one, two, three!",
 		"code": "REPEAT 3: step right\nTHEN offer berry",
-		"question": "How can Pip take three steps?",
+		"question": "How can {pet_name} take three steps?",
 		"choices": [
 			"REPEAT 3",
 			"REPEAT 1",
@@ -344,7 +344,7 @@ const KIDS = {
 		"bubble": "A condition asks yes or no.\nIF hungry, THEN feed. ELSE pet!\nELSE means otherwise.",
 		"body": "Below 60 means hungry here.\nFullness 30? Yes: feed.\nFullness 80? No: pet.\nTry the same plan with both visits.",
 		"code": "IF hungry: feed\nELSE: pet",
-		"question": "Fullness is 80. What should Pip do?",
+		"question": "Fullness is 80. What should {pet_name} do?",
 		"choices": [
 			"Get a pet",
 			"Eat anyway",
@@ -359,7 +359,7 @@ const KIDS = {
 		"code": "IF hungry AND berry:\n    feed\nELSE: pet",
 		"question": "Hungry with no berry: what next?",
 		"choices": [
-			"Pet Pip",
+			"Pet {pet_name}",
 			"Feed anyway",
 			"Both"
 		],
@@ -438,7 +438,7 @@ const KIDS = {
 		"question": "What is input in Snack Jam?",
 		"choices": [
 			"Your tap",
-			"Pip dancing",
+			"{pet_name} dancing",
 			"The score"
 		],
 		"why": "Your tap is input. My dance and the score are output!"
@@ -447,7 +447,7 @@ const KIDS = {
 const COLLEGE = {
 	"idle": "State means the information the game remembers now. A branch is one possible path through a condition. Only the matching path runs.",
 	"events": "An event handler is a function that reacts to an event. The head-click handler updates happiness, then starts the visible reaction.",
-	"variables": "Assignment stores a value. happiness += 8 means read its old value, add 8, and store the result. A limit keeps the value at or below 100.",
+	"variables": "Assignment stores a value. A rewarded pet adds 4 to happiness only when the 30-second cooldown has finished, then caps the result at 100.",
 	"boolean": "A Boolean has exactly two values. Here is_held is state: the game stores whether carrying is active, then uses it to choose behavior.",
 	"vectors": "A coordinate is one position number. A position vector groups x and y. Subtracting old position from new position gives movement in each direction.",
 	"gravity": "Velocity means how quickly position changes. Gravity changes vertical velocity over time. A floor check stops downward movement at the floor.",

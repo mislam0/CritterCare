@@ -11,7 +11,7 @@ Recommended source size: **96 × 96**, transparent PNG. Keep the important artwo
 
 ## Pip Shop accessories
 
-`assets/shop/pet/` contains high-resolution, tightly cropped transparent PNGs. They are deliberately larger than their final display size and are downscaled on Pip. Final width/placement comes from `data/shop.gd` (`render_width` / optional `render_offset`), not from assuming a particular source canvas size. This keeps thin art such as the glasses and bow tie crisp and makes future replacement art easier.
+`assets/shop/pet/head/`, `assets/shop/pet/face/`, and `assets/shop/pet/neck/` hold the 640 × 640 transparent cosmetics, organized by their equipped slot. The scale and position come from `data/shop.gd` (`PET_SLOT_LAYOUT`), keeping saved item IDs and placement intact.
 
 ## Base room
 
@@ -23,7 +23,7 @@ Recommended source size: **96 × 96**, transparent PNG. Keep the important artwo
 - `default_rug.png` — 640 × 140 transparent starter rug.
 - `room_furniture.png` — 1280 × 800 transparent window, shelf, plants, cushion, and bowl.
 
-Shop wallpapers, room decor, and rugs come from `assets/shop/room/` and are layered by `scripts/room.gd`. The themed Shop intentionally exposes only these three room slots.
+Shop art is organized under `assets/shop/room/wall/` (wallpapers), `assets/shop/room/decor/` (decorations), and `assets/shop/room/rug/` (floor rugs). The layout remains controlled by `ROOM_SLOT_LAYOUT` in `data/shop.gd`, with `scripts/room.gd` handling display.
 
 ## Picnic Catch
 

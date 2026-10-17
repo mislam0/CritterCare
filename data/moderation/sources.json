@@ -1,0 +1,20 @@
+{
+  "ldnoobw": {
+    "repository": "LDNOOBW/List-of-Dirty-Naughty-Obscene-and-Otherwise-Bad-Words",
+    "commit": "5faf2ba42d7b1c0977169ec3611df25a3c08eb13",
+    "url": "https://github.com/LDNOOBW/List-of-Dirty-Naughty-Obscene-and-Otherwise-Bad-Words",
+    "license": "CC-BY-4.0"
+  },
+  "better_profanity": {
+    "repository": "snguyenthanh/better_profanity",
+    "commit": "b80ace7eb78addbdf7f625068e8a86f582d918c9",
+    "url": "https://github.com/snguyenthanh/better_profanity",
+    "license": "MIT"
+  },
+  "unicode": {
+    "url": "https://www.unicode.org/Public/security/latest/confusables.txt",
+    "version": "18.0.0",
+    "date": "2026-08-06"
+  },
+  "retrieved": "2026-10-15"
+}
