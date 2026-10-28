@@ -183,7 +183,7 @@ func _build_home() -> void:
 	UI.label(ui, "{PET_NAME}'S LITTLE PLACE", Rect2(70, 154, 380, 27), 14, UI.GREEN)
 	UI.panel(ui, Rect2(70, 183, 250, 127), Color(0.99, 0.98, 0.94, 0.98), 18).name = "HomeHelp"
 	UI.label(ui, "Make yourself at home", Rect2(86, 189, 220, 25), 18)
-	UI.label(ui, "01   Tap my head\n02   Hold + drag to pick up\n03   Shop for a new look", Rect2(86, 218, 220, 60), 15, UI.MUTED)
+	UI.label(ui, "01   Tap my head\n02   Hold + drag to pick up\n03   Shop for a new look", Rect2(86, 216, 220, 66), 15, UI.MUTED)
 	discoveries_label = UI.label(ui, "0 little discoveries", Rect2(86, 282, 220, 22), 14, UI.GREEN)
 	UI.panel(ui, Rect2(465, 624, 350, 27), Color(0.99, 0.98, 0.91, 0.8), 13)
 	status_label = UI.label(ui, "{pet_name} · feeling cozy", Rect2(469, 624, 342, 27), 14, UI.GREEN, true)

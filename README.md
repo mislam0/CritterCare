@@ -1,11 +1,15 @@
 # CritterCare
 
-**Release v1.6.5 · Learn with your little friend**
+**Release v1.6.6 · Learn with your little friend**
 
 Open `project.godot` in Godot 4.7.2 and press F5, or upload the included
 `builds/CritterCare-itchio.zip` as an HTML game.
 
-## Update v1.6.5
+## Update v1.6.6
+
+Added syntax highlighting and fixed text for the web.
+
+### Previous artwork and gameplay updates
 
 - Expanded the shop to 10 matching themes with 60 items, including Easter, Brainrot, Thanksgiving, and Bear Spirit.
 - Updated pet accessories and room decorations to match the supplied art and fitting guides: flat, front-facing designs, simple colors, and no swords.
@@ -24,8 +28,8 @@ The teaching focus is variables, boolean logic, if-then-else conditionals, loops
 
 ## Play immediately
 
-1. **Extract the entire `CritterCare-v1.6.5` folder** from the ZIP. Do not run it inside the ZIP preview.
-2. Open **Godot 4.7.2**, choose **Import**, and select `CritterCare-v1.6.5/project.godot`.
+1. **Extract the entire `CritterCare-v1.6.6` folder** from the ZIP. Do not run it inside the ZIP preview.
+2. Open **Godot 4.7.2**, choose **Import**, and select `CritterCare-v1.6.6/project.godot`.
 3. Choose **Import & Edit**. Let Godot finish importing the bundled fonts and sounds, then press **F5** (Run Project).
 
 This is a standard GDScript project. You do not need .NET, additional downloads, an account, or an internet connection to play locally. The main scene is already configured. This release targets **Godot 4.7.2**, using the Compatibility renderer. Godot 3 is not supported.
@@ -36,7 +40,7 @@ On Windows, you can also drag `project.godot` into Godot's Project Manager. Open
 
 ## Confirm you opened the update
 
-The bottom-right footer should show **v1.6.5**, followed by your pet's name. If it does not, that is an older copy of the game. Extract this download into a fresh folder and import the `project.godot` from that folder rather than launching a previous Project Manager entry. New saves and Reset progress ask for a name, then start the guided tour. With an existing save, choose Settings → Replay tutorial to see it without losing progress.
+The bottom-right footer should show **v1.6.6**, followed by your pet's name. If it does not, that is an older copy of the game. Extract this download into a fresh folder and import the `project.godot` from that folder rather than launching a previous Project Manager entry. New saves and Reset progress ask for a name, then start the guided tour. With an existing save, choose Settings → Replay tutorial to see it without losing progress.
 
 The matching browser build is included as `builds/CritterCare-itchio.zip`. After future edits, use **Project → Tools → Export CritterCare for itch.io** to rebuild it. Generated browser files live in `builds/web/`; the older duplicate `critter_care_web_version/` export is not shipped.
 

@@ -1,6 +1,6 @@
 # Teaching-only vocabulary highlights
 
-Keep dialogue as ordinary GDScript strings. The shared renderer escapes literal brackets and adds bold dark text on a pale yellow background only to teaching controls.
+Keep dialogue as ordinary GDScript strings. The shared renderer escapes literal brackets and adds category text colors without backgrounds or added bold only to teaching controls.
 
 ## Where highlighting belongs
 
@@ -28,9 +28,9 @@ For home speech, `_say()` highlights only when a lesson key or its explicit `tea
 
 ## Vocabulary and rendering
 
-- `scripts/teaching_terms.gd`: vocabulary and highlight colors. `CONCEPTS` uses whole-word regular expressions. `EXPLICIT` recognizes uppercase AND/OR/NOT; normal lowercase conjunctions stay plain. `CODE_WORDS` adds lowercase GDScript keywords inside teaching code examples.
+- `scripts/teaching_terms.gd`: the internal `VOCABULARY` word bank, category colors, and code syntax formatter. `EXPLICIT_WORDS` recognizes uppercase logic/rule words while everyday lowercase conjunctions stay plain in prose. Code is colored by syntax role; strings and comments are kept intact. The word bank is not a player-facing screen. See [TEXT_COLORS.md](TEXT_COLORS.md) for the palette.
 - `scripts/learning_text.gd`: plain source, optional rendering, name expansion, and measured sizing.
-- `scripts/ui.gd`: shared controls and clean answer feedback.
+- `scripts/ui.gd`: shared controls, clean answer feedback, and a bundled `Code.ttf` fallback for the Nunito fonts so arrows and outcome symbols work without system fonts in Web exports.
 - `data/lesson_language.gd`, `data/lessons.gd`: level-specific lesson text. See [EDITING_TEXT.md](EDITING_TEXT.md) for other sources.
 
 Do not store BBCode in dialogue or saves. Literal brackets, code indentation, and line breaks must survive. Speech pagination measures rich-text height and preserves every plain character. Knowledge retains the complete quote.

@@ -16,6 +16,12 @@ const HEADING_FONT = preload("res://assets/fonts/Nunito-ExtraBold.ttf")
 const LearningText = preload("res://scripts/learning_text.gd")
 const CODE_FONT = preload("res://assets/fonts/Code.ttf")
 
+static func _static_init() -> void:
+	# Browser exports cannot borrow missing symbols from Windows system fonts.
+	# The bundled code font supplies checkmarks, crosses, triangles, and arrows.
+	FONT.set_fallbacks([CODE_FONT])
+	HEADING_FONT.set_fallbacks([CODE_FONT])
+
 static func style(color: Color, radius: int = 18, border: Color = Color.TRANSPARENT, shadow: bool = false) -> StyleBoxFlat:
 	var s = StyleBoxFlat.new()
 	s.bg_color = color

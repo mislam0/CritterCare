@@ -1,5 +1,9 @@
 # Changelog
 
+## Update v1.6.6
+
+- Added syntax highlighting and fixed text for the web.
+
 ## Update v1.6.5
 
 - Expanded the shop to 10 matching themes with 60 items, including Easter, Brainrot, Thanksgiving, and Bear Spirit.
