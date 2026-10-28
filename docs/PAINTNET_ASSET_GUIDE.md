@@ -21,18 +21,18 @@ Christmas, and Pixel Knight complete the unified six-theme Shop.
   offset (0,-115), width 120; face offset (0,-46), width 183; neck offset
   (0,26), width 110. Do not add per-item offsets.
 - Wallpaper: **1200x525 RGBA** (opaque content).
-- Room decoration: **410x396 RGBA** (transparent background), artwork centered horizontally on the canvas. The shared slot begins at (435,164) on a 1280x800 room, placing the canvas center at room x=640.
+- Decor Set main wall art: **410x396 RGBA** (transparent background), artwork centered horizontally on the canvas. The shared slot begins at (435,164) on a 1280x800 room, placing the canvas center at room x=640.
 - Rug: **640x130 RGBA** (transparent background).
 
 ## User-provided references and approved fitting
 
-- `assets/shop/pet/flat_cap.png`
-- `assets/shop/pet/sunglasses.png`
-- `assets/shop/pet/pumpkin_hat.png`
-- `assets/shop/pet/bat_mask.png` (existing save ID, shown as Pumpkin Mask)
-- `assets/shop/pet/pixel_visor.png` (existing ID, cleaned Red Feather Plume)
-- `assets/shop/pet/pixel_knight_helmet.png` (cleaned and refitted)
-- `assets/shop/pet/pixel_chestplate.png` (cleaned and refitted)
+- `assets/shop/pet/head/red_cap.png`
+- `assets/shop/pet/face/sunglasses.png`
+- `assets/shop/pet/head/pumpkin_hat.png`
+- `assets/shop/pet/face/pumpkin_mask.png` (existing `bat_mask` save ID, shown as Pumpkin Mask)
+- `assets/shop/pet/head/pixel_knight_plume.png` (existing `pixel_visor` save ID, cleaned Pixel Knight Plume)
+- `assets/shop/pet/face/pixel_knight_helmet.png` (existing `pixel_chestplate` save ID, cleaned and refitted)
+- `assets/shop/pet/neck/pixel_knight_chest.png` (existing `pixel_chestplate` save ID, cleaned and refitted)
 
 The approved Pixel Knight art is refitted to the tested visible bounds rather than
 left byte-for-byte identical. Save IDs, shop row order, prices, slots, save handling,

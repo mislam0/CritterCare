@@ -9,7 +9,11 @@ var games_scroll_offset: int = 0
 var games_buttons: Dictionary = {}
 var shop_scroll: ScrollContainer
 var shop_scroll_offsets: Dictionary = {"pet":0, "room":0}
+var shop_preview_cache: Dictionary = {}
 const SaveData = preload("res://scripts/save_data.gd")
+# Both passive need meters lose five points per active home-screen minute.
+const FULLNESS_DRAIN_PER_MINUTE: float = 5.0
+const HAPPINESS_DRAIN_PER_MINUTE: float = 5.0
 const SaveSlots = preload("res://scripts/save_slots.gd")
 var save_slots = SaveSlots.new()
 var slot_name_input: LineEdit
@@ -177,10 +181,10 @@ func _build_home() -> void:
 	settings_button.name = "SettingsButton"
 	settings_button.add_theme_font_size_override("font_size", 30)
 	UI.label(ui, "{PET_NAME}'S LITTLE PLACE", Rect2(70, 154, 380, 27), 14, UI.GREEN)
-	UI.panel(ui, Rect2(70, 201, 230, 138), Color(0.99, 0.98, 0.92, 0.79), 18)
-	UI.label(ui, "Make yourself at home", Rect2(86, 213, 200, 29), 19)
-	UI.label(ui, "01   Tap my head\n02   Hold + drag to pick up\n03   Shop for a new look", Rect2(86, 247, 201, 76), 16, UI.MUTED)
-	discoveries_label = UI.label(ui, "0 little discoveries", Rect2(85, 344, 230, 28), 16, UI.GREEN)
+	UI.panel(ui, Rect2(70, 183, 250, 127), Color(0.99, 0.98, 0.94, 0.98), 18).name = "HomeHelp"
+	UI.label(ui, "Make yourself at home", Rect2(86, 189, 220, 25), 18)
+	UI.label(ui, "01   Tap my head\n02   Hold + drag to pick up\n03   Shop for a new look", Rect2(86, 216, 220, 66), 15, UI.MUTED)
+	discoveries_label = UI.label(ui, "0 little discoveries", Rect2(86, 282, 220, 22), 14, UI.GREEN)
 	UI.panel(ui, Rect2(465, 624, 350, 27), Color(0.99, 0.98, 0.91, 0.8), 13)
 	status_label = UI.label(ui, "{pet_name} · feeling cozy", Rect2(469, 624, 342, 27), 14, UI.GREEN, true)
 	# Navigation buttons include custom vector icons and descriptive sublabels.
@@ -220,7 +224,7 @@ func _build_home() -> void:
 	toast_label = UI.label(ui, "", Rect2(319, 111, 724, 24), 14, UI.GREEN, true)
 
 func _style_shop_button(button: Button) -> void:
-	button.tooltip_text = "Shop · pet accessories and room decorations (S)"
+	button.tooltip_text = "Shop · pet accessories, wallpaper, decor sets, and rugs (S)"
 	button.add_theme_stylebox_override("normal", UI.style(Color("f3d896"), 18, Color("c29b49")))
 	button.add_theme_stylebox_override("hover", UI.style(Color("ffe8ae"), 18, Color("a57c31")))
 	button.add_theme_stylebox_override("pressed", UI.style(Color("dfc078"), 18))
@@ -258,6 +262,12 @@ func _add_icon(parent: Node, kind: String, rect: Rect2) -> Control:
 	parent.add_child(icon)
 	return icon
 
+# Called only while gameplay is on the home screen and no tutorial is active.
+# delta is in seconds, so divide the points-per-minute settings by 60.
+func _drain_needs(delta: float) -> void:
+	progress.fullness = maxf(0.0, progress.fullness - delta * (FULLNESS_DRAIN_PER_MINUTE / 60.0))
+	progress.happiness = maxf(0.0, progress.happiness - delta * (HAPPINESS_DRAIN_PER_MINUTE / 60.0))
+
 func _process(delta: float) -> void:
 	if not is_instance_valid(ui):
 		return
@@ -266,8 +276,7 @@ func _process(delta: float) -> void:
 	if modal_name.is_empty():
 		if not _tutorial_active():
 			start_time += delta
-			progress.fullness = maxf(0, progress.fullness - delta * 0.06)
-			progress.happiness = maxf(0, progress.happiness - delta * 0.025)
+			_drain_needs(delta)
 			if start_time > 2.0 and not progress.discovered.has("idle"):
 				learn("idle")
 		# Keep every page until the player chooses Next or Done. Reading has no timer.
@@ -359,7 +368,7 @@ func _on_interaction(action: String) -> void:
 	match action:
 		"pet":
 			progress.pet_count += 1
-			progress.happiness = minf(100, progress.happiness + 8)
+			progress.reward_petting(Time.get_ticks_msec())
 			learn("events" if progress.pet_count == 1 else "variables")
 			_play_sound("pet")
 		"pickup":
@@ -586,7 +595,7 @@ func open_feed() -> void:
 	_screen("feed", "A little something delicious", "Your treat pouch · earn refills by playing mini games and quizzes.")
 	var kinds = ["berry", "seed", "carrot"]
 	var titles = ["Garden berries", "Sunflower seed", "Carrot nibble"]
-	var descriptions = ["A sweet little reward.\n+14 fullness · +5 happiness", "A pocket-sized favorite.\n+9 fullness · +5 happiness", "Crunch, crunch, happy.\n+20 fullness · +5 happiness"]
+	var descriptions = ["A sweet little reward.\n+14 fullness · +3 happiness", "A pocket-sized favorite.\n+9 fullness · +3 happiness", "Crunch, crunch, happy.\n+20 fullness · +3 happiness"]
 	for i in range(3):
 		var x = 152 + i*330
 		var kind: String = kinds[i]
@@ -935,7 +944,7 @@ func _finish_snack_jam(_report: Dictionary, source) -> void:
 	if report.accuracy >= 70:
 		progress.reward("Snack Jam",report.accuracy,reward.berries,reward.seeds)
 	else:
-		progress.happiness = minf(100,progress.happiness+4)
+		progress.happiness = minf(100,progress.happiness+2)
 	var words: String = _lesson("snack_jam").bubble + _by_level("\nYou caught %d of %d snacks!\nBest row: %d. Let's dance again!","\nYou caught %d of %d snacks. Longest combo, or hits in a row: %d.","\nThis round: %d of %d notes caught. Longest combo (consecutive hits): %d.") % [report.perfect+report.good,report.notes,report.best_combo]
 	_discover_in_game("snack_jam",words)
 	_save()
@@ -985,11 +994,11 @@ func _picnic_setup() -> void:
 	controls.name = "PicnicControls"
 	var rule = _by_level("Catch berries!\nMiss one? Try the next.\nYour snacks stay.","Catch berries. A miss resets the streak, but keeps collected snacks.","Each catch adds a snack. A miss resets consecutive catches without subtracting collected snacks.")
 	if session_stage == 1:
-		rule = "Catch berries OR golden seeds.\nEach seed also gives +2 gold.\nOR means either snack counts."
+		rule = "Catch berries OR golden seeds.\nEach seed also gives +1 gold.\nOR means either snack counts."
 	elif session_stage >= 2:
-		rule = "Berries: +1 snack.\nGolden seeds: +1 snack, +2 gold.\nLet leaves fall to keep your streak."
+		rule = "Berries: +1 snack.\nGolden seeds: +1 snack, +1 gold.\nLet leaves fall to keep your streak."
 	UI.scroll_text(overlay, rule, Rect2(841,383,264,111), 17, UI.GREEN)
-	UI.scroll_text(overlay, _by_level("Finish for gold!\nCatch more in a row for extra.\nPip gets treats too.","Finish for 20 gold plus streak and seed bonuses. Earn 3 berries and 1 seed too.","Gold = 20 + 2 × best streak + seed bonuses. Completion also earns 3 berries and 1 seed."), Rect2(841,502,264,105), 17)
+	UI.scroll_text(overlay, _by_level("Finish for gold!\nCatch more in a row for extra.\nPip gets treats too.","Finish for 12 gold plus streak and seed bonuses. Earn 3 berries and 1 seed too.","Gold = 12 + best streak + seed bonuses. Completion also earns 3 berries and 1 seed."), Rect2(841,502,264,105), 17)
 	picnic_hint = UI.scroll_text(overlay, picnic.feedback, Rect2(157,637,963,44),24,UI.GREEN)
 	var left = UI.button(overlay, "← Left", Rect2(157,691,141,40), func(): pass)
 	var right = UI.button(overlay, "Right →", Rect2(309,691,141,40), func(): pass)
@@ -1023,12 +1032,12 @@ func _finish_picnic(report: Dictionary) -> void:
 	if session_rewarded or modal_name != "picnic" or not is_instance_valid(picnic) or not picnic.completed:
 		return
 	session_rewarded = true
-	var gold: int = 20 + 2 * report.best_streak + report.seed_gold
+	var gold: int = 12 + report.best_streak + report.seed_gold
 	progress.award_coins(gold)
 	progress.reward("Picnic Catch", report.best_streak * 10, 3, 1)
 	progress.picnic_rounds += 1
 	progress.picnic_best = maxi(progress.picnic_best, report.best_streak)
-	var words: String = _lesson("picnic").bubble + _by_level("\nTen snacks! Yum!\nBest row: %d. That earned %d extra gold!","\nWe caught 10 snacks. Our best streak was %d, adding %d gold.","\nTen snacks collected. The longest streak of %d consecutive catches earned %d bonus gold.") % [report.best_streak, report.best_streak*2]
+	var words: String = _lesson("picnic").bubble + _by_level("\nTen snacks! Yum!\nBest row: %d. That earned %d extra gold!","\nWe caught 10 snacks. Our best streak was %d, adding %d gold.","\nTen snacks collected. The longest streak of %d consecutive catches earned %d bonus gold.") % [report.best_streak, report.best_streak]
 	var explain_again = teaching_cooldowns.ready("picnic")
 	_discover_in_game("picnic", words)
 	if explain_again: _say("Thanks for playing with me!", words, "picnic")
@@ -1040,7 +1049,7 @@ func _finish_picnic(report: Dictionary) -> void:
 	UI.outcome_label(verdict,true)
 	_add_icon(overlay, "basket", Rect2(582,222,112,112))
 	UI.label(overlay, "+%d gold" % gold, Rect2(278,341,724,53), 38, UI.GREEN, true)
-	UI.label(overlay, _by_level("20 for finishing + %d for your row + %d from seeds","20 for finishing + %d streak bonus + %d seed bonus","20 completion + %d streak bonus + %d seed bonus") % [report.best_streak*2,report.seed_gold], Rect2(230,404,820,40), 22, UI.INK, true)
+	UI.label(overlay, _by_level("12 for finishing + %d for your row + %d from seeds","12 for finishing + %d streak bonus + %d seed bonus","12 completion + %d streak bonus + %d seed bonus") % [report.best_streak,report.seed_gold], Rect2(230,404,820,40), 22, UI.INK, true)
 	UI.panel(overlay, Rect2(219,462,842,67), Color("e7efdc"),18)
 	UI.label(overlay, "+3 berries · +1 seed · {pet_name} feels happier!", Rect2(240,471,800,48), 24, UI.GREEN, true)
 	UI.label(overlay, _by_level("Best row this time: %d   ·   Best ever: %d\nPicnics finished: %d","Best streak this picnic: %d   ·   Personal best: %d\nPicnics completed: %d","Longest streak: %d   ·   Personal best: %d\nCompleted rounds: %d") % [report.best_streak,progress.picnic_best,progress.picnic_rounds], Rect2(250,546,780,74), 21, UI.MUTED, true)
@@ -1371,7 +1380,11 @@ func _result(mode: String, points: int, won: bool, berries: int, seeds: int, car
 		return
 	session_rewarded = true
 	var previous_stage = progress.unlocked_stage()
-	var earned = 12 + clampi(points, 0, 100) / 10 + (8 if won else 0) + session_stage * 5
+	# Loop Garden is a quick, repeatable puzzle, so it has a smaller payout.
+	# Other curriculum games keep their existing reward formula.
+	var earned: int = 12 + clampi(points, 0, 100) / 10 + (8 if won else 0) + session_stage * 5
+	if mode == "Loop Garden":
+		earned = 12 + clampi(points, 0, 100) / 20 + session_stage * 2
 	progress.award_coins(earned)
 	if won:
 		progress.reward(mode, points, berries, seeds, carrots)
@@ -1506,9 +1519,9 @@ func _set_shop_category(category: String) -> void:
 	open_shop()
 
 func open_shop() -> void:
-	_screen("shop", "The little Shop", _by_level("Buy a look! Equip puts it on. Unequip takes it off.","Buy once. Equip puts it on; Unequip takes it off. Both are free.","Ownership persists until reset. Equipping changes appearance without another purchase."))
+	_screen("shop", "The little Shop", _by_level("Choose a look! Equip adds it. Unequip removes it.","Buy once, then Equip or Unequip for free. Room sets decorate your pet's home.","Ownership lasts until reset. Equip or Unequip changes the active pet look or room set."))
 	UI.button(overlay, "Pet accessories", Rect2(155, 219, 250, 44), func(): _set_shop_category("pet"), shop_category == "pet").name = "PetCategory"
-	UI.button(overlay, "Room decorations", Rect2(416, 219, 264, 44), func(): _set_shop_category("room"), shop_category == "room").name = "RoomCategory"
+	UI.button(overlay, "Room sets", Rect2(416, 219, 264, 44), func(): _set_shop_category("room"), shop_category == "room").name = "RoomCategory"
 	_add_icon(overlay, "coin", Rect2(899, 222, 35, 35))
 	UI.label(overlay, "%d coins" % progress.coins, Rect2(944, 219, 184, 44), 24, UI.GREEN)
 
@@ -1560,6 +1573,24 @@ func open_shop() -> void:
 	_restore_shop_scroll(shop_scroll, saved_offset, category)
 	_tutorial_notice("open_shop")
 
+func _shop_preview(texture: Texture2D) -> Texture2D:
+	var key := texture.resource_path
+	if shop_preview_cache.has(key):
+		return shop_preview_cache[key]
+	var pixels := texture.get_image()
+	if pixels == null or pixels.is_empty():
+		return texture
+	if pixels.is_compressed():
+		pixels.decompress()
+	var bounds := pixels.get_used_rect()
+	if not bounds.has_area():
+		return texture
+	var cropped := AtlasTexture.new()
+	cropped.atlas = texture
+	cropped.region = Rect2(bounds)
+	shop_preview_cache[key] = cropped
+	return cropped
+
 func _add_shop_card(grid: GridContainer, id: String) -> void:
 	var item: Dictionary = Shop.ITEMS[id]
 	var owned: bool = progress.owned.has(id)
@@ -1585,7 +1616,7 @@ func _add_shop_card(grid: GridContainer, id: String) -> void:
 	column.add_child(header)
 	var preview = TextureRect.new()
 	preview.name = "Preview"
-	preview.texture = item.texture
+	preview.texture = _shop_preview(item.texture)
 	preview.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST if item.theme == "pixel_knight" else CanvasItem.TEXTURE_FILTER_LINEAR
 	preview.custom_minimum_size = Vector2(78,78)
 	preview.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -1632,14 +1663,23 @@ func _shop_action(id: String) -> void:
 		var before: int = progress.coins
 		if not progress.buy(id):
 			return
-		shop_notice = ("%s is yours! Click Equip to put it on." % Shop.ITEMS[id].name) if progress.game_level == "kindergarten" else ("%s is yours! Coins: %d - %d = %d. Choose Equip to use it." % [Shop.ITEMS[id].name, before, Shop.ITEMS[id].price, progress.coins])
+		var item_is_room: bool = Shop.ITEMS[id].category == "room"
+		if progress.game_level == "kindergarten":
+			shop_notice = "%s is yours! Click Equip to %s!" % [Shop.ITEMS[id].name, "decorate" if item_is_room else "wear it"]
+		else:
+			shop_notice = "%s is yours! Coins: %d - %d = %d. Choose Equip to use it." % [Shop.ITEMS[id].name, before, Shop.ITEMS[id].price, progress.coins]
+
 		_say_auto("shop_buy","A new thing!",_by_level("IF we buy a thing, THEN we use some gold.\nIt stays yours. Yay!","Buying checks your gold, then subtracts the price. Your item stays owned.","Gold is a variable: a stored number. IF it covers the price THEN subtract that price and save ownership."))
 		_play_sound("win")
 	else:
 		progress.toggle_equip(id)
 		var wearing: bool = progress.equipped.get(Shop.slot_key(id), "") == id
-		shop_notice = Shop.ITEMS[id].name + (" is on! Your other things stay yours." if wearing else " is off. You still own it!")
-		_say_auto("shop_equip","A new look!",_by_level("Equip means put it on.\nUnequip means take it off.\nYour thing stays yours!","IF you equip an owned item THEN it appears. Unequip hides it while keeping it owned.","Equipped is a saved choice. The game uses that choice to show an owned item; ownership stays the same."))
+		var item_is_room: bool = Shop.ITEMS[id].category == "room"
+		shop_notice = Shop.ITEMS[id].name + ((" is in your room!" if wearing else " is put away. You still own it!") if item_is_room else (" is being worn!" if wearing else " is off. You still own it!"))
+		if item_is_room:
+			_say_auto("shop_equip", "Room makeover!", _by_level("Equip decorates the room.\nUnequip puts it away. It stays yours!", "Equipping a room item adds it to the room. Unequipping hides it; ownership stays yours.", "The saved equipped room slot controls the wallpaper, Decor Set, or rug shown in the room."))
+		else:
+			_say_auto("shop_equip", "A new look!", _by_level("Equip means put it on.\nUnequip means take it off.\nYour thing stays yours!", "IF you equip an owned item THEN it appears. Unequip hides it while keeping it owned.", "Equipped is a saved choice. The game uses that choice to show an owned item; ownership stays the same."))
 		_apply_cosmetics()
 	_save()
 	_refresh_home()

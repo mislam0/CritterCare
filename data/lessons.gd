@@ -42,7 +42,7 @@ const DATA = {
 	"picnic": {
 		"tag":"INPUT & OUTPUT", "title":"Catch a snack with {pet_name}", "trigger":"Play Picnic Catch",
 		"bubble":"IF you move the mouse or press a direction THEN my basket moves. IF it catches a snack THEN our snack count goes up by one. Your action is the input; my movement and our changing count are the output!",
-		"body":"Input means an action you give the game, such as moving the mouse, dragging a finger, or pressing Right. Output means the response you see: {pet_name} moves his basket.\n\nA condition is a yes-or-no check. IF a snack reaches the basket THEN add one to snacks. A variable is a named place that remembers a value; snacks remembers our count. A streak counts catches in a row. Missing a snack restarts the current streak, but keeps the snacks already collected.\n\nCatch 10 snacks to finish. There is no countdown or lost life. You earn 20 gold, plus 2 for each catch in your best streak. Later stages introduce golden seeds (+2 gold) and leaves to let fall. Your moves control the basket, so try a different position and watch what changes!",
+		"body":"Input means an action you give the game, such as moving the mouse, dragging a finger, or pressing Right. Output means the response you see: {pet_name} moves his basket.\n\nA condition is a yes-or-no check. IF a snack reaches the basket THEN add one to snacks. A variable is a named place that remembers a value; snacks remembers our count. A streak counts catches in a row. Missing a snack restarts the current streak, but keeps the snacks already collected.\n\nCatch 10 snacks to finish. There is no countdown or lost life. You earn 12 gold, plus 1 for each catch in your best streak. Later stages introduce golden seeds (+1 gold) and leaves to let fall. Your moves control the basket, so try a different position and watch what changes!",
 		"code":"if snack_caught:\n    snacks += 1\n    streak += 1",
 		"question":"Your basket catches a snack. What happens to the snack count?", "choices":["It increases by one", "It goes back to zero", "It never changes"], "answer":0,
 		"why":"Catching a snack makes the check true, so the game adds one to the stored snack count."},
@@ -62,11 +62,11 @@ const DATA = {
 		"why":"The head click is an input event. Its handler calls pet()."},
 	"variables": {
 		"tag":"VARIABLES", "title":"Happiness has a value", "trigger":"Pet {pet_name} again",
-		"bubble":"My happiness went up! A variable stores a value that can change. Petting adds 8, up to 100.",
-		"body":"A variable is a named place to keep a value. happiness stores a number. Petting adds 8 to the old value and stores the result.\n\nThe game caps happiness at 100. If it was 97, petting makes it 100, rather than 105.",
-		"code":"happiness = min(100, happiness + 8)",
-		"question":"Happiness is 40. Petting adds 8. What is it now?", "choices":["48", "8", "40"], "answer":0,
-		"why":"The new value is the old value plus 8: 40 + 8 = 48."},
+		"bubble":"A variable stores a value that can change. Petting can add 4 happiness, up to 100, once every 30 seconds.",
+		"body":"A variable is a named place to keep a value. happiness stores a number. When the 30-second reward cooldown is ready, petting adds 4 to the old value and stores the result.\n\nThe game caps happiness at 100. If it was 97, a rewarded pet makes it 100 rather than 101. You can still pet me during the cooldown; it simply does not add happiness.",
+		"code":"if pet_reward_ready:\n    happiness = min(100, happiness + 4)",
+		"question":"Happiness is 40. A rewarded pet adds 4. What is it now?", "choices":["44", "4", "40"], "answer":0,
+		"why":"The new value is the old value plus 4: 40 + 4 = 44, when the pet reward is ready."},
 	"boolean": {
 		"tag":"BOOLEANS", "title":"Held: true or false?", "trigger":"Hold {pet_name} to pick up",
 		"bubble":"Wheee! is_held is now true. A boolean has only two values: true and false. Let go to make it false.",

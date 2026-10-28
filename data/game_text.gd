@@ -103,7 +103,7 @@ const TOUR_KIDS = {
 	"knowledge": "Click Knowledge.\nIt's our book of things we learned!",
 	"book": "{pet_name} says keeps my words.\nScroll to see more.\nRead with {pet_name} lets us read again!",
 	"shop": "Click Shop.\nLet's look at hats and room things!",
-	"catalog": "Pet things or room things? Pick a tab!\nBuy means keep it. Equip means put it on.\nJust looking is free!",
+	"catalog": "Pet accessories or room sets? Pick a tab!\nBuy means keep it. Equip means use it.\nJust looking is free!",
 	"settings": "Click the three dots.\nWe can change sound and Game level here.",
 	"level": "Pick your Game level.\nWe all start small. Bigger levels add more later.\nYou can change it anytime!",
 	"games": "Click Games / Quizzes.\nLet's play for gold and treats!",

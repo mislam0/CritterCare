@@ -114,9 +114,9 @@ static func perform(action: String, state: Dictionary, mission: Dictionary, trac
 				words = "IF you offer this berry THEN fullness changes: %d + 20 = %d." % [old,state.fullness]
 		"pet":
 			var old: int = state.happiness
-			state.happiness = mini(100, old + 8)
+			state.happiness = mini(100, old + 4)
 			state.petted += 1
-			words = "IF you pet me THEN happiness changes: %d + 8 = %d." % [old,state.happiness]
+			words = "IF you pet me THEN happiness changes: %d + 4 = %d." % [old,state.happiness]
 		_:
 			var amount = int(action.trim_prefix("add"))
 			var old: int = state.seeds

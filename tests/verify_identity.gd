@@ -103,13 +103,13 @@ func run() -> void:
 		screen.call()
 		await frames(3)
 		for label in labels(game.overlay):
-			if label.teaching or label.text.contains("[bgcolor="): highlighted.append(label.words)
+			if label.teaching or label.text.contains("[color=#"): highlighted.append(label.words)
 	check(highlighted.is_empty(),"Menus, quiz questions/answers, game rules, controls, and scores stay unhighlighted: %s" % [highlighted])
 	game.close_modal()
 	game._say("Hi!","IF you like hats, THEN visit the Shop.")
-	check(not game.speech_text.teaching and not game.speech_text.text.contains("[bgcolor="),"An ordinary greeting stays plain even when it contains coding words")
+	check(not game.speech_text.teaching and not game.speech_text.text.contains("[color=#"),"An ordinary greeting stays plain even when it contains coding words")
 	game._show_lesson("boolean")
-	check(game.speech_text.teaching and game.speech_text.text.contains("[bgcolor="),"An actual Pip lesson opts into term highlighting")
+	check(game.speech_text.teaching and game.speech_text.text.contains("[color=#"),"An actual Pip lesson opts into term highlighting")
 	game.open_knowledge("boolean")
 	check(game.overlay.get_node("JournalBody/Content/PipQuote").teaching and game.overlay.get_node("JournalBody/Content/Code").teaching,"Knowledge retains highlighting inside saved teaching and examples")
 	game.progress.game_level = "college"

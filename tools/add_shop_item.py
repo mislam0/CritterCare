@@ -14,7 +14,7 @@ import sys
 
 SLOTS = {"pet": {"head": (640, 640), "face": (640, 640), "neck": (640, 640)},
          "room": {"wall": (1200, 525), "decor": (410, 396), "rug": (640, 130)}}
-THEMES = ("nature", "study", "smart_casual", "halloween", "christmas", "pixel_knight")
+THEMES = ("nature", "study", "smart_casual", "halloween", "christmas", "pixel_knight", "easter", "brainrot")
 
 
 def register(root, image, title, category, slot, theme, price, description, item_id=None, dry_run=False):
@@ -48,7 +48,7 @@ def register(root, image, title, category, slot, theme, price, description, item
     end = original.index("\n}\n", begin)
     if re.search(r'^\s*"' + re.escape(item_id) + r'"\s*:', original, re.M):
         raise ValueError(f"The ID {item_id!r} already exists. Choose a new ID; existing purchases use these IDs.")
-    destination = root / "assets/shop" / category / f"{item_id}.png"
+    destination = root / "assets/shop" / category / slot / f"{item_id}.png"
     if destination.exists():
         raise ValueError(f"{destination.name} already exists; this tool never overwrites artwork.")
     relative = destination.relative_to(root).as_posix()

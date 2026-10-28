@@ -287,7 +287,7 @@ func _draw() -> void:
 	ellipse(Vector2(0, -40), Vector2(80 + chew * 2, 67), light_fur, ink)
 	ellipse(Vector2(-46, -9), Vector2(34, 29), cream)
 	ellipse(Vector2(46, -9), Vector2(34, 29), cream)
-	ellipse(Vector2(0, 0), Vector2(46, 31), cream)
+	ellipse(Vector2(0, 0), Vector2(55, 31), cream)
 	# Forehead markings.
 	for i in [-1, 0, 1]:
 		draw_line(Vector2(i * 9, -104 + abs(i) * 3), Vector2(i * 7, -85 + abs(i) * 2), fur.darkened(0.05), 5, true)

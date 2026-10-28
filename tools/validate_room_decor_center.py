@@ -10,11 +10,15 @@ shop = (root / 'data/shop.gd').read_text()
 room = (root / 'scripts/room.gd').read_text()
 items = [
     'hanging_plant',
-    'study_bookshelf',
+    'framed_book',
     'wall_clock',
-    'jack_o_lantern',
+    'ghost_wall_hanging',
     'wreath',
     'pixel_castle_banner',
+    'easter_basket',
+    'brainrot_tung_tung_poster',
+    'thanksgiving_cornucopia',
+    'bear_spirit_banner',
 ]
 errors = []
 if '"decor":{"rect":Rect2(435,164,410,396)}' not in shop:
@@ -24,7 +28,7 @@ if 'Shop.ROOM_SLOT_LAYOUT["decor"].rect' not in room:
 if 'node.position = layout.rect.position' not in room:
     errors.append('Equipped decorations do not use shared shop rectangle')
 for name in items:
-    path = root / 'assets/shop/room' / f'{name}.png'
+    path = root / 'assets/shop/room/decor' / f'{name}.png'
     with Image.open(path) as src:
         im = src.convert('RGBA')
         if im.size != (410, 396):
@@ -42,4 +46,4 @@ if errors:
     for message in errors:
         print(' -', message)
     sys.exit(1)
-print('Room decor center validation passed: all six decorations visually centered on x=640.')
+print('Room decor center validation passed: all ten decorations visually centered on x=640.')

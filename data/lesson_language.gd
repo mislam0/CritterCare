@@ -29,9 +29,9 @@ const KIDS = {
 	},
 	"variables": {
 		"title": "My happy number",
-		"bubble": "A variable remembers something.\nMine remembers my happy number!\nIF you pet me, THEN add 8.",
-		"body": "Think of a named number box.\nThe happiness box starts at 40.\nAdd 8: now it holds 48!\nMy numbers stop at 100.",
-		"code": "happiness: 40\npet {pet_name}: add 8\nnew happiness: 48",
+		"bubble": "A variable remembers something.\nMine remembers my happy number!\nA rewarded pet adds 4.",
+		"body": "Think of a named number box.\nThe happiness box starts at 40.\nAdd 4: now it holds 44!\nYou can earn that bonus once every 30 seconds. My number stops at 100.",
+		"code": "happiness: 40\nrewarded pet: add 4\nnew happiness: 44",
 		"question": "What does a variable do?",
 		"choices": [
 			"Remembers a value",
@@ -447,7 +447,7 @@ const KIDS = {
 const COLLEGE = {
 	"idle": "State means the information the game remembers now. A branch is one possible path through a condition. Only the matching path runs.",
 	"events": "An event handler is a function that reacts to an event. The head-click handler updates happiness, then starts the visible reaction.",
-	"variables": "Assignment stores a value. happiness += 8 means read its old value, add 8, and store the result. A limit keeps the value at or below 100.",
+	"variables": "Assignment stores a value. A rewarded pet adds 4 to happiness only when the 30-second cooldown has finished, then caps the result at 100.",
 	"boolean": "A Boolean has exactly two values. Here is_held is state: the game stores whether carrying is active, then uses it to choose behavior.",
 	"vectors": "A coordinate is one position number. A position vector groups x and y. Subtracting old position from new position gives movement in each direction.",
 	"gravity": "Velocity means how quickly position changes. Gravity changes vertical velocity over time. A floor check stops downward movement at the floor.",

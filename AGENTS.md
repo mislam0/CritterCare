@@ -1,12 +1,28 @@
 # CritterCare maintenance
 
+## Current artwork baseline
+
+The user requires front-facing flat 2D accessories, simple colors, no angled
+body garments or dimensional top/side planes, and NO SWORDS. The Pixel Knight
+side hanging is a star shield. Do not reintroduce weapon artwork. Current
+source atlases, garment corrections and prompts are in `tools/shop_art_v1_6_24/`;
+`tools/prepare_shop_art.cjs` fits them to the unchanged slot canvases.
+See `docs/SHOP_ART.md` and the original TRUE_FIT guides in `docs/shop_guides/`.
+Do not rerun historical generators/importers over the current art.
+Complete furnished bundles replace the base-furniture layer while equipped;
+the unchanged base PNG returns on unequip and remains the fallback for partial
+custom bundles. Run the core integration suite and
+`tests/verify_shop_art.gd -- --test-mode` for shop work, including real-renderer
+captures when changing art. Shared slot geometry, purchase IDs and prices
+remain stable.
+
 This repository is one source of truth for both normal Godot/F5 play and the itch.io browser game. The user requires all future game changes to ship in both versions.
 
 After a change, validate the affected game behavior, run the integration suite with `--test-mode` (which isolates test saves), and rebuild `builds/CritterCare-itchio.zip` using `res://tools/export_web.gd` or the existing editor export menu. Package the updated editable project and a separate copy of the generated browser ZIP together. Never distribute an older browser build beside newer source.
 
 Game levels describe how far a beginner-friendly curriculum can progress. All new learners start with First steps; definitions and examples must appear before a new concept is tested. Keep Kindergarten at its original gentle difficulty. Preserve previous achievements when levels change.
 
-Shop purchases are permanent in the local save. Equipping is free, slots enforce appearance conflicts, and Reset progress clears coins, ownership, equipment, and stage badges while preserving level/comfort settings. The Shop is theme-first: six original sets with three Pet and three Room cards per set; optional imported items can add rows within a theme. Pet slots are head/face/neck; Room slots are wall/decor/rug. Keep prices, theme membership, and slots in `data/shop.gd`.
+Shop purchases are permanent in the local save. Equipping is free, slots enforce appearance conflicts, and Reset progress clears coins, ownership, equipment, and stage badges while preserving level/comfort settings. The Shop is theme-first: 10 sets (Nature, Study, Smart Casual, Halloween, Christmas, Pixel Knight, Easter, Brainrot, Thanksgiving, Bear Spirit), each with three Pet and three Room cards; optional imported items can add rows within a theme. Preserve all 60 stable purchase IDs when changing visible names or PNG files. Pet slots are head/face/neck; Room slots are wall/decor/rug. Keep prices, theme membership, and slots in `data/shop.gd`.
 
 Picnic Catch is an optional bonus activity, not a curriculum badge. Keep its rewards guarded against duplicate completion; unfinished rounds pay nothing. The header shows gold only; the home Shop stays in the bottom bar. Publish download links with a fresh versioned local filename for each release so previous attachments cannot be mistaken for the latest build.
 
@@ -26,3 +42,13 @@ Art pipeline: in the consolidated v1.6.2 release, UI icons, the base room, Picni
 Manual Save / Load lives in Settings. Keep its three slots independent from the current autosave. Confirm replacement, load, and deletion; deletion affects only that slot. Reset clears the current game but retains explicit slots, as explained on screen. Validate and persist a slot before swapping active progress; failures must leave active progress intact. Derive slot paths from the active save path so tests remain isolated. Run `tests/verify_save_slots.gd` with `--test-mode` after persistence changes.
 
 Name moderation: validate original input AND the final displayed form in first play, rename, reset naming, and save-slot titles. Keep button and submission-handler checks, including Enter. Never echo a rejected name in a greeting or validation message. Loaded blocked names become Pip and request renaming without resetting progress; repair their exact old-name references in captured quotes, preserving other quotes. No player-facing disable switch. Keep bounded offline matching, whole-name friendly exceptions, and no network/logging of names. Update `data/moderation/policy.json`, regenerate with `tools/build_name_filter.py`, and run `tests/verify_name_filter.gd`, identity, save-slot, and core regressions. Preserve third-party attribution in both source and Web packages. Do not claim a blacklist guarantees all possible words or bypasses.
+
+Shop art policy: simple original flat fills and outlines, no gradients/shadows or stray bear motifs outside Bear Spirit; Pixel Knight art stays pixelated. The historical asset importer `tools/import_approved_designs.py` and its reference sheets are retained for provenance only; they must not overwrite current artwork. The previous `tools/generate_approved_shop_redesign.py`, Easter/Brainrot, and other historical generators must not overwrite the approved sprites. Preserve the true pixel-art Pixel Knight and current Bear Spirit sprites.
+
+Current fit guides: see `docs/SHOP_FIT_GUIDES.md`, `docs/shop_guides/`, and `tools/validate_shop_guides.py`. New art MUST maintain current shared canvas geometry; do not apply the historical per-item offsets from pre-standardization guides. Re-running historical importers will overwrite the current fitted proportions.
+
+
+## Decor Set slots
+- Decor Sets support optional themed overlays for `window`, `right_plant`, `food_bowl`, and `floor_cushion` in addition to the existing `left_shelf`, `side_hanging`, and `right_surface`.
+- Maintain decor-set templates and placement guides under `docs/decor_set_templates/`.
+- Save compatibility preserved: existing `room:decor` purchases still equip the full coordinated set.

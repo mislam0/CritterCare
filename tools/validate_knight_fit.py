@@ -6,13 +6,15 @@ import numpy as np
 import sys
 ROOT=Path(__file__).resolve().parents[1]
 TARGETS={
-    "pixel_visor":(0,29,497,395),
-    "pixel_knight_helmet":(23,5,611,518),
-    "pixel_chestplate":(8,161,635,638),
+    "pixel_visor":(42,40,530,396),
+    "pixel_knight_helmet":(33,69,615,552),
+    "pixel_chestplate":(31,161,622,636),
 }
 errors=[]
 for name, expected in TARGETS.items():
-    p=ROOT/'assets'/'shop'/'pet'/(name+'.png')
+    knight_slots={'pixel_visor':'head', 'pixel_knight_helmet':'face', 'pixel_chestplate':'neck'}
+    filename={'pixel_visor':'pixel_knight_plume', 'pixel_chestplate':'pixel_knight_chest'}.get(name, name)
+    p=ROOT/'assets'/'shop'/'pet'/knight_slots[name]/(filename+'.png')
     im=Image.open(p).convert('RGBA')
     if im.size!=(640,640):
         errors.append(f'{name} canvas is {im.size}; expected 640x640')

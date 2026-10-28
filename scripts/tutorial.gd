@@ -16,7 +16,7 @@ const STEPS = [
 	{"id":"knowledge", "title":"Your learning book", "words":"Click Knowledge at the bottom. It keeps the lessons you have already met, so you can look them up whenever you want."},
 	{"id":"book", "title":"Read it again anytime", "words":"Each discovery includes {pet_name} says, a plain explanation, and a code example. Scroll down to read it all. Read with {pet_name} replays the complete explanation."},
 	{"id":"shop", "title":"Make this home yours", "words":"Click Shop at the bottom right. You can browse now, even with zero gold. Game rewards help you buy your favorite looks later."},
-	{"id":"catalog", "title":"Dress {pet_name} and the room", "words":"Use these tabs for pet accessories or room decorations. Buy once, then Equip or Unequip for free. Your purchases stay yours until Reset progress. No purchase is needed for this tour."},
+	{"id":"catalog", "title":"Dress {pet_name} and the room", "words":"Choose Pet accessories or Room sets. Room sets include Wallpaper, Decor Set, and Rug. Buy once, then Equip or Unequip for free. Your purchases stay yours until Reset progress. No purchase is needed for this tour."},
 	{"id":"settings", "title":"Make yourself comfy", "words":"Click the three dots at the top right. Settings lets you choose your Game level, sound, gentler movement, and more."},
 	{"id":"level", "title":"Choose your Game level", "words":"Everyone starts with easy lessons. Higher Game levels unlock more concepts as you progress. Keep this level or choose another. You can replay this tour in Settings anytime."},
 	{"id":"games", "title":"Time to play and learn", "words":"Click Games / Quizzes. Complete activities to earn gold and treats. {pet_name} explains each activity before you begin, with hints when you need help."},

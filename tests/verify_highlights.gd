@@ -8,7 +8,7 @@ func highlighted_words(value: String, code_mode: bool = false) -> Array:
 	return Terms.matches(value, code_mode).map(func(found): return found.get_string())
 
 func check_surface(node, source: String, note: String) -> void:
-	check(node is UI.LearningText and node.get_parsed_text() == source and node.text.contains("[bgcolor="), note)
+	check(node is UI.LearningText and node.get_parsed_text() == source and node.text.contains("[color=#") and not node.text.contains("[bgcolor=") and not node.text.contains("[b]"), note)
 
 func check_fixed_text(node: Node) -> Array:
 	var clipped = []
@@ -27,8 +27,38 @@ func run() -> void:
 	check(highlighted_words("IF hungry THEN feed ELSE pet. Boolean true FALSE variables loops input output") == ["IF","THEN","ELSE","Boolean","true","FALSE","variables","loops","input","output"], "Core beginner terms stand out in all letter cases")
 	check(highlighted_words("gift floor notebook sandy is_held input_name") == [], "Whole-word matching never highlights pieces of names")
 	check(highlighted_words("Pet and feed, or wait for Pip; not now. AND OR NOT FOR EACH") == ["AND","OR","NOT","FOR","EACH"], "Ordinary prose conjunctions stay quiet; explicit logic words stand out")
-	check(highlighted_words("if a and not b or c:\n    for i in range(3):\n        total += 1",true) == ["if","and","not","or","for","in","range","+="], "Lowercase code keywords and operators are highlighted")
+	check(highlighted_words("if a and not b or c:\n    for i in range(3):\n        total += 1",true) == ["if","a","and","not","b","or","c",":","for","i","in","range","(","3",")",":","total","+=","1"], "Lowercase code keywords and operators are highlighted")
 	check(highlighted_words("Function parameter accumulator list index nested loops boundary check debug") == ["Function","parameter","accumulator","list","index","nested loops","boundary check","debug"], "Higher-stage concepts use the same emphasis")
+	var syntax = "func feed(amount: int):\n    var text = \"if # true\"\n    total += 2\n    feed(amount) # if 99 feed()\n    return true"
+	var roles = []
+	for token in Terms.matches(syntax,true):
+		roles.append([token.get_string(),Terms.token_category(token,syntax,true)])
+	check(["func","keywords"] in roles and ["amount","variables"] in roles and ["int","types"] in roles and ["feed","calls"] in roles and ["true","literals"] in roles and ["2","numbers"] in roles,"Code uses syntax roles for declarations, parameters, types, calls, values, and numbers")
+	check(["\"if # true\"","strings"] in roles and ["# if 99 feed()","comments"] in roles and not ["99","numbers"] in roles,"Strings and comments protect their contents from keyword and function coloring")
+	var phrase = "nested loops and boolean logic with return values and boundary checks"
+	var phrase_roles = []
+	for token in Terms.matches(phrase):
+		phrase_roles.append([token.get_string(),Terms.token_category(token,phrase)])
+	check(phrase_roles == [["nested loops","control"],["boolean logic","logic"],["return values","functions"],["boundary checks","boundaries"]],"Multiword terms retain one category and prose conjunctions stay plain")
+	var vocabulary = "IF boolean variable function program timer gravity clamping debugging <"
+	var categories = []
+	for token in Terms.matches(vocabulary): categories.append(Terms.token_category(token,vocabulary))
+	check(categories == ["control","logic","data","functions","structure","events","movement","boundaries","debug","operators"],"All ten internal lesson vocabulary categories have their own palette entry")
+	var starter = "IF hungry AND treat: feed"
+	var starter_roles = []
+	for token in Terms.matches(starter,true):
+		if token.get_string() in ["IF","AND"]: starter_roles.append(Terms.token_category(token,starter,true))
+	check(starter_roles == ["keywords","keywords"],"Starter plain-word rule keywords receive keyword colors")
+	var colored = Terms.format_words(syntax,true)
+	check(not colored.contains("[bgcolor=") and not colored.contains("[b]") and colored.contains("[color=#"),"Teaching styling changes text color only, without backgrounds or bold")
+	var browser_symbols = true
+	for font in [UI.FONT,UI.HEADING_FONT]:
+		var previous_fallback = font.allow_system_fallback
+		font.allow_system_fallback = false
+		for symbol in "✓✕←→↑↓▶":
+			if not font.has_char(symbol.unicode_at(0)): browser_symbols = false
+		font.allow_system_fallback = previous_fallback
+	check(browser_symbols,"Bundled font fallbacks render all UI symbols without system fonts, as required on Web")
 	root.size = Vector2i(1280,800)
 	game = load("res://scenes/main.tscn").instantiate()
 	root.add_child(game)
@@ -103,7 +133,7 @@ func run() -> void:
 	game._lab_setup()
 	var lab = game.lab_screen
 	lab.add_block("hungry")
-	check(not lab.row_cards[0].get_node("Words").teaching and not lab.row_cards[0].get_node("Words").text.contains("[bgcolor="),"Lab instruction blocks stay plain during gameplay")
+	check(not lab.row_cards[0].get_node("Words").teaching and not lab.row_cards[0].get_node("Words").text.contains("[color=#"),"Lab instruction blocks stay plain during gameplay")
 	lab.step_run()
 	lab.step_run()
 	check_surface(lab.feedback,lab.feedback.words,"Live Lab trace feedback is highlighted after updates")
@@ -127,7 +157,7 @@ func run() -> void:
 	var reload = SaveData.new()
 	reload.save_path = game.progress.save_path
 	reload.load_progress()
-	check(reload.pip_quotes == game.progress.pip_quotes and not JSON.stringify(reload.pip_quotes).contains("[bgcolor="),"Saving and loading preserves plain dialogue without presentation markup")
+	check(reload.pip_quotes == game.progress.pip_quotes and not JSON.stringify(reload.pip_quotes).contains("[color=#"),"Saving and loading preserves plain dialogue without presentation markup")
 	game.queue_free()
 	await frames()
 	print("HIGHLIGHT RESULT: %d checks, %d failures" % [checks,failures])

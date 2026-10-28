@@ -1,0 +1,1582 @@
+{
+  "nature": {
+    "head": {
+      "file": "assets/shop/pet/head/leaf_hat.png",
+      "canvas": [
+        640,
+        640
+      ],
+      "source": [
+        23,
+        129,
+        347,
+        191
+      ]
+    },
+    "face": {
+      "file": "assets/shop/pet/face/leaf_glasses.png",
+      "canvas": [
+        640,
+        640
+      ],
+      "source": [
+        394,
+        162,
+        327,
+        155
+      ]
+    },
+    "neck": {
+      "file": "assets/shop/pet/neck/vine_collar.png",
+      "canvas": [
+        640,
+        640
+      ],
+      "source": [
+        746,
+        129,
+        330,
+        211
+      ]
+    },
+    "decor": {
+      "file": "assets/shop/room/decor/hanging_plant.png",
+      "canvas": [
+        410,
+        396
+      ],
+      "source": [
+        1128,
+        47,
+        265,
+        344
+      ]
+    },
+    "wall": {
+      "file": "assets/shop/room/wall/sage_wallpaper.png",
+      "canvas": [
+        1200,
+        525
+      ],
+      "source": [
+        46,
+        403,
+        301,
+        300
+      ]
+    },
+    "rug": {
+      "file": "assets/shop/room/rug/leaf_rug.png",
+      "canvas": [
+        640,
+        130
+      ],
+      "source": [
+        391,
+        473,
+        332,
+        192
+      ]
+    },
+    "window": {
+      "file": "assets/shop/room/decor_sets/nature/window.png",
+      "canvas": [
+        242,
+        222
+      ],
+      "source": [
+        783,
+        424,
+        256,
+        278
+      ]
+    },
+    "left_shelf": {
+      "file": "assets/shop/room/decor_sets/nature/left_shelf.png",
+      "canvas": [
+        200,
+        155
+      ],
+      "source": [
+        1099,
+        480,
+        323,
+        211
+      ]
+    },
+    "side_hanging": {
+      "file": "assets/shop/room/decor_sets/nature/side_hanging.png",
+      "canvas": [
+        95,
+        150
+      ],
+      "source": [
+        92,
+        749,
+        208,
+        287
+      ]
+    },
+    "right_plant": {
+      "file": "assets/shop/room/decor_sets/nature/right_plant.png",
+      "canvas": [
+        154,
+        224
+      ],
+      "source": [
+        392,
+        771,
+        307,
+        263
+      ]
+    },
+    "food_bowl": {
+      "file": "assets/shop/room/decor_sets/nature/food_bowl.png",
+      "canvas": [
+        114,
+        64
+      ],
+      "source": [
+        754,
+        849,
+        309,
+        149
+      ]
+    },
+    "floor_cushion": {
+      "file": "assets/shop/room/decor_sets/nature/floor_cushion.png",
+      "canvas": [
+        171,
+        92
+      ],
+      "source": [
+        1109,
+        822,
+        314,
+        184
+      ]
+    }
+  },
+  "study": {
+    "head": {
+      "file": "assets/shop/pet/head/study_beret.png",
+      "canvas": [
+        640,
+        640
+      ],
+      "source": [
+        30,
+        128,
+        335,
+        189
+      ]
+    },
+    "face": {
+      "file": "assets/shop/pet/face/glasses.png",
+      "canvas": [
+        640,
+        640
+      ],
+      "source": [
+        381,
+        160,
+        352,
+        151
+      ]
+    },
+    "neck": {
+      "file": "assets/shop/pet/neck/study_scarf.png",
+      "canvas": [
+        640,
+        640
+      ],
+      "source": [
+        754,
+        114,
+        297,
+        232
+      ]
+    },
+    "decor": {
+      "file": "assets/shop/room/decor/framed_book.png",
+      "canvas": [
+        410,
+        396
+      ],
+      "source": [
+        1132,
+        77,
+        261,
+        277
+      ]
+    },
+    "wall": {
+      "file": "assets/shop/room/wall/notebook_wallpaper.png",
+      "canvas": [
+        1200,
+        525
+      ],
+      "source": [
+        47,
+        415,
+        293,
+        292
+      ]
+    },
+    "rug": {
+      "file": "assets/shop/room/rug/book_rug.png",
+      "canvas": [
+        640,
+        130
+      ],
+      "source": [
+        377,
+        463,
+        350,
+        207
+      ]
+    },
+    "window": {
+      "file": "assets/shop/room/decor_sets/study/window.png",
+      "canvas": [
+        242,
+        222
+      ],
+      "source": [
+        757,
+        411,
+        295,
+        294
+      ]
+    },
+    "left_shelf": {
+      "file": "assets/shop/room/decor_sets/study/left_shelf.png",
+      "canvas": [
+        200,
+        155
+      ],
+      "source": [
+        1095,
+        461,
+        330,
+        242
+      ]
+    },
+    "side_hanging": {
+      "file": "assets/shop/room/decor_sets/study/side_hanging.png",
+      "canvas": [
+        95,
+        150
+      ],
+      "source": [
+        73,
+        744,
+        244,
+        265
+      ]
+    },
+    "right_plant": {
+      "file": "assets/shop/room/decor_sets/study/right_plant.png",
+      "canvas": [
+        154,
+        224
+      ],
+      "source": [
+        395,
+        734,
+        312,
+        284
+      ]
+    },
+    "food_bowl": {
+      "file": "assets/shop/room/decor_sets/study/food_bowl.png",
+      "canvas": [
+        114,
+        64
+      ],
+      "source": [
+        740,
+        830,
+        327,
+        156
+      ]
+    },
+    "floor_cushion": {
+      "file": "assets/shop/room/decor_sets/study/floor_cushion.png",
+      "canvas": [
+        171,
+        92
+      ],
+      "source": [
+        1092,
+        819,
+        335,
+        165
+      ]
+    }
+  },
+  "smart_casual": {
+    "head": {
+      "file": "assets/shop/pet/head/brown_flat_cap.png",
+      "canvas": [
+        640,
+        640
+      ],
+      "source": [
+        52,
+        134,
+        317,
+        179
+      ]
+    },
+    "face": {
+      "file": "assets/shop/pet/face/sunglasses.png",
+      "canvas": [
+        640,
+        640
+      ],
+      "source": [
+        396,
+        185,
+        324,
+        121
+      ]
+    },
+    "neck": {
+      "file": "assets/shop/pet/neck/necktie.png",
+      "canvas": [
+        640,
+        640
+      ],
+      "source": [
+        787,
+        76,
+        229,
+        286
+      ]
+    },
+    "decor": {
+      "file": "assets/shop/room/decor/wall_clock.png",
+      "canvas": [
+        410,
+        396
+      ],
+      "source": [
+        1121,
+        84,
+        265,
+        267
+      ]
+    },
+    "wall": {
+      "file": "assets/shop/room/wall/blue_gray_stripes.png",
+      "canvas": [
+        1200,
+        525
+      ],
+      "source": [
+        57,
+        415,
+        285,
+        268
+      ]
+    },
+    "rug": {
+      "file": "assets/shop/room/rug/casual_rug.png",
+      "canvas": [
+        640,
+        130
+      ],
+      "source": [
+        392,
+        455,
+        332,
+        202
+      ]
+    },
+    "window": {
+      "file": "assets/shop/room/decor_sets/smart_casual/window.png",
+      "canvas": [
+        242,
+        222
+      ],
+      "source": [
+        762,
+        397,
+        276,
+        286
+      ]
+    },
+    "left_shelf": {
+      "file": "assets/shop/room/decor_sets/smart_casual/left_shelf.png",
+      "canvas": [
+        200,
+        155
+      ],
+      "source": [
+        1084,
+        426,
+        329,
+        248
+      ]
+    },
+    "side_hanging": {
+      "file": "assets/shop/room/decor_sets/smart_casual/side_hanging.png",
+      "canvas": [
+        95,
+        150
+      ],
+      "source": [
+        80,
+        724,
+        227,
+        274
+      ]
+    },
+    "right_plant": {
+      "file": "assets/shop/room/decor_sets/smart_casual/right_plant.png",
+      "canvas": [
+        154,
+        224
+      ],
+      "source": [
+        416,
+        732,
+        268,
+        292
+      ]
+    },
+    "food_bowl": {
+      "file": "assets/shop/room/decor_sets/smart_casual/food_bowl.png",
+      "canvas": [
+        114,
+        64
+      ],
+      "source": [
+        744,
+        868,
+        314,
+        137
+      ]
+    },
+    "floor_cushion": {
+      "file": "assets/shop/room/decor_sets/smart_casual/floor_cushion.png",
+      "canvas": [
+        171,
+        92
+      ],
+      "source": [
+        1097,
+        802,
+        323,
+        197
+      ]
+    }
+  },
+  "halloween": {
+    "head": {
+      "file": "assets/shop/pet/head/witch_hat.png",
+      "canvas": [
+        640,
+        640
+      ],
+      "source": [
+        60,
+        122,
+        356,
+        248
+      ]
+    },
+    "face": {
+      "file": "assets/shop/pet/face/pumpkin_mask.png",
+      "canvas": [
+        640,
+        640
+      ],
+      "source": [
+        413,
+        146,
+        323,
+        221
+      ]
+    },
+    "neck": {
+      "file": "assets/shop/pet/neck/candy_corn_bowtie.png",
+      "canvas": [
+        640,
+        640
+      ],
+      "source": [
+        770,
+        176,
+        313,
+        179
+      ]
+    },
+    "decor": {
+      "file": "assets/shop/room/decor/ghost_wall_hanging.png",
+      "canvas": [
+        410,
+        396
+      ],
+      "source": [
+        1126,
+        70,
+        260,
+        329
+      ]
+    },
+    "wall": {
+      "file": "assets/shop/room/wall/halloween_wallpaper.png",
+      "canvas": [
+        1200,
+        525
+      ],
+      "source": [
+        61,
+        410,
+        323,
+        309
+      ]
+    },
+    "rug": {
+      "file": "assets/shop/room/rug/pumpkin_rug.png",
+      "canvas": [
+        640,
+        130
+      ],
+      "source": [
+        397,
+        473,
+        367,
+        231
+      ]
+    },
+    "window": {
+      "file": "assets/shop/room/decor_sets/halloween/window.png",
+      "canvas": [
+        242,
+        222
+      ],
+      "source": [
+        790,
+        410,
+        266,
+        310
+      ]
+    },
+    "left_shelf": {
+      "file": "assets/shop/room/decor_sets/halloween/left_shelf.png",
+      "canvas": [
+        200,
+        155
+      ],
+      "source": [
+        1086,
+        501,
+        323,
+        203
+      ]
+    },
+    "side_hanging": {
+      "file": "assets/shop/room/decor_sets/halloween/side_hanging.png",
+      "canvas": [
+        95,
+        150
+      ],
+      "source": [
+        122,
+        742,
+        188,
+        283
+      ]
+    },
+    "right_plant": {
+      "file": "assets/shop/room/decor_sets/halloween/right_plant.png",
+      "canvas": [
+        154,
+        224
+      ],
+      "source": [
+        422,
+        757,
+        276,
+        265
+      ]
+    },
+    "food_bowl": {
+      "file": "assets/shop/room/decor_sets/halloween/food_bowl.png",
+      "canvas": [
+        114,
+        64
+      ],
+      "source": [
+        754,
+        847,
+        319,
+        149
+      ]
+    },
+    "floor_cushion": {
+      "file": "assets/shop/room/decor_sets/halloween/floor_cushion.png",
+      "canvas": [
+        171,
+        92
+      ],
+      "source": [
+        1091,
+        799,
+        325,
+        210
+      ]
+    }
+  },
+  "christmas": {
+    "head": {
+      "file": "assets/shop/pet/head/santa_hat.png",
+      "canvas": [
+        640,
+        640
+      ],
+      "source": [
+        31,
+        150,
+        352,
+        204
+      ]
+    },
+    "face": {
+      "file": "assets/shop/pet/face/holly_glasses.png",
+      "canvas": [
+        640,
+        640
+      ],
+      "source": [
+        381,
+        143,
+        361,
+        197
+      ]
+    },
+    "neck": {
+      "file": "assets/shop/pet/neck/holiday_scarf.png",
+      "canvas": [
+        640,
+        640
+      ],
+      "source": [
+        753,
+        173,
+        315,
+        188
+      ]
+    },
+    "decor": {
+      "file": "assets/shop/room/decor/wreath.png",
+      "canvas": [
+        410,
+        396
+      ],
+      "source": [
+        1107,
+        104,
+        314,
+        298
+      ]
+    },
+    "wall": {
+      "file": "assets/shop/room/wall/christmas_wallpaper.png",
+      "canvas": [
+        1200,
+        525
+      ],
+      "source": [
+        45,
+        435,
+        291,
+        279
+      ]
+    },
+    "rug": {
+      "file": "assets/shop/room/rug/holiday_rug.png",
+      "canvas": [
+        640,
+        130
+      ],
+      "source": [
+        357,
+        485,
+        419,
+        195
+      ]
+    },
+    "window": {
+      "file": "assets/shop/room/decor_sets/christmas/window.png",
+      "canvas": [
+        242,
+        222
+      ],
+      "source": [
+        789,
+        430,
+        240,
+        277
+      ]
+    },
+    "left_shelf": {
+      "file": "assets/shop/room/decor_sets/christmas/left_shelf.png",
+      "canvas": [
+        200,
+        155
+      ],
+      "source": [
+        1059,
+        500,
+        370,
+        206
+      ]
+    },
+    "side_hanging": {
+      "file": "assets/shop/room/decor_sets/christmas/side_hanging.png",
+      "canvas": [
+        95,
+        150
+      ],
+      "source": [
+        63,
+        760,
+        270,
+        239
+      ]
+    },
+    "right_plant": {
+      "file": "assets/shop/room/decor_sets/christmas/right_plant.png",
+      "canvas": [
+        154,
+        224
+      ],
+      "source": [
+        423,
+        715,
+        208,
+        310
+      ]
+    },
+    "food_bowl": {
+      "file": "assets/shop/room/decor_sets/christmas/food_bowl.png",
+      "canvas": [
+        114,
+        64
+      ],
+      "source": [
+        717,
+        851,
+        323,
+        144
+      ]
+    },
+    "floor_cushion": {
+      "file": "assets/shop/room/decor_sets/christmas/floor_cushion.png",
+      "canvas": [
+        171,
+        92
+      ],
+      "source": [
+        1072,
+        839,
+        353,
+        154
+      ]
+    }
+  },
+  "pixel_knight": {
+    "head": {
+      "file": "assets/shop/pet/head/pixel_knight_plume.png",
+      "canvas": [
+        640,
+        640
+      ],
+      "source": [
+        39,
+        124,
+        286,
+        271
+      ]
+    },
+    "face": {
+      "file": "assets/shop/pet/face/pixel_knight_helmet.png",
+      "canvas": [
+        640,
+        640
+      ],
+      "source": [
+        388,
+        112,
+        310,
+        283
+      ]
+    },
+    "neck": {
+      "file": "assets/shop/pet/neck/pixel_knight_chest.png",
+      "canvas": [
+        640,
+        640
+      ],
+      "source": [
+        245,
+        173,
+        1046,
+        729
+      ]
+    },
+    "decor": {
+      "file": "assets/shop/room/decor/pixel_castle_banner.png",
+      "canvas": [
+        410,
+        396
+      ],
+      "source": [
+        1118,
+        103,
+        290,
+        292
+      ]
+    },
+    "wall": {
+      "file": "assets/shop/room/wall/pixel_brick_wallpaper.png",
+      "canvas": [
+        1200,
+        525
+      ],
+      "source": [
+        47,
+        445,
+        301,
+        252
+      ]
+    },
+    "rug": {
+      "file": "assets/shop/room/rug/pixel_tile_rug.png",
+      "canvas": [
+        640,
+        130
+      ],
+      "source": [
+        381,
+        503,
+        339,
+        179
+      ]
+    },
+    "window": {
+      "file": "assets/shop/room/decor_sets/pixel_knight/window.png",
+      "canvas": [
+        242,
+        222
+      ],
+      "source": [
+        774,
+        431,
+        261,
+        275
+      ]
+    },
+    "left_shelf": {
+      "file": "assets/shop/room/decor_sets/pixel_knight/left_shelf.png",
+      "canvas": [
+        200,
+        155
+      ],
+      "source": [
+        1079,
+        507,
+        340,
+        206
+      ]
+    },
+    "side_hanging": {
+      "file": "assets/shop/room/decor_sets/pixel_knight/side_hanging.png",
+      "canvas": [
+        95,
+        150
+      ],
+      "source": [
+        84,
+        736,
+        213,
+        267
+      ]
+    },
+    "right_plant": {
+      "file": "assets/shop/room/decor_sets/pixel_knight/right_plant.png",
+      "canvas": [
+        154,
+        224
+      ],
+      "source": [
+        405,
+        734,
+        276,
+        269
+      ]
+    },
+    "food_bowl": {
+      "file": "assets/shop/room/decor_sets/pixel_knight/food_bowl.png",
+      "canvas": [
+        114,
+        64
+      ],
+      "source": [
+        745,
+        825,
+        313,
+        157
+      ]
+    },
+    "floor_cushion": {
+      "file": "assets/shop/room/decor_sets/pixel_knight/floor_cushion.png",
+      "canvas": [
+        171,
+        92
+      ],
+      "source": [
+        1092,
+        752,
+        323,
+        255
+      ]
+    }
+  },
+  "easter": {
+    "head": {
+      "file": "assets/shop/pet/head/cracked_egg_head.png",
+      "canvas": [
+        640,
+        640
+      ],
+      "source": [
+        17,
+        146,
+        348,
+        200
+      ]
+    },
+    "face": {
+      "file": "assets/shop/pet/face/carrot_glasses.png",
+      "canvas": [
+        640,
+        640
+      ],
+      "source": [
+        384,
+        133,
+        340,
+        206
+      ]
+    },
+    "neck": {
+      "file": "assets/shop/pet/neck/spring_bow_tie.png",
+      "canvas": [
+        640,
+        640
+      ],
+      "source": [
+        14,
+        47,
+        1653,
+        832
+      ]
+    },
+    "decor": {
+      "file": "assets/shop/room/decor/easter_basket.png",
+      "canvas": [
+        410,
+        396
+      ],
+      "source": [
+        1131,
+        93,
+        295,
+        297
+      ]
+    },
+    "wall": {
+      "file": "assets/shop/room/wall/easter_wallpaper.png",
+      "canvas": [
+        1200,
+        525
+      ],
+      "source": [
+        36,
+        411,
+        299,
+        297
+      ]
+    },
+    "rug": {
+      "file": "assets/shop/room/rug/easter_egg_rug.png",
+      "canvas": [
+        640,
+        130
+      ],
+      "source": [
+        351,
+        477,
+        412,
+        182
+      ]
+    },
+    "window": {
+      "file": "assets/shop/room/decor_sets/easter/window.png",
+      "canvas": [
+        242,
+        222
+      ],
+      "source": [
+        791,
+        406,
+        263,
+        295
+      ]
+    },
+    "left_shelf": {
+      "file": "assets/shop/room/decor_sets/easter/left_shelf.png",
+      "canvas": [
+        200,
+        155
+      ],
+      "source": [
+        1094,
+        495,
+        348,
+        183
+      ]
+    },
+    "side_hanging": {
+      "file": "assets/shop/room/decor_sets/easter/side_hanging.png",
+      "canvas": [
+        95,
+        150
+      ],
+      "source": [
+        85,
+        737,
+        214,
+        291
+      ]
+    },
+    "right_plant": {
+      "file": "assets/shop/room/decor_sets/easter/right_plant.png",
+      "canvas": [
+        154,
+        224
+      ],
+      "source": [
+        409,
+        740,
+        264,
+        276
+      ]
+    },
+    "food_bowl": {
+      "file": "assets/shop/room/decor_sets/easter/food_bowl.png",
+      "canvas": [
+        114,
+        64
+      ],
+      "source": [
+        728,
+        835,
+        349,
+        160
+      ]
+    },
+    "floor_cushion": {
+      "file": "assets/shop/room/decor_sets/easter/floor_cushion.png",
+      "canvas": [
+        171,
+        92
+      ],
+      "source": [
+        1095,
+        818,
+        335,
+        182
+      ]
+    }
+  },
+  "brainrot": {
+    "head": {
+      "file": "assets/shop/pet/head/brainrot_propeller_hat.png",
+      "canvas": [
+        640,
+        640
+      ],
+      "source": [
+        38,
+        140,
+        346,
+        223
+      ]
+    },
+    "face": {
+      "file": "assets/shop/pet/face/brainrot_67_glasses.png",
+      "canvas": [
+        640,
+        640
+      ],
+      "source": [
+        33,
+        169,
+        1470,
+        687
+      ]
+    },
+    "neck": {
+      "file": "assets/shop/pet/neck/brainrot_tung_tung_tie.png",
+      "canvas": [
+        640,
+        640
+      ],
+      "source": [
+        831,
+        90,
+        149,
+        323
+      ]
+    },
+    "decor": {
+      "file": "assets/shop/room/decor/brainrot_tung_tung_poster.png",
+      "canvas": [
+        410,
+        396
+      ],
+      "source": [
+        1092,
+        124,
+        329,
+        259
+      ]
+    },
+    "wall": {
+      "file": "assets/shop/room/wall/brainrot_wallpaper.png",
+      "canvas": [
+        1200,
+        525
+      ],
+      "source": [
+        51,
+        440,
+        292,
+        283
+      ]
+    },
+    "rug": {
+      "file": "assets/shop/room/rug/brainrot_spiral_rug.png",
+      "canvas": [
+        640,
+        130
+      ],
+      "source": [
+        380,
+        497,
+        369,
+        195
+      ]
+    },
+    "window": {
+      "file": "assets/shop/room/decor_sets/brainrot/window.png",
+      "canvas": [
+        242,
+        222
+      ],
+      "source": [
+        771,
+        433,
+        282,
+        286
+      ]
+    },
+    "left_shelf": {
+      "file": "assets/shop/room/decor_sets/brainrot/left_shelf.png",
+      "canvas": [
+        200,
+        155
+      ],
+      "source": [
+        1075,
+        494,
+        352,
+        206
+      ]
+    },
+    "side_hanging": {
+      "file": "assets/shop/room/decor_sets/brainrot/side_hanging.png",
+      "canvas": [
+        95,
+        150
+      ],
+      "source": [
+        62,
+        765,
+        268,
+        249
+      ]
+    },
+    "right_plant": {
+      "file": "assets/shop/room/decor_sets/brainrot/right_plant.png",
+      "canvas": [
+        154,
+        224
+      ],
+      "source": [
+        432,
+        736,
+        252,
+        278
+      ]
+    },
+    "food_bowl": {
+      "file": "assets/shop/room/decor_sets/brainrot/food_bowl.png",
+      "canvas": [
+        114,
+        64
+      ],
+      "source": [
+        738,
+        863,
+        319,
+        151
+      ]
+    },
+    "floor_cushion": {
+      "file": "assets/shop/room/decor_sets/brainrot/floor_cushion.png",
+      "canvas": [
+        171,
+        92
+      ],
+      "source": [
+        1121,
+        762,
+        274,
+        249
+      ]
+    }
+  },
+  "thanksgiving": {
+    "head": {
+      "file": "assets/shop/pet/head/thanksgiving_turkey_hat.png",
+      "canvas": [
+        640,
+        640
+      ],
+      "source": [
+        19,
+        98,
+        334,
+        258
+      ]
+    },
+    "face": {
+      "file": "assets/shop/pet/face/thanksgiving_leaf_glasses.png",
+      "canvas": [
+        640,
+        640
+      ],
+      "source": [
+        373,
+        149,
+        372,
+        197
+      ]
+    },
+    "neck": {
+      "file": "assets/shop/pet/neck/thanksgiving_harvest_bow.png",
+      "canvas": [
+        640,
+        640
+      ],
+      "source": [
+        769,
+        161,
+        330,
+        184
+      ]
+    },
+    "decor": {
+      "file": "assets/shop/room/decor/thanksgiving_cornucopia.png",
+      "canvas": [
+        410,
+        396
+      ],
+      "source": [
+        1127,
+        95,
+        304,
+        306
+      ]
+    },
+    "wall": {
+      "file": "assets/shop/room/wall/thanksgiving_wallpaper.png",
+      "canvas": [
+        1200,
+        525
+      ],
+      "source": [
+        38,
+        411,
+        298,
+        292
+      ]
+    },
+    "rug": {
+      "file": "assets/shop/room/rug/thanksgiving_pie_rug.png",
+      "canvas": [
+        640,
+        130
+      ],
+      "source": [
+        351,
+        488,
+        386,
+        190
+      ]
+    },
+    "window": {
+      "file": "assets/shop/room/decor_sets/thanksgiving/window.png",
+      "canvas": [
+        242,
+        222
+      ],
+      "source": [
+        766,
+        410,
+        265,
+        288
+      ]
+    },
+    "left_shelf": {
+      "file": "assets/shop/room/decor_sets/thanksgiving/left_shelf.png",
+      "canvas": [
+        200,
+        155
+      ],
+      "source": [
+        1065,
+        467,
+        362,
+        241
+      ]
+    },
+    "side_hanging": {
+      "file": "assets/shop/room/decor_sets/thanksgiving/side_hanging.png",
+      "canvas": [
+        95,
+        150
+      ],
+      "source": [
+        56,
+        729,
+        261,
+        291
+      ]
+    },
+    "right_plant": {
+      "file": "assets/shop/room/decor_sets/thanksgiving/right_plant.png",
+      "canvas": [
+        154,
+        224
+      ],
+      "source": [
+        402,
+        731,
+        289,
+        292
+      ]
+    },
+    "food_bowl": {
+      "file": "assets/shop/room/decor_sets/thanksgiving/food_bowl.png",
+      "canvas": [
+        114,
+        64
+      ],
+      "source": [
+        747,
+        840,
+        328,
+        172
+      ]
+    },
+    "floor_cushion": {
+      "file": "assets/shop/room/decor_sets/thanksgiving/floor_cushion.png",
+      "canvas": [
+        171,
+        92
+      ],
+      "source": [
+        1122,
+        763,
+        278,
+        243
+      ]
+    }
+  },
+  "bear_spirit": {
+    "head": {
+      "file": "assets/shop/pet/head/bear_spirit_hood.png",
+      "canvas": [
+        640,
+        640
+      ],
+      "source": [
+        37,
+        130,
+        331,
+        196
+      ]
+    },
+    "face": {
+      "file": "assets/shop/pet/face/bear_spirit_glasses.png",
+      "canvas": [
+        640,
+        640
+      ],
+      "source": [
+        392,
+        171,
+        337,
+        145
+      ]
+    },
+    "neck": {
+      "file": "assets/shop/pet/neck/bear_spirit_scarf.png",
+      "canvas": [
+        640,
+        640
+      ],
+      "source": [
+        761,
+        128,
+        300,
+        224
+      ]
+    },
+    "decor": {
+      "file": "assets/shop/room/decor/bear_spirit_banner.png",
+      "canvas": [
+        410,
+        396
+      ],
+      "source": [
+        1135,
+        51,
+        282,
+        325
+      ]
+    },
+    "wall": {
+      "file": "assets/shop/room/wall/bear_spirit_wallpaper.png",
+      "canvas": [
+        1200,
+        525
+      ],
+      "source": [
+        40,
+        407,
+        303,
+        633
+      ]
+    },
+    "rug": {
+      "file": "assets/shop/room/rug/bear_spirit_rug.png",
+      "canvas": [
+        640,
+        130
+      ],
+      "source": [
+        375,
+        476,
+        380,
+        186
+      ]
+    },
+    "window": {
+      "file": "assets/shop/room/decor_sets/bear_spirit/window.png",
+      "canvas": [
+        242,
+        222
+      ],
+      "source": [
+        767,
+        406,
+        289,
+        291
+      ]
+    },
+    "left_shelf": {
+      "file": "assets/shop/room/decor_sets/bear_spirit/left_shelf.png",
+      "canvas": [
+        200,
+        155
+      ],
+      "source": [
+        1078,
+        478,
+        346,
+        257
+      ]
+    },
+    "side_hanging": {
+      "file": "assets/shop/room/decor_sets/bear_spirit/side_hanging.png",
+      "canvas": [
+        95,
+        150
+      ],
+      "source": [
+        226,
+        184,
+        570,
+        1088
+      ]
+    },
+    "right_plant": {
+      "file": "assets/shop/room/decor_sets/bear_spirit/right_plant.png",
+      "canvas": [
+        154,
+        224
+      ],
+      "source": [
+        412,
+        764,
+        287,
+        284
+      ]
+    },
+    "food_bowl": {
+      "file": "assets/shop/room/decor_sets/bear_spirit/food_bowl.png",
+      "canvas": [
+        114,
+        64
+      ],
+      "source": [
+        762,
+        849,
+        297,
+        159
+      ]
+    },
+    "floor_cushion": {
+      "file": "assets/shop/room/decor_sets/bear_spirit/floor_cushion.png",
+      "canvas": [
+        171,
+        92
+      ],
+      "source": [
+        1095,
+        781,
+        315,
+        242
+      ]
+    }
+  }
+}

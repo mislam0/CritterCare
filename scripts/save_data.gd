@@ -27,6 +27,13 @@ var pip_quotes: Dictionary = {}
 var inventory: Dictionary = {"berry": 6, "seed": 3, "carrot": 2}
 var fullness: float = 64.0
 var happiness: float = 72.0
+const PET_HAPPINESS_GAIN: float = 4.0
+const PET_HAPPINESS_COOLDOWN_MSEC: int = 30_000
+const FEED_HAPPINESS_GAIN: float = 3.0
+const GAME_WIN_HAPPINESS_GAIN: float = 6.0
+# A session-local monotonic timestamp: no wall-clock jumps and no save format change.
+# Successful petting still counts and animates while the happiness reward cools down.
+var last_pet_happiness_msec: int = -1
 var pet_count: int = 0
 var feed_count: int = 0
 var games_won: int = 0
@@ -89,6 +96,7 @@ func apply_snapshot(parsed: Variant) -> bool:
 	fullness = clampf(float(parsed.get("fullness", 64.0)), 0, 100)
 	happiness = clampf(float(parsed.get("happiness", 72.0)), 0, 100)
 	pet_count = maxi(0, int(parsed.get("pet_count", 0)))
+	last_pet_happiness_msec = -1
 	feed_count = maxi(0, int(parsed.get("feed_count", 0)))
 	games_won = maxi(0, int(parsed.get("games_won", 0)))
 	picnic_best = clampi(int(parsed.get("picnic_best", 0)), 0, 10)
@@ -173,6 +181,7 @@ func reset_progress(keep_preferences: bool = true) -> void:
 	fullness = 64.0
 	happiness = 72.0
 	pet_count = 0
+	last_pet_happiness_msec = -1
 	feed_count = 0
 	games_won = 0
 	picnic_best = 0
@@ -264,6 +273,17 @@ func cosmetics(category: String) -> Dictionary:
 func award_coins(amount: int) -> void:
 	coins = clampi(coins + maxi(0, amount), 0, 999999)
 
+func reward_petting(now_msec: int) -> bool:
+	# Keep the first pet immediately rewarding, and let subsequent successful pets
+	# animate normally without restoring happiness until 30 real seconds pass.
+	if last_pet_happiness_msec >= 0 and now_msec - last_pet_happiness_msec < PET_HAPPINESS_COOLDOWN_MSEC:
+		return false
+	if happiness >= 100.0:
+		return false
+	happiness = minf(100.0, happiness + PET_HAPPINESS_GAIN)
+	last_pet_happiness_msec = now_msec
+	return true
+
 func can_feed(kind: String) -> bool:
 	return fullness < 95.0 and int(inventory.get(kind, 0)) > 0
 
@@ -273,7 +293,7 @@ func feed(kind: String) -> bool:
 	inventory[kind] -= 1
 	var amounts = {"berry":14.0, "seed":9.0, "carrot":20.0}
 	fullness = minf(100.0, fullness + amounts.get(kind, 10.0))
-	happiness = minf(100.0, happiness + 5.0)
+	happiness = minf(100.0, happiness + FEED_HAPPINESS_GAIN)
 	feed_count += 1
 	return true
 
@@ -287,4 +307,4 @@ func reward(mode: String, points: int, berries: int, seeds: int, carrots: int = 
 	scores.append({"mode":mode, "score":points})
 	scores.sort_custom(func(a, b): return a.score > b.score)
 	scores = scores.slice(0, 3)
-	happiness = minf(100.0, happiness + 12.0)
+	happiness = minf(100.0, happiness + GAME_WIN_HAPPINESS_GAIN)

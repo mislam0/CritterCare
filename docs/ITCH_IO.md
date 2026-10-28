@@ -1,12 +1,12 @@
 # CritterCare on itch.io
 
-## Upload the included v1.6.4 browser build
+## Upload the included v1.6.5 browser build
 
-The separate **CritterCare-itchio-v1.6.4.zip** is ready for upload. An identical copy is included in the editable project as `builds/CritterCare-itchio.zip`. It contains the new naming flow, manual save slots, clean feedback, teaching-only highlights, and all 36 image-based Shop items from the team's base.
+The separate **CritterCare-v1.6.5-itchio.zip** is ready for upload. An identical copy is included in the editable project as `builds/CritterCare-itchio.zip`. It contains the new naming flow, manual save slots, clean feedback, teaching-only highlights, and all 60 Shop items and 60 matching room accents.
 
 1. Upload the browser ZIP to itch.io as an **HTML Game** and mark it **This file will be played in the browser**.
 2. Use **Embed in page**, a **960 × 600** viewport, and enable fullscreen. The game also fits its 1280 × 800 canvas.
-3. Use the preview checklist below. The footer should show **v1.6.4** followed by your pet's name.
+3. Use the preview checklist below. The footer should show **v1.6.5** followed by your pet's name.
 
 Upload the browser ZIP intact. Its `index.html` is at the root alongside the Godot Web files. The larger editable project ZIP is for Godot/F5. itch.io page settings must be selected on the itch.io page; this package does not publish it.
 
@@ -65,39 +65,39 @@ References: [itch.io HTML5 games](https://itch.io/docs/creators/html5) · [Godot
 
 ## Updating an existing page
 
-Replace the previous browser upload with this release's `CritterCare-itchio.zip` and save the itch.io page. Reload the embedded game. The home-screen footer should read **v1.6.4**, followed by your pet's name; if a different version appears, check that the new upload is the one selected for browser play and refresh the page. The top display is only your gold balance; Shop is at the bottom right. New saves offer naming, then the green-arrow tutorial; existing players can choose Settings → Replay tutorial. The normal Godot project ZIP is for editing/F5 and is not the file to upload as a browser game.
+Replace the previous browser upload with this release's `CritterCare-itchio.zip` and save the itch.io page. Reload the embedded game. The home-screen footer should read **v1.6.5**, followed by your pet's name; if a different version appears, check that the new upload is the one selected for browser play and refresh the page. The top display is only your gold balance; Shop is at the bottom right. New saves offer naming, then the green-arrow tutorial; existing players can choose Settings → Replay tutorial. The normal Godot project ZIP is for editing/F5 and is not the file to upload as a browser game.
 
 No progress reset is needed for this update. Keep the same itch.io project so existing browser saves remain associated with the same game page.
 
-Logic Lab is under **Games / Quizzes → Open Logic Lab** in both builds. Confirm the browser shows v1.6.4 before testing the consolidated build.
+Logic Lab is under **Games / Quizzes → Open Logic Lab** in both builds. Confirm the browser shows v1.6.5 before testing the consolidated build.
 
-## Teaching-only highlighting and clean feedback (v1.6.4)
+## Teaching-only highlighting and clean feedback
 
 Open a teaching bubble and confirm terms such as IF, THEN, Boolean, and true/false have bold dark text on a pale yellow background. Visit Knowledge and scroll to the code. In quizzes and Logic Lab, check that explanations and hints are highlighted while questions, choices, controls, and blocks stay plain. Correct/Incorrect headings should be large green/red text on light backgrounds, with readable dark explanations. Use Next/Back to read a long speech lesson and verify its last sentence is present. Existing saves should retain their progress and complete quotes.
 
-## Snack Jam check (v1.6.1)
+## Snack Jam check
 
 Open Games / Quizzes → Play Snack Jam. Choose Chill and press Start song with a real click/tap so the browser can activate audio. Verify the four count-in beats, then catch snacks with A/S/D and with the pads. Test Music off/on, Space pause, three-beat resume, and switching tabs. Finish a whole song, check the gold/treat result and full Knowledge quote, then reload and confirm the selected mode, timing preference, and personal best remain. Try Standard and Lively as well, including in the 960 × 600 embed and fullscreen.
 
 The rhythm player uses streamed audio and the measured music clock to keep notes aligned. If your device’s notes consistently arrive behind the music, raise Timing before starting; if ahead, lower it. The adjustment changes by 20 ms and is saved. Bluetooth/audio hardware and browser performance can affect perceived timing; the preview check should include the devices you intend to use. Gentler movement limits Pip’s dancing without changing note timing.
 
-## Feedback and beginner wording check (v1.6.1)
+## Feedback and beginner wording check
 
-Confirm the footer says **v1.6.4**, followed by your pet's name. Try a wrong and a correct quiz answer, sort, loop count, and Lab program. Check for large bold red/green outcomes, plus words and symbols. In Picnic Catch, miss a snack and catch one; in Snack Jam, miss, tap early, and hit a note. Select Kindergarten–Elementary to see short instructions and thought-sized speech pages. Pick Pip up repeatedly: the same lesson should stay quiet for 60 seconds after it is shown. Knowledge → Read with Pip should still work during that delay. Change Game level to check explanation depth without resetting progress.
+Confirm the footer says **v1.6.5**, followed by your pet's name. Try a wrong and a correct quiz answer, sort, loop count, and Lab program. Check for large bold red/green outcomes, plus words and symbols. In Picnic Catch, miss a snack and catch one; in Snack Jam, miss, tap early, and hit a note. Select Kindergarten–Elementary to see short instructions and thought-sized speech pages. Pick Pip up repeatedly: the same lesson should stay quiet for 60 seconds after it is shown. Knowledge → Read with Pip should still work during that delay. Change Game level to check explanation depth without resetting progress.
 
 ## PNG runtime-art check
 
 On the home screen, verify the HUD/navigation icons are crisp images and the base room still layers Shop wallpaper, rugs, garlands, and lights correctly. Play Picnic Catch and confirm the PNG basket moves with Pip and collisions still happen on the same catch line. In Snack Jam, check all three lane/note images, the stage/glow, hit feedback, and the beat pulse while testing Chill/Standard/Lively timing. In Logic Lab, run a seed-count challenge and confirm individual PNG seeds appear/disappear in the jar as the state changes.
 
-## Scrollable PNG Shop check (v1.6.2)
+## Scrollable PNG Shop check
 
-Open Shop and switch between **Pet accessories** and **Room decorations**. Each tab should show a vertical scrollbar and allow mouse-wheel scrolling; Tab should move through item buttons and reveal the focused card. Scroll one tab, switch away, and return to confirm its scroll position is remembered separately. Buy and equip a pet accessory, then verify the same image appears on Pip and in minigames. Buy and equip a room decoration and verify the image appears in Pip's room. Ownership, prices, slot conflicts, Equip/Unequip, saving, and Reset behavior should match previous releases.
+Open Shop and switch between **Pet accessories** and **Room sets**. Each tab should show a vertical scrollbar and allow mouse-wheel scrolling; Tab should move through item buttons and reveal the focused card. Scroll one tab, switch away, and return to confirm its scroll position is remembered separately. Buy and equip a pet accessory, then verify the same image appears on Pip and in minigames. Buy and equip a Decor Set and verify its center artwork appears in Pip's room with six matching room accents. Ownership, prices, slot conflicts, Equip/Unequip, saving, and Reset behavior should match previous releases.
 
-## Scrolling games menu check (v1.6.1)
+## Scrolling games menu check
 
 Open Games / Quizzes. The first three cards appear at the top. Scroll down with the mouse wheel or green scrollbar to reach Picnic Catch, Logic Lab, and Snack Jam. Each card includes its title, instructions, goal, rewards, and a Play button. Try each button, Tab between games, then return to the menu; it should remember where you were. Change Game level to check the different descriptions. Replay tutorial to confirm the green arrow reveals the Picnic Catch button. Also check scrolling on your target touch devices; native injected raw touch events did not verify swipe scrolling in the desktop test environment.
 
-## Name and Save / Load checks (v1.6.4)
+## Name and Save / Load checks
 
 Choose a custom name on first play and confirm it appears in the tutorial and game labels. Reload and check that naming is not repeated. Rename through Settings and verify prior recorded quotes retain their original wording.
 
@@ -105,6 +105,6 @@ Open Settings → Save / Load. Save a named story in slot 1, change the current 
 
 Native and Web saves are separate. Browser slots depend on the same per-page browser storage as the automatic save. Actual browser persistence, audio timing, iframe controls, and fullscreen require testing on your hosting page; native tests do not establish those behaviors.
 
-## Naming-filter preview check (v1.6.4)
+## Naming-filter preview check
 
 On a disposable save, try a known blocked name and common spacing/number/look-alike variants. The preview should give a friendly message and disable confirmation. Enter must not accept it. Try Keep Pip and a friendly custom name, rename in Settings, and reset. Check save-slot titles too. Reload to verify persistence. Older blocked saved names should become Pip, request a new name, and retain their coins, equipment, and discoveries. Test pasted input and the 960 × 600 layout on your target browser.

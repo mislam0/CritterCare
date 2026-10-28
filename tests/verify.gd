@@ -112,9 +112,15 @@ func run() -> void:
 		check(not game.pip.is_falling and absf(game.pip.position.y-516) < 1, "Fall bounces and settles safely on the floor")
 	else:
 		game.pip.pet()
+	var first_pet_happiness: float = game.progress.happiness
+	var first_pet_count: int = game.progress.pet_count
 	game.pip.pet()
-	check(game.progress.pet_count >= 2, "Petting increments care count")
-	check(game.progress.happiness > 72, "Petting raises happiness")
+	check(game.progress.pet_count == first_pet_count + 1, "Cooldown never blocks petting interactions or care count")
+	check(is_equal_approx(game.progress.happiness, first_pet_happiness), "Rapid repeat petting grants no additional happiness")
+	check(game.progress.happiness > 72, "The first pet grants happiness")
+	game.progress.last_pet_happiness_msec -= SaveData.PET_HAPPINESS_COOLDOWN_MSEC
+	game.pip.pet()
+	check(is_equal_approx(game.progress.happiness, first_pet_happiness + 4.0), "Petting grants +4 again after a full 30-second reward cooldown")
 	game.pip.position = Vector2(640, 516)
 	game.pip.velocity = Vector2.ZERO
 	game.pip.angle = 0
@@ -193,6 +199,7 @@ func run() -> void:
 	check(game.progress.discovered.has("and"), "AND feedback unlocks its lesson")
 	check(game.progress.inventory.berry == berries_before+5, "Berry Detective rewards a successful basket")
 	game.start_loop()
+	var coins_before_loop: int = game.progress.coins
 	await snap("10-loop-garden")
 	game.loop_count = 1
 	game._run_loop()
@@ -209,6 +216,9 @@ func run() -> void:
 		game._next_loop()
 	check(game.modal_name == "result", "Loop Garden completes all three rounds")
 	check(game.progress.inventory.berry == berries_before+4, "Loop Garden grants one completion reward")
+	var loop_score: int = maxi(60, 100-(game.loop_attempts-3)*5)
+	var expected_loop_coins: int = 12 + loop_score / 20 + game.session_stage * 2
+	check(game.progress.coins == coins_before_loop + expected_loop_coins, "Loop Garden pays its reduced coin reward exactly once")
 	game.start_loop()
 	game._run_loop()
 	game.close_modal()
@@ -226,6 +236,35 @@ func run() -> void:
 	check(game.progress.discovered.is_empty(), "Reset progress clears discovered lessons")
 	check(game.progress.inventory.berry == 6 and game.progress.games_won == 0, "Reset progress restores starter inventory and counters")
 	check(game.progress.game_level == "middle", "Reset progress keeps selected game level")
+	# Drain-balance regression: 5 points per active home-screen minute each.
+	var old_fullness: float = game.progress.fullness
+	var old_happiness: float = game.progress.happiness
+	game.progress.fullness = 80.0
+	game.progress.happiness = 70.0
+	game._drain_needs(60.0)
+	check(is_equal_approx(game.progress.fullness, 75.0), "Fullness drains exactly 5 points per home-screen minute")
+	check(is_equal_approx(game.progress.happiness, 65.0), "Happiness drains exactly 5 points per home-screen minute")
+	game.progress.fullness = 2.0
+	game.progress.happiness = 3.0
+	game._drain_needs(60.0)
+	check(is_zero_approx(game.progress.fullness) and is_zero_approx(game.progress.happiness), "Passive needs never drain below zero")
+	game.progress.fullness = old_fullness
+	game.progress.happiness = old_happiness
+	# Care-balance regression: deterministic timestamps avoid a 30-second test wait.
+	var care = SaveData.new()
+	check(care.reward_petting(1000) and is_equal_approx(care.happiness, 76.0), "First pet gives +4 happiness without delay")
+	check(not care.reward_petting(30999) and is_equal_approx(care.happiness, 76.0), "Cooldown blocks the reward until 30 full seconds have elapsed")
+	check(care.reward_petting(31000) and is_equal_approx(care.happiness, 80.0), "Pet reward becomes available at exactly 30 seconds")
+	care.happiness = 100.0
+	check(not care.reward_petting(61000) and care.last_pet_happiness_msec == 31000, "Petting at maximum happiness does not waste the cooldown")
+	care.happiness = 96.0
+	check(care.reward_petting(61000) and is_equal_approx(care.happiness, 100.0), "Pet reward caps happiness at 100")
+	care.happiness = 70.0
+	check(care.feed("berry") and is_equal_approx(care.happiness, 73.0), "Feeding a treat restores +3 happiness")
+	care.reward("Care test", 100, 0, 0)
+	check(is_equal_approx(care.happiness, 79.0), "A game win restores +6 happiness")
+	care.reset_progress()
+	check(care.last_pet_happiness_msec == -1 and care.reward_petting(0), "Reset progress also resets the pet happiness cooldown")
 	# Persistence round trip, limits, and corrupt-file fallback.
 	var record = SaveData.new()
 	record.save_path = "user://crittercare_verify_data.json"
@@ -310,6 +349,12 @@ func verify_additions() -> void:
 		check(game.progress.unlocked_stage() == 0, "Fresh " + level + " starts with the same easy stage")
 	check(not game.progress.buy("leaf_hat") and game.progress.coins == 0, "Insufficient coins cannot buy an item or create debt")
 	check(not game.progress.toggle_equip("scholar_cap"), "Unowned items cannot be equipped")
+	# Ten complete sets must scroll and equip through the same Shop code paths.
+	check(Shop.THEME_ORDER.size() == 10 and Shop.ITEMS.size() == 60, "Shop provides ten complete six-item theme sets")
+	for theme_id in Shop.THEME_ORDER:
+		check(Shop.theme_items(theme_id, "pet").size() == 3 and Shop.theme_items(theme_id, "room").size() == 3, "Each Shop theme has three pet and three room items: " + theme_id)
+	for new_id in ["thanksgiving_turkey_hat", "thanksgiving_cornucopia", "bear_spirit_hood", "bear_spirit_rug"]:
+		check(Shop.ITEMS.has(new_id), "New themed item is registered: " + new_id)
 	for id in Shop.ITEMS:
 		var texture = Shop.ITEMS[id].texture
 		check(texture is Texture2D and texture.resource_path.ends_with(".png"), "Shop item uses a PNG asset: " + str(id))
@@ -346,12 +391,17 @@ func verify_additions() -> void:
 	check(game.shop_scroll.vertical_scroll_mode == ScrollContainer.SCROLL_MODE_SHOW_ALWAYS and shop_bar.max_value > shop_bar.page, "Shop uses a real vertical scrolling catalog")
 	var leaf_card = game.overlay.find_child("ShopCard_leaf_hat", true, false)
 	var leaf_preview = leaf_card.find_child("Preview", true, false) if is_instance_valid(leaf_card) else null
-	check(leaf_preview is TextureRect and leaf_preview.texture.resource_path.ends_with("leaf_hat.png"), "Shop cards preview the same PNG assets used by cosmetics")
+	var preview_source = leaf_preview.texture if is_instance_valid(leaf_preview) else null
+	if preview_source is AtlasTexture:
+		preview_source = preview_source.atlas
+	check(leaf_preview is TextureRect and preview_source == Shop.ITEMS["leaf_hat"].texture, "Shop cards preview the same PNG assets used by cosmetics")
 	game.shop_scroll.scroll_vertical = 80
 	await frames(2)
 	var remembered_shop_offset: int = game.shop_scroll.scroll_vertical
 	game._set_shop_category("room")
 	await frames(3)
+	var room_category_button = game.overlay.get_node_or_null("RoomCategory")
+	check(room_category_button is Button and room_category_button.text == "Room sets", "Room Shop tab uses Room sets wording")
 	game._set_shop_category("pet")
 	await frames(3)
 	check(remembered_shop_offset > 0 and abs(game.shop_scroll.scroll_vertical - remembered_shop_offset) <= 1, "Each Shop category remembers its scroll position")
@@ -379,6 +429,15 @@ func verify_additions() -> void:
 	game._shop_action("sage_wallpaper")
 	game._shop_action("sage_wallpaper")
 	check(game.get_node("Room").cosmetic_items.get("rug") == "leaf_rug" and game.get_node("Room").cosmetic_items.get("wall") == "sage_wallpaper", "Room purchases change the real rug and walls together")
+	# Previously saved room:decor purchases now represent coordinated decor sets.
+	game.progress.coins = 999
+	game._shop_action("hanging_plant")
+	game._shop_action("hanging_plant")
+	var decor_room = game.get_node("Room")
+	check(game.progress.equipped.get("room:decor") == "hanging_plant", "Existing decor purchase key equips its new Decor Set")
+	check(game.shop_notice.contains("room"), "Equipping a Decor Set describes placing it in the room, not wearing it")
+	check(decor_room.decor_pieces.size() == 8 and decor_room.decor_pieces["main_wall"].visible, "Decor Set creates all eight anchor layers and shows its original art")
+	check(Shop.decor_set_piece_path("nature", "left_shelf").ends_with("nature/left_shelf.png"), "Each theme has a user-art path for extra furniture")
 	await snap("21-shop-room")
 	game.close_modal()
 	game.pip.position = Vector2(640,516)
@@ -742,7 +801,7 @@ func verify_picnic() -> void:
 	picnic_drop(field,"leaf")
 	check(field.collected == 0 and field.streak == 0 and field.seed_gold == 0, "A leaf adds no snack or gold")
 	picnic_drop(field,"seed")
-	check(field.collected == 1 and field.seed_gold == 2 and field.streak == 1, "Golden seed adds one snack and exactly two bonus gold")
+	check(field.collected == 1 and field.seed_gold == 1 and field.streak == 1, "Golden seed adds one snack and exactly one bonus gold")
 	field.spawn_item("berry",173)
 	field.spawn_item("seed",433)
 	field.spawn_item("leaf",570)
@@ -757,18 +816,18 @@ func verify_picnic() -> void:
 	var badges_before = game.progress.stage_badges.duplicate(true)
 	var money_before: int = game.progress.coins
 	picnic_drop(field,"berry")
-	check(game.modal_name == "picnic_result" and game.progress.coins == money_before+42, "Finishing pays exactly 20 gold + 20 for a ten-catch streak + 2 seed gold")
+	check(game.modal_name == "picnic_result" and game.progress.coins == money_before+23, "Finishing pays exactly 12 gold + 10 for a ten-catch streak + 1 seed gold")
 	check(game.progress.inventory.berry == inventory_before+3 and game.progress.picnic_rounds == 1 and game.progress.picnic_best == 10, "Finished picnics grant treats and save the best streak and completed-round count")
 	check(game.progress.stage_badges == badges_before, "A bonus picnic never replaces a curriculum badge")
-	game._finish_picnic({"best_streak":10,"seed_gold":2})
-	check(game.progress.coins == money_before+42 and game.progress.picnic_rounds == 1, "Duplicate finish events cannot pay twice")
+	game._finish_picnic({"best_streak":10,"seed_gold":1})
+	check(game.progress.coins == money_before+23 and game.progress.picnic_rounds == 1, "Duplicate finish events cannot pay twice")
 	await snap("picnic-rewards")
 	var saved = SaveData.new()
 	saved.save_path = game.progress.save_path
 	saved.load_progress()
 	check(saved.picnic_best == 10 and saved.picnic_rounds == 1 and saved.coins == game.progress.coins, "Picnic gold and records survive save and reload")
 	game.open_knowledge("picnic")
-	check(game.overlay.get_node("JournalBody/Content/PipQuote").words == game.progress.pip_quotes.picnic and game.progress.pip_quotes.picnic.contains("streak of 10 consecutive catches earned 20 bonus gold"), "Knowledge includes Pip's complete picnic explanation and the last round's streak")
+	check(game.overlay.get_node("JournalBody/Content/PipQuote").words == game.progress.pip_quotes.picnic and game.progress.pip_quotes.picnic.contains("streak of 10 consecutive catches earned 10 bonus gold"), "Knowledge includes Pip's complete picnic explanation and the last round's streak")
 	await snap("picnic-knowledge")
 	reset_for_checks()
 	check(game.progress.picnic_best == 0 and game.progress.picnic_rounds == 0 and game.progress.coins == 0, "Reset clears picnic records along with gold")
