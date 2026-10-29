@@ -1,7 +1,18 @@
 extends Node2D
-## Main coordinator: care UI, lesson queue, inventory, mini games, and quizzes.
-## Save data and learning content are separated so they are easy to extend.
 
+
+const Looks = preload("res://data/pet_looks.gd")
+const PetCreator = preload("res://scripts/pet_creator.gd")
+const BallPlay = preload("res://scripts/ball_play.gd")
+const PetActor = preload("res://scripts/hamster.gd")
+var creator
+var creator_origin: String = "home"
+var creator_name_draft: String = "Pip"
+var ball_play
+var ball_button: Button
+var ball_hint_panel: Panel
+var status_panel: Panel
+var ball_hint: UI.LearningText
 const UI = preload("res://scripts/ui.gd")
 const GameMenu = preload("res://data/game_menu.gd")
 var games_scroll: ScrollContainer
@@ -124,7 +135,7 @@ func _ready() -> void:
 		progress.load_progress()
 	save_slots.base_path = progress.save_path
 	UI.Names.current = progress.pet_name
-	# Ignore obsolete lesson IDs from a future or edited save.
+
 	progress.discovered = progress.discovered.filter(func(key): return Lessons.DATA.has(key))
 	pip.calm = progress.calm
 	_apply_cosmetics()
@@ -135,6 +146,10 @@ func _ready() -> void:
 	ui.theme = UI.theme()
 	interface.add_child(ui)
 	_build_home()
+	ball_play = BallPlay.new()
+	add_child(ball_play)
+	ball_play.returned.connect(_ball_returned)
+	ball_play.changed.connect(_refresh_ball)
 	pip.interacted.connect(_on_interaction)
 	audio = AudioStreamPlayer.new()
 	audio.volume_db = -19.0
@@ -183,20 +198,29 @@ func _build_home() -> void:
 	UI.label(ui, "{PET_NAME}'S LITTLE PLACE", Rect2(70, 154, 380, 27), 14, UI.GREEN)
 	UI.panel(ui, Rect2(70, 183, 250, 127), Color(0.99, 0.98, 0.94, 0.98), 18).name = "HomeHelp"
 	UI.label(ui, "Make yourself at home", Rect2(86, 189, 220, 25), 18)
-	UI.label(ui, "01   Tap my head\n02   Hold + drag to pick up\n03   Shop for a new look", Rect2(86, 216, 220, 66), 15, UI.MUTED)
+	UI.label(ui, "01   Tap my head\n02   Hold + drag to pick up\n03   Style pet or play ball", Rect2(86, 216, 220, 66), 15, UI.MUTED)
 	discoveries_label = UI.label(ui, "0 little discoveries", Rect2(86, 282, 220, 22), 14, UI.GREEN)
-	UI.panel(ui, Rect2(465, 624, 350, 27), Color(0.99, 0.98, 0.91, 0.8), 13)
+	status_panel = UI.panel(ui, Rect2(465, 624, 350, 27), Color(0.99, 0.98, 0.91, 0.8), 13)
 	status_label = UI.label(ui, "{pet_name} · feeling cozy", Rect2(469, 624, 342, 27), 14, UI.GREEN, true)
-	# Navigation buttons include custom vector icons and descriptive sublabels.
+	UI.button(ui, "Style pet", Rect2(975, 153, 230, 39), func(): open_pet_creator("home")).name = "StylePet"
+	ball_button = UI.button(ui, "Ball Play", Rect2(975, 202, 230, 46), _toggle_ball)
+	ball_button.name = "BallPlay"
+	ball_button.tooltip_text = "Play fetch with your friend. B opens the toy; Space throws."
+	ball_hint_panel = UI.panel(ui, Rect2(320, 623, 640, 40), UI.CREAM, 16)
+	ball_hint_panel.hide()
+	ball_hint = UI.label(ball_hint_panel, "", Rect2(12, 2, 616, 36), 18, UI.GREEN, true)
+	ball_hint.name = "BallHint"
+	ball_hint.hide()
+
 	_nav_button("Feed Critter", "A little snack", "berry", 48, 271, open_feed, false).name = "FeedNav"
 	_nav_button("Games / Quizzes", "Learn + earn coins", "game", 335, 338, open_games, true).name = "GamesNav"
 	journal_button = _nav_button("Knowledge", "Your discoveries", "book", 689, 271, open_knowledge, false)
 	var shop_nav = _nav_button("Shop", "Dress + decorate", "shop", 976, 256, open_shop, false)
 	shop_nav.name = "ShopNav"
 	_style_shop_button(shop_nav)
-	UI.label(ui, "CLICK to pet  ·  HOLD + DRAG to carry  ·  ESC to return home", Rect2(70, 774, 845, 21), 12, UI.MUTED)
+	UI.label(ui, "CLICK pet · HOLD + DRAG carry · C style · B ball · ESC home", Rect2(70, 774, 845, 21), 12, UI.MUTED)
 	UI.label(ui, "v%s · Learn with {pet_name}" % ProjectSettings.get_setting("application/config/version"), Rect2(926, 774, 306, 21), 12, UI.MUTED)
-	# Speech is created last so it floats above the room's labels.
+
 	speech = UI.panel(ui, Rect2(410, 181, 460, 205), UI.CREAM, 22, true)
 	speech.name = "PipSpeech"
 	speech_tail = Polygon2D.new()
@@ -262,11 +286,6 @@ func _add_icon(parent: Node, kind: String, rect: Rect2) -> Control:
 	parent.add_child(icon)
 	return icon
 
-# Called only while gameplay is on the home screen and no tutorial is active.
-# delta is in seconds, so divide the points-per-minute settings by 60.
-func _drain_needs(delta: float) -> void:
-	progress.fullness = maxf(0.0, progress.fullness - delta * (FULLNESS_DRAIN_PER_MINUTE / 60.0))
-	progress.happiness = maxf(0.0, progress.happiness - delta * (HAPPINESS_DRAIN_PER_MINUTE / 60.0))
 
 func _process(delta: float) -> void:
 	if not is_instance_valid(ui):
@@ -274,15 +293,15 @@ func _process(delta: float) -> void:
 	toast_time = maxf(0, toast_time-delta)
 	toast_label.visible = toast_time > 0
 	if modal_name.is_empty():
-		if not _tutorial_active():
+		if not _tutorial_active() and not _ball_active():
 			start_time += delta
 			_drain_needs(delta)
 			if start_time > 2.0 and not progress.discovered.has("idle"):
 				learn("idle")
-		# Keep every page until the player chooses Next or Done. Reading has no timer.
-		if not _tutorial_active() and not speech.visible and not speech_queue.is_empty():
+
+		if not _tutorial_active() and not _ball_active() and not speech.visible and not speech_queue.is_empty():
 			_show_lesson(speech_queue.pop_front())
-		elif not _tutorial_active() and not speech.visible and not auto_speech.is_empty():
+		elif not _tutorial_active() and not _ball_active() and not speech.visible and not auto_speech.is_empty():
 			var message: Dictionary = auto_speech.pop_front()
 			if teaching_cooldowns.ready(message.id):
 				teaching_cooldowns.mark(message.id)
@@ -314,6 +333,12 @@ func _process(delta: float) -> void:
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
+
+		if event.keycode == KEY_SPACE and _ball_active() and modal_name.is_empty():
+			if ball_play.paused: ball_play.resume()
+			else: ball_play.throw_to(Vector2(900 if ball_play.home_x < 650 else 360, 550))
+			get_viewport().set_input_as_handled()
+			return
 		if modal_name not in ["name_pet", "save_slot"]: _track_secret_sequence(event.keycode)
 
 func _track_secret_sequence(keycode: int) -> void:
@@ -332,7 +357,7 @@ func _track_secret_sequence(keycode: int) -> void:
 func _unhandled_key_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
 		if _tutorial_active():
-			# Only the highlighted task's shortcut works during the guided tour.
+
 			var allowed = {"pet":KEY_P,"feed":KEY_F,"knowledge":KEY_K,"shop":KEY_S,"games":KEY_M}
 			if event.keycode == KEY_ESCAPE:
 				tutorial.finish()
@@ -340,14 +365,22 @@ func _unhandled_key_input(event: InputEvent) -> void:
 			if event.keycode != allowed.get(tutorial.step_id(),0):
 				return
 		if event.keycode == KEY_ESCAPE:
-			close_modal()
+			if _ball_active(): _stop_ball()
+			else: close_modal()
 		elif modal_name.is_empty():
 			match event.keycode:
 				KEY_F: open_feed()
 				KEY_M: open_games()
 				KEY_K: open_knowledge()
 				KEY_S: open_shop()
-				KEY_P: pip.pet()
+				KEY_P:
+					if not _ball_active(): pip.pet()
+				KEY_B: _toggle_ball()
+				KEY_C: open_pet_creator("home")
+				KEY_SPACE:
+					if _ball_active():
+						if ball_play.paused: ball_play.resume()
+						else: ball_play.throw_to(Vector2(900 if ball_play.home_x < 650 else 360, 550))
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST or what == NOTIFICATION_APPLICATION_FOCUS_OUT:
@@ -362,6 +395,8 @@ func _refresh_home() -> void:
 	coin_label.words = str(progress.coins)
 	pocket_label.words = "%d treats" % (progress.inventory.berry + progress.inventory.seed + progress.inventory.carrot)
 	discoveries_label.words = "%d / %d little discoveries" % [progress.discovered.size(), Lessons.ORDER.size()]
+	status_panel.visible = not _ball_active()
+	status_label.visible = not _ball_active()
 	status_label.words = "{pet_name} · " + (pip.direction if pip.is_held or pip.is_falling else ("snack time" if pip.eating_time > 0 else "feeling cozy"))
 
 func _on_interaction(action: String) -> void:
@@ -543,6 +578,7 @@ func _play_sound(kind: String) -> void:
 		audio.play()
 
 func _screen(id: String, title: String, subtitle: String) -> Control:
+	_stop_ball()
 	if is_instance_valid(snack_jam):
 		snack_jam.stop()
 	if is_instance_valid(lab_screen):
@@ -573,6 +609,9 @@ func _screen(id: String, title: String, subtitle: String) -> Control:
 	return overlay
 
 func close_modal() -> void:
+	if modal_name == "pet_creator":
+		_return_from_creator()
+		return
 	if modal_name == "name_pet" and not closing_name_prompt:
 		_complete_pet_name(UI.Names.DEFAULT if name_first_choice else progress.pet_name)
 		return
@@ -875,6 +914,7 @@ func _lab_setup() -> void:
 	lab_screen.game_level = progress.game_level
 	lab_screen.gentle = progress.calm
 	lab_screen.cosmetics = progress.cosmetics("pet")
+	lab_screen.pet_look = progress.pet_look.duplicate(true)
 	lab_screen.already_completed = progress.lab_completed.has(mission.id)
 	overlay.add_child(lab_screen)
 	lab_screen.solved.connect(_finish_lab)
@@ -924,6 +964,7 @@ func start_snack_jam() -> void:
 	snack_jam.sound_on = progress.sound
 	snack_jam.gentle = progress.calm
 	snack_jam.cosmetics = progress.cosmetics("pet")
+	snack_jam.pet_look = progress.pet_look.duplicate(true)
 	snack_jam.best = progress.jam_best.duplicate(true)
 	snack_jam.finished.connect(_finish_snack_jam.bind(snack_jam))
 	snack_jam.preferences_changed.connect(func(mode,offset,sound_on):
@@ -982,6 +1023,7 @@ func _picnic_setup() -> void:
 	picnic.game_level = progress.game_level
 	picnic.gentle = progress.calm
 	picnic.cosmetics = progress.cosmetics("pet")
+	picnic.pet_look = progress.pet_look.duplicate(true)
 	overlay.add_child(picnic)
 	picnic.changed.connect(_refresh_picnic)
 	picnic.caught.connect(func(_kind): _play_sound("correct"))
@@ -1416,6 +1458,7 @@ func _result(mode: String, points: int, won: bool, berries: int, seeds: int, car
 
 func open_settings() -> void:
 	_screen("settings", "Make yourself comfortable", "Your friend: {pet_name}")
+	UI.button(overlay, "Style pet", Rect2(438, 174, 182, 35), func(): open_pet_creator("settings")).name = "StylePetSettings"
 	UI.button(overlay,"Save / Load",Rect2(640,174,215,35),open_save_slots).name = "SaveLoad"
 	UI.button(overlay,"Rename pet",Rect2(878,174,215,35),func(): open_name_prompt(false)).name = "RenamePet"
 	UI.panel(overlay, Rect2(151, 221, 978, 109), Color("eef0e5"), 20)
@@ -1507,6 +1550,7 @@ func _confirm_reset() -> void:
 	UI.label(overlay,"Save a copy first in Settings → Save / Load if you want to come back.",Rect2(225,612,830,46),18,UI.MUTED,true)
 
 func _apply_cosmetics() -> void:
+	pip.set_appearance(progress.pet_look)
 	pip.set_cosmetics(progress.cosmetics("pet"))
 	$Room.set_cosmetics(progress.cosmetics("room"))
 
@@ -1522,6 +1566,7 @@ func open_shop() -> void:
 	_screen("shop", "The little Shop", _by_level("Choose a look! Equip adds it. Unequip removes it.","Buy once, then Equip or Unequip for free. Room sets decorate your pet's home.","Ownership lasts until reset. Equip or Unequip changes the active pet look or room set."))
 	UI.button(overlay, "Pet accessories", Rect2(155, 219, 250, 44), func(): _set_shop_category("pet"), shop_category == "pet").name = "PetCategory"
 	UI.button(overlay, "Room sets", Rect2(416, 219, 264, 44), func(): _set_shop_category("room"), shop_category == "room").name = "RoomCategory"
+	UI.button(overlay, "Style pet", Rect2(695, 219, 178, 44), func(): open_pet_creator("shop")).name = "StylePetShop"
 	_add_icon(overlay, "coin", Rect2(899, 222, 35, 35))
 	UI.label(overlay, "%d coins" % progress.coins, Rect2(944, 219, 184, 44), 24, UI.GREEN)
 
@@ -1572,24 +1617,6 @@ func open_shop() -> void:
 	UI.label(overlay, _by_level("Scroll or slide the green bar to see more ↓","Mouse wheel or the scrollbar · Tab moves between items","Scroll to browse; keyboard focus reveals each selected item"), Rect2(154, 721, 974, 22), 14, UI.MUTED)
 	_restore_shop_scroll(shop_scroll, saved_offset, category)
 	_tutorial_notice("open_shop")
-
-func _shop_preview(texture: Texture2D) -> Texture2D:
-	var key := texture.resource_path
-	if shop_preview_cache.has(key):
-		return shop_preview_cache[key]
-	var pixels := texture.get_image()
-	if pixels == null or pixels.is_empty():
-		return texture
-	if pixels.is_compressed():
-		pixels.decompress()
-	var bounds := pixels.get_used_rect()
-	if not bounds.has_area():
-		return texture
-	var cropped := AtlasTexture.new()
-	cropped.atlas = texture
-	cropped.region = Rect2(bounds)
-	shop_preview_cache[key] = cropped
-	return cropped
 
 func _add_shop_card(grid: GridContainer, id: String) -> void:
 	var item: Dictionary = Shop.ITEMS[id]
@@ -1693,7 +1720,14 @@ func open_name_prompt(first_choice: bool = true) -> void:
 	name_first_choice = first_choice
 	_screen("name_pet","Meet your little friend!" if first_choice else "A new name for your friend","Keep Pip, or choose a name you love.")
 	UI.panel(overlay,Rect2(278,234,724,377),Color("eef1e6"),24)
-	_add_icon(overlay,"paw",Rect2(601,248,78,64))
+	var portrait = PetActor.new()
+	portrait.blocked = true
+	portrait.stage_actor = true
+	portrait.appearance = progress.pet_look.duplicate(true)
+	portrait.position = Vector2(511, 283)
+	portrait.scale = Vector2.ONE * 0.25
+	overlay.add_child(portrait)
+	UI.button(overlay, Looks.title(progress.pet_look) + " · Choose pet + look", Rect2(552, 250, 384, 48), func(): open_pet_creator("name_pet")).name = "ChoosePet"
 	UI.label(overlay,"What should we call him?",Rect2(310,316,660,45),30,UI.INK,true)
 	name_input = LineEdit.new()
 	name_input.name = "PetNameInput"
@@ -1716,7 +1750,7 @@ func open_name_prompt(first_choice: bool = true) -> void:
 	UI.button(overlay,"Keep Pip",Rect2(316,548,304,48),func(): _complete_pet_name("Pip")).name = "KeepPip"
 	UI.button(overlay,"Use this name",Rect2(659,548,304,48),func(): _complete_pet_name(name_input.text),true).name = "UsePetName"
 	_refresh_name_preview(name_input.text)
-	UI.label(overlay,"You can change his name later in Settings.",Rect2(314,637,652,40),19,UI.GREEN,true)
+	UI.label(overlay, "Change your pet, look, or name anytime in Settings.", Rect2(314, 637, 652, 40), 19, UI.GREEN, true)
 	name_input.grab_focus()
 	name_input.select_all()
 
@@ -1898,3 +1932,102 @@ func _load_manual_slot(index: int) -> void:
 	_toast("Loaded slot %d." % (index+1))
 	if not progress.name_chosen: open_name_prompt(true)
 	else: _resume_after_name()
+
+func open_pet_creator(origin: String = "home") -> void:
+	if _tutorial_active(): return
+	creator_origin = origin
+	if origin == "name_pet": creator_name_draft = name_input.text
+	_screen("pet_creator", "Make your little friend", _by_level("Pick a pet. Try a face. Add colors!", "Choose a pet, change its features, and save favorite looks.", "Customize species, facial features, markings, and colors. Preview freely; apply when ready."))
+	creator = PetCreator.new()
+	creator.name = "PetCreator"
+	creator.position = Vector2(153, 214)
+	creator.progress = progress
+	creator.cancel_requested.connect(_return_from_creator)
+	creator.applied.connect(_apply_pet_creator)
+	overlay.add_child(creator)
+
+func _apply_pet_creator(appearance: Dictionary, designs: Dictionary, looks: Array, outfit: Dictionary) -> void:
+	if modal_name != "pet_creator": return
+	progress.apply_pet_style(appearance, designs, looks, outfit)
+	_apply_cosmetics()
+	_save()
+	_return_from_creator()
+	_toast("Your new look is ready!")
+
+func _return_from_creator() -> void:
+	if modal_name != "pet_creator": return
+	modal_name = ""
+	match creator_origin:
+		"name_pet":
+			open_name_prompt(name_first_choice)
+			name_input.text = creator_name_draft
+			_refresh_name_preview(name_input.text)
+		"settings": open_settings()
+		"shop": open_shop()
+		_: close_modal()
+
+func _ball_active() -> bool:
+	return is_instance_valid(ball_play) and ball_play.active
+
+func _toggle_ball() -> void:
+	if _tutorial_active() or not modal_name.is_empty(): return
+	if _ball_active():
+		if ball_play.paused: ball_play.resume()
+		else: _stop_ball()
+	else:
+		speech.hide()
+		ball_play.start(pip)
+	_refresh_ball()
+
+func _stop_ball() -> void:
+	if not _ball_active(): return
+	var had_return = ball_play.round_returns > 0
+	ball_play.stop()
+	if had_return: learn("ball_play")
+	_refresh_home()
+	_save()
+
+func _ball_returned() -> void:
+	if not _ball_active(): return
+	progress.ball_returns = mini(999999, progress.ball_returns + 1)
+	progress.happiness = minf(100, progress.happiness + 2)
+	_play_sound("pet")
+	_save()
+
+func _refresh_ball() -> void:
+	if not is_instance_valid(ball_button): return
+	ball_button.text = "Ball Play"
+	ball_hint_panel.visible = _ball_active()
+	ball_hint.visible = _ball_active()
+	if not _ball_active(): return
+	ball_button.text = "Resume ball" if ball_play.paused else "Put toy away"
+	if ball_play.paused: ball_hint.words = "Paused. Tap Resume ball when you are ready."
+	elif ball_play.state == "celebrate": ball_hint.words = "Nice catch! +2 happiness · %d returns" % ball_play.round_returns
+	elif ball_play.state == "returning": ball_hint.words = "Here comes the ball!"
+	elif ball_play.state in ["flying", "chasing"]: ball_hint.words = "Go, {pet_name}, go!"
+	else: ball_hint.words = "Tap a spot in the room, or press Space to throw!"
+
+# Called only while gameplay is on the home screen and no tutorial is active.
+# delta is in seconds, so divide the points-per-minute settings by 60.
+func _drain_needs(delta: float) -> void:
+	progress.fullness = maxf(0.0, progress.fullness - delta * (FULLNESS_DRAIN_PER_MINUTE / 60.0))
+	progress.happiness = maxf(0.0, progress.happiness - delta * (HAPPINESS_DRAIN_PER_MINUTE / 60.0))
+
+func _shop_preview(texture: Texture2D) -> Texture2D:
+	var key := texture.resource_path
+	if shop_preview_cache.has(key):
+		return shop_preview_cache[key]
+	var pixels := texture.get_image()
+	if pixels == null or pixels.is_empty():
+		return texture
+	if pixels.is_compressed():
+		pixels.decompress()
+	var bounds := pixels.get_used_rect()
+	if not bounds.has_area():
+		return texture
+	var cropped := AtlasTexture.new()
+	cropped.atlas = texture
+	cropped.region = Rect2(bounds)
+	shop_preview_cache[key] = cropped
+	return cropped
+

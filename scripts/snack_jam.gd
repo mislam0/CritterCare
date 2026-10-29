@@ -1,5 +1,5 @@
 extends Control
-## Audio-clock rhythm game. The main coordinator owns permanent rewards.
+
 signal finished(report: Dictionary)
 signal preferences_changed(mode: String, offset_ms: int, sound_on: bool)
 
@@ -9,6 +9,7 @@ var lane_results: Array[Dictionary] = [{},{},{}]
 var shown_misses: Dictionary = {}
 const UI = preload("res://scripts/ui.gd")
 const Rules = preload("res://data/snack_jam.gd")
+var pet_look: Dictionary = {}
 const Hamster = preload("res://scripts/hamster.gd")
 const SONG = preload("res://assets/audio/snack_jam.ogg")
 const LANE_TEXTURES = [
@@ -87,8 +88,8 @@ func _ready() -> void:
 	music = AudioStreamPlayer.new()
 	music.name = "JamMusic"
 	music.stream = SONG
-	# Stream playback provides the same measured playback clock on native and
-	# Web. Sample playback cannot supply the accurate clock this game needs.
+
+
 	music.playback_type = AudioServer.PLAYBACK_TYPE_STREAM
 	add_child(music)
 	music.finished.connect(_music_finished)
@@ -100,6 +101,7 @@ func _ready() -> void:
 	UI.label(self,Rules.SONG,Rect2(630,64,330,36),25,UI.INK,true)
 	UI.label(self,"An original little tune · 100 BPM",Rect2(630,103,330,25),15,UI.MUTED,true)
 	actor = Hamster.new()
+	actor.set_appearance(pet_look)
 	actor.blocked = true
 	actor.stage_actor = true
 	actor.calm = gentle

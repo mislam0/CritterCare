@@ -1,12 +1,11 @@
 extends Control
-## A guided tour of the real care UI. Clicks go through only at the green target.
-## Progression follows actual game events; no purchases or rewards are simulated.
+
 
 const Text = preload("res://data/game_text.gd")
 const UI = preload("res://scripts/ui.gd")
 const GREEN = Color("29924c")
 const STEPS = [
-	{"id":"welcome", "title":"Welcome to CritterCare!", "words":"I'm {pet_name}, your little hamster friend. Click Let's begin to learn how to care for me and explore my home. Then follow the green arrows at your own pace!"},
+	{"id": "welcome", "title": "Welcome to CritterCare!", "words": "I'm {pet_name}, your little pet friend. Click Let's begin to learn how to care for me and explore my home. Then follow the green arrows at your own pace!"}, 
 	{"id":"pet", "title":"Say hello to {pet_name}", "words":"Click or tap my head once. IF you pet me THEN I feel happier! A short tap pets me; holding your click picks me up."},
 	{"id":"carry", "title":"Pick me up gently", "words":"Hold your click or finger on me, move me to a new spot, then let go. IF you hold me THEN I follow you. Release me for a soft landing."},
 	{"id":"needs", "title":"How is {pet_name} feeling?", "words":"Fullness shows how fed I am. Happiness shows how cheerful I feel. Petting and snacks help! GOLD is your money for the Shop. You earn it by playing games."},

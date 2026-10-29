@@ -33,3 +33,15 @@ Unreadable slots remain visible so you can replace or delete them. Load is disab
 - `tests/verify_save_slots.gd`: pointer-driven save/load/delete, cancellation, persistence, failed writes, reset retention, and both supported window sizes.
 
 As of v1.6.4, names and slot titles pass the offline friendly-name filter. Invalid new titles cannot overwrite a slot. Old blocked titles display as My story; loading a blocked pet name substitutes Pip and requests a new name while retaining progress. See [NAME_FILTER.md](NAME_FILTER.md).
+
+## Pet appearance and saved looks (v1.7.1)
+
+Autosaves and manual story slots use version 10 and include the active species,
+all appearance features/colors, remembered designs, three outfit presets, and
+Ball Play returns. Existing version-9 story slots remain readable: missing
+appearance data starts as the default hamster and other progress is preserved.
+
+Saved looks are appearance presets in Style pet, separate from story slots.
+Only owned pet accessories can be restored; room equipment stays independent.
+Reset progress clears the current appearance, presets, and play count, while
+explicit manual story slots remain available until deleted.

@@ -1,28 +1,73 @@
-# Validation — v1.6.5
+# Validation — v1.7.1 merged branch
 
-This consolidated release uses Godot 4.7.2 and the Compatibility renderer.
-The current game and artwork are retained; release metadata and documentation
-are consolidated under v1.6.5.
+Validated using Godot 4.7.2, Compatibility rendering, Mesa software OpenGL,
+and isolated --test-mode saves. This release merges the pet update into the
+uploaded v1.6.6 branch rather than replacing that branch with the earlier source.
 
-## Release checks
+## Gameplay and UI: 1,549 checks, zero failures
 
-- Core gameplay integration: 420 checks, zero failures, with isolated test saves.
-- Rendered shop regression: 351 checks, zero failures across all ten themes.
-- Eight static shop, guide, fit, artwork, placement, and wording validators pass.
-- All 60 purchase IDs, prices, themes, and slots remain compatible. Main shop
-  artwork, room accents, and base furniture match the latest approved art.
-- A fresh browser export is built from this source. Package checks verify ZIP
-  integrity, root-level index.html, engine/game files, nine license files, and
-  identical embedded and separate browser ZIPs.
+| Suite | Checks |
+| --- | ---: |
+| Core gameplay, curriculum, tutorial, rewards, Shop | 436 |
+| Naming and identity | 23 |
+| Save / load / delete slots | 36 |
+| Offline name moderation | 190 |
+| Feedback, beginner wording, teaching cooldown | 70 |
+| Teaching-only colors and syntax formatting | 27 |
+| Logic Lab | 115 |
+| Snack Jam, including full real-time song | 70 |
+| Scrolling game catalog | 46 |
+| Ten-theme rendered Shop regression | 351 |
+| Merged pet creator, saved looks, Ball Play, migration | 185 |
 
-Run `tests/verify.gd` with `--test-mode` for core checks and
-`tests/verify_shop_art.gd` with `--test-mode` on a real renderer for shop checks.
-See the README for the other feature suites and browser export command.
+The new pet suite uses real pointer input for first-play choice, species buttons,
+Apply/Cancel, saved-look controls, home/Shop/Settings entry points and Ball Play.
+It verifies feature/color preview, draft isolation, owned-only outfit restore,
+room-set preservation, the three activity actors, Space with a focused button,
+focus pause/resume, exactly one return reward, interrupted throws, the full
+Knowledge quote, old/new JSON slots, Reset, and branch balance constants.
+Creator and preset text fit at 1280x800 and 960x600. Native captures were inspected.
 
-## Practical limits
+## Source and art preservation
 
-Release checks run on Windows with isolated test saves. A local browser load
-does not establish persistence, audio timing, fullscreen, or mobile behavior
-on an itch.io page. Use [ITCH_IO.md](ITCH_IO.md) to check the intended host.
-Native and browser saves remain separate. Name filtering runs offline and
-cannot guarantee every future bypass; see [NAME_FILTER.md](NAME_FILTER.md).
+All 229 existing files under assets (excluding regenerated import sidecars)
+were preserved byte for byte; only the new ball assets were added there.
+The Shop catalog, room renderer, teaching formatter, shared learning-label/UI
+code, Web shell and export builder match the uploaded branch byte for byte.
+All sixty purchase IDs, prices, themes and slots are retained.
+
+Five applicable static validators passed: PNG art, cosmetic fit, room-decor
+centering, expanded Decor Sets, and current Shop guides.
+
+Three older validators also fail on the untouched uploaded branch. They have
+not been used to overwrite the team's current art or delete historical files:
+
+- validate_shop_rebuild.py treats room-set overlays and older retained PNGs as
+  unreferenced catalog art. The runtime's current catalog and all room sets
+  pass their rendered and dedicated validation suites.
+- validate_knight_fit.py expects previous exact opaque bounding boxes. Current
+  Knight sprites are unchanged; the current shared fit/guide checks pass.
+- validate_shop_wording.py requires version 1.6.5 literally, and therefore also
+  rejects the uploaded version 1.6.6. The current release is 1.7.1.
+
+## Browser export and packaging
+
+A fresh single-thread Godot Web export completed successfully. Its exported
+PCK passed 12 additional checks when loaded independently of the source project:
+release ID, first-play choice, six species, sixty Shop items, creator colors,
+saved look, three activity actors, Ball Play reward, save format and name filter.
+This is a packed-resource check in the native runtime, not a browser playthrough.
+
+Both ZIPs are checked for complete archive integrity. The source's embedded
+builds/CritterCare-itchio.zip matches the standalone browser ZIP byte for byte.
+index.html, engine/game companions and all nine license notices are included.
+The source ZIP includes matching Web templates, source, PNGs, guides, tools and
+tests; it excludes editor caches, local saves, Git metadata and stale Web copies.
+
+## Remaining browser check
+
+An actual hosted itch.io browser playthrough has not been performed for this
+merged build. Browser persistence, autoplay/audio, embedding/fullscreen and
+mobile input still need the preview checks in ITCH_IO.md. Native and browser
+saves remain separate. The existing offline name filter cannot guarantee every
+possible bypass; its design and update instructions remain in NAME_FILTER.md.

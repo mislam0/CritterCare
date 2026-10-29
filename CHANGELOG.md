@@ -1,5 +1,12 @@
 # Changelog
 
+## Update v1.7.1
+
+- Merged six customizable pets, first-play pet selection, remembered species designs, three saved looks, and Ball Play into the uploaded v1.6.6 branch.
+- Retained all ten Shop themes, expanded room Decor Sets, pricing and stable purchase IDs, revised reward/need balancing, teaching syntax colors, and web text fixes.
+- Save format 10 stores the new appearance/play fields and still reads existing version-9 manual slots.
+- Rebuilt the browser ZIP from the same source.
+
 ## Update v1.6.6
 
 - Added syntax highlighting and fixed text for the web.

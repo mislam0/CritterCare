@@ -1,5 +1,5 @@
 extends Control
-## Block editor and visual trace player. The coordinator owns permanent rewards.
+
 
 signal solved(challenge_id: String)
 signal back_requested
@@ -9,6 +9,7 @@ const Text = preload("res://data/game_text.gd")
 var game_level: String = "kindergarten"
 const UI = preload("res://scripts/ui.gd")
 const Lab = preload("res://data/logic_lab.gd")
+var pet_look: Dictionary = {}
 const Hamster = preload("res://scripts/hamster.gd")
 const Icon = preload("res://scripts/icon.gd")
 var mission: Dictionary
@@ -171,6 +172,7 @@ func _ready() -> void:
 	food_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	world.add_child(food_icon)
 	actor = Hamster.new()
+	actor.set_appearance(pet_look)
 	actor.blocked = true
 	actor.calm = gentle
 	actor.cosmetic_items = cosmetics

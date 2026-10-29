@@ -1,12 +1,12 @@
 # CritterCare on itch.io
 
-## Upload the included v1.6.5 browser build
+## Upload the included v1.7.1 browser build
 
-The separate **CritterCare-v1.6.5-itchio.zip** is ready for upload. An identical copy is included in the editable project as `builds/CritterCare-itchio.zip`. It contains the new naming flow, manual save slots, clean feedback, teaching-only highlights, and all 60 Shop items and 60 matching room accents.
+The separate **CritterCare-itchio-v1.7.1.zip** is ready for upload. An identical copy is included in the editable project as `builds/CritterCare-itchio.zip`. It includes six customizable pets, saved looks, Ball Play, and the naming flow, manual save slots, clean feedback, teaching-only highlights, and all 60 Shop items and 60 matching room accents.
 
 1. Upload the browser ZIP to itch.io as an **HTML Game** and mark it **This file will be played in the browser**.
 2. Use **Embed in page**, a **960 × 600** viewport, and enable fullscreen. The game also fits its 1280 × 800 canvas.
-3. Use the preview checklist below. The footer should show **v1.6.5** followed by your pet's name.
+3. Use the preview checklist below. The footer should show **v1.7.1** followed by your pet's name.
 
 Upload the browser ZIP intact. Its `index.html` is at the root alongside the Godot Web files. The larger editable project ZIP is for Godot/F5. itch.io page settings must be selected on the itch.io page; this package does not publish it.
 
@@ -65,11 +65,11 @@ References: [itch.io HTML5 games](https://itch.io/docs/creators/html5) · [Godot
 
 ## Updating an existing page
 
-Replace the previous browser upload with this release's `CritterCare-itchio.zip` and save the itch.io page. Reload the embedded game. The home-screen footer should read **v1.6.5**, followed by your pet's name; if a different version appears, check that the new upload is the one selected for browser play and refresh the page. The top display is only your gold balance; Shop is at the bottom right. New saves offer naming, then the green-arrow tutorial; existing players can choose Settings → Replay tutorial. The normal Godot project ZIP is for editing/F5 and is not the file to upload as a browser game.
+Replace the previous browser upload with this release's `CritterCare-itchio.zip` and save the itch.io page. Reload the embedded game. The home-screen footer should read **v1.7.1**, followed by your pet's name; if a different version appears, check that the new upload is the one selected for browser play and refresh the page. The top display is only your gold balance; Shop is at the bottom right. New saves offer naming, then the green-arrow tutorial; existing players can choose Settings → Replay tutorial. The normal Godot project ZIP is for editing/F5 and is not the file to upload as a browser game.
 
 No progress reset is needed for this update. Keep the same itch.io project so existing browser saves remain associated with the same game page.
 
-Logic Lab is under **Games / Quizzes → Open Logic Lab** in both builds. Confirm the browser shows v1.6.5 before testing the consolidated build.
+Logic Lab is under **Games / Quizzes → Open Logic Lab** in both builds. Confirm the browser shows v1.7.1 before testing the consolidated build.
 
 ## Teaching-only highlighting and clean feedback
 
@@ -83,7 +83,7 @@ The rhythm player uses streamed audio and the measured music clock to keep notes
 
 ## Feedback and beginner wording check
 
-Confirm the footer says **v1.6.5**, followed by your pet's name. Try a wrong and a correct quiz answer, sort, loop count, and Lab program. Check for large bold red/green outcomes, plus words and symbols. In Picnic Catch, miss a snack and catch one; in Snack Jam, miss, tap early, and hit a note. Select Kindergarten–Elementary to see short instructions and thought-sized speech pages. Pick Pip up repeatedly: the same lesson should stay quiet for 60 seconds after it is shown. Knowledge → Read with Pip should still work during that delay. Change Game level to check explanation depth without resetting progress.
+Confirm the footer says **v1.7.1**, followed by your pet's name. Try a wrong and a correct quiz answer, sort, loop count, and Lab program. Check for large bold red/green outcomes, plus words and symbols. In Picnic Catch, miss a snack and catch one; in Snack Jam, miss, tap early, and hit a note. Select Kindergarten–Elementary to see short instructions and thought-sized speech pages. Pick Pip up repeatedly: the same lesson should stay quiet for 60 seconds after it is shown. Knowledge → Read with Pip should still work during that delay. Change Game level to check explanation depth without resetting progress.
 
 ## PNG runtime-art check
 

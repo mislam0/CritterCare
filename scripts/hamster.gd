@@ -1,9 +1,12 @@
 extends Node2D
-## Pip is drawn from editable vector shapes. Body and paws use damped springs
-## rather than sprite frames, so dragging works smoothly in every direction.
+## Shared animated pet rig. Shop PNG anchors stay compatible across all species.
+
 
 signal interacted(action: String)
 
+const Looks = preload("res://data/pet_looks.gd")
+var appearance: Dictionary = Looks.defaults()
+var fetching: bool = false
 const Shop = preload("res://data/shop.gd")
 var costumes: Node2D
 var cosmetic_items: Dictionary = {}
@@ -35,12 +38,17 @@ var pickup_position = Vector2.ZERO
 var direction: String = "resting"
 var floaties: Array = []
 var last_pointer = Vector2.ZERO
-## Optional stage poses used by Snack Jam; ordinary care keeps these at zero.
+
 var stage_actor: bool = false
 var dance_pose: int = 0
 var dance_phase: float = 0.0
 
+func set_appearance(value: Dictionary) -> void:
+	appearance = Looks.clean(value)
+	queue_redraw()
+
 func _ready() -> void:
+	appearance = Looks.clean(appearance)
 	last_pointer = get_global_mouse_position()
 	set_cosmetics(cosmetic_items)
 
@@ -80,7 +88,7 @@ func _update_costume_pose() -> void:
 	costumes.scale = Vector2(1 + squish + breath, 1 - squish - breath)
 
 func _unhandled_input(event: InputEvent) -> void:
-	if blocked:
+	if blocked or fetching:
 		return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 		var local = get_local_mouse_position()
@@ -112,11 +120,15 @@ func _notification(what: int) -> void:
 			release()
 
 func hit_test(point: Vector2) -> bool:
-	# Transform back through the drawn body's rotation, then include ears,
-	# paws and tail as well as the main silhouette. Grabbing any part works.
+
+
 	point = point.rotated(-angle * (0.45 if calm else 1.0))
 	if cosmetic_items.has("head") and Rect2(-56, -161, 112, 67).has_point(point):
 		return true
+	var species = str(appearance.get("species", "hamster"))
+	if species == "bunny" and Rect2(-99, -199, 198, 135).has_point(point): return true
+	if species in ["kitten", "fox", "puppy"] and Rect2(-96, -152, 192, 89).has_point(point): return true
+	if species in ["fox", "kitten", "puppy"] and Rect2(60, -5, 85, 90).has_point(point): return true
 	if pow(point.x / 98.0, 2) + pow((point.y + 14) / 123.0, 2) <= 1.0:
 		return true
 	for center in [Vector2(-58, -96), Vector2(58, -96), Vector2(-43, 75), Vector2(43, 75), Vector2(77, 47)]:
@@ -171,7 +183,7 @@ func _physics_process(delta: float) -> void:
 		if press_duration >= 0.22 or get_global_mouse_position().distance_to(press_position) > 9:
 			pick_up()
 	if is_held:
-		# A spring pulls the grabbed point toward the mouse. The body trails it.
+
 		var target = get_global_mouse_position() + grab_offset
 		target.x = clampf(target.x, 142, 1138)
 		target.y = clampf(target.y, 268, FLOOR_Y)
@@ -192,6 +204,9 @@ func _physics_process(delta: float) -> void:
 		if not moved_since_pickup and position.distance_to(pickup_position) > 50:
 			moved_since_pickup = true
 			interacted.emit("move")
+	elif fetching:
+		angular_velocity += ( - angle * 35.0 - angular_velocity * 8.0) * delta
+		idle_time = 0.0
 	elif is_falling:
 		velocity.y += GRAVITY * delta
 		position += velocity * delta
@@ -221,7 +236,7 @@ func _physics_process(delta: float) -> void:
 			interacted.emit("groom")
 	angle += angular_velocity * delta
 	angle = clampf(angle, -1.0, 1.0)
-	# A separate spring makes paws/ears lag behind the swinging body.
+
 	var paw_target = -angular_velocity * 0.35 + (sin(clock * 4.0) * 0.18 if is_held else 0.0)
 	paw_velocity += ((paw_target - paw_angle) * 28.0 - paw_velocity * 5.0) * delta
 	paw_angle = clampf(paw_angle + paw_velocity * delta, -0.8, 0.8)
@@ -249,90 +264,171 @@ func ellipse(center: Vector2, radii: Vector2, color: Color, outline: Color = Col
 	if outline.a > 0:
 		draw_polyline(points, outline, width, true)
 
+func _poly(points: Array, color: Color, outline: Color) -> void:
+	var vertices = PackedVector2Array(points)
+	draw_colored_polygon(vertices, color)
+	vertices.append(vertices[0])
+	draw_polyline(vertices, outline, 2.4, true)
+
+func _ear(side: int, fur: Color, inner: Color, ink: Color) -> void:
+	var kind = str(appearance.ears)
+	var sway = Vector2(paw_angle * 5, side * paw_angle * 5)
+	if kind in ["round", "small", "fluffy"]:
+		var radius = 19.0 if kind == "small" else 26.0
+		var ear = Vector2(side * 58, -96) + sway
+		ellipse(ear, Vector2(radius, radius + 2), fur, ink)
+		if kind == "fluffy":
+			for j in [-1, 0, 1]: ellipse(ear + Vector2(j * 13, -18), Vector2(10, 11), fur)
+		ellipse(ear + Vector2(0, 2), Vector2(radius * 0.61, radius * 0.65), inner)
+	elif kind in ["upright", "lop", "one_lop"]:
+		var droop = kind == "lop" or (kind == "one_lop" and side == 1)
+		var ear = Vector2(side * (77 if droop else 39), -76 if droop else -138) + sway
+		ellipse(ear, Vector2(21, 58), fur, ink)
+		ellipse(ear + Vector2(0, 2), Vector2(11, 43), inner)
+		if appearance.pattern == "dipped": ellipse(ear + Vector2(0, -37), Vector2(18, 18), Color(appearance.patch))
+	elif kind == "floppy" or (kind == "one_up" and side == -1):
+		var ear = Vector2(side * 74, -65) + sway
+		ellipse(ear, Vector2(24, 54), fur, ink)
+		ellipse(ear + Vector2(side * 3, 10), Vector2(13, 32), inner)
+	else:
+		var tip = Vector2(side * (82 if kind == "wide" else 65), -149) + sway
+		if kind == "folded" and side == 1: tip = Vector2(82, -110) + sway
+		_poly([Vector2(side * 30, -91) + sway, tip, Vector2(side * 80, -69) + sway], fur, ink)
+		_poly([Vector2(side * 44, -94) + sway, tip + Vector2( - side * 4, 19), Vector2(side * 68, -86) + sway], inner, inner)
+		if kind == "tufted":
+			for j in range(3): draw_line(tip + Vector2(side * (j - 1) * 3, 3), tip + Vector2(side * (j - 1) * 5, -8 + j * 3), fur, 3, true)
+
 func _draw() -> void:
-	var ink = Color("795944")
-	var fur = Color("cda477")
-	var light_fur = Color("e4bd8c")
-	var cream = Color("fff0d4")
-	var pink = Color("eab6a2")
+	var species = str(appearance.species)
+	var fur = Color(appearance.coat)
+	var patches = Color(appearance.patch)
+	var cream = Color(appearance.belly)
+	var pink = Color(appearance.inner)
+	var ink = fur.darkened(0.46).lerp(Color("594b44"), 0.38)
+	var light_fur = fur.lerp(cream, 0.22)
 	var breath = sin(clock * 2.3) * (0.012 if not calm else 0.005)
 	var chew = sin((1.8 - eating_time) * TAU / 0.6) if eating_time > 0 else 0.0
 	var lean = angle * (0.45 if calm else 1.0)
-	# The ground shadow stays on the floor when the hamster is lifted.
 	var height = FLOOR_Y - position.y
-	var shadow_width = 78.0 - minf(height * 0.12, 30.0)
 	if not stage_actor:
-		ellipse(Vector2(0, FLOOR_Y - position.y + 85), Vector2(shadow_width, 12), Color(0.25, 0.28, 0.18, 0.15))
+		ellipse(Vector2(0, height + 85), Vector2(78 - minf(height * 0.12, 30), 12), Color(0.25, 0.28, 0.18, 0.15))
 	draw_set_transform(Vector2(0, -breath * 30), lean, Vector2(1 + squish + breath, 1 - squish - breath))
-	# Tail, body and dangling feet.
-	ellipse(Vector2(77, 47), Vector2(17, 15), pink, ink)
+
+	if species == "kitten":
+		var points = PackedVector2Array()
+		for i in range(25):
+			var t = i / 24.0
+			points.append(Vector2(64, 52).bezier_interpolate(Vector2(132, 68), Vector2(127, 11), Vector2(114, -3), t))
+		draw_polyline(points, ink, 23, true)
+		draw_polyline(points, fur, 18, true)
+		ellipse(Vector2(114, -3), Vector2(10, 12), patches)
+	elif species == "fox":
+		_poly([Vector2(56, 66), Vector2(92, 63), Vector2(138, 24), Vector2(125, -14), Vector2(91, 4), Vector2(70, 37)], fur, ink)
+		_poly([Vector2(116, 43), Vector2(138, 24), Vector2(125, -14), Vector2(110, -5), Vector2(113, 17), Vector2(102, 21)], cream, cream)
+	elif species == "puppy":
+		var wag = sin(clock * 7) * 9 if happy_time > 0 or fetching else sin(clock * 2) * 3
+		draw_line(Vector2(64, 48), Vector2(111, 17 + wag), ink, 22, true)
+		draw_line(Vector2(64, 48), Vector2(111, 17 + wag), fur, 17, true)
+		ellipse(Vector2(111, 17 + wag), Vector2(9, 10), patches)
+	else: ellipse(Vector2(77, 47), Vector2(21 if species == "bunny" else 17, 19 if species == "bunny" else 15), cream if species == "bunny" else (patches if species == "panda" else pink), ink)
 	var dangle = 11.0 if is_held or is_falling else 0.0
 	for side in [-1, 1]:
 		var foot = Vector2(side * 43 + paw_angle * 22, 75 + dangle)
-		if dance_pose > 0 and not calm:
-			foot.y -= maxf(0,sin(dance_phase*TAU+side*PI/2))*13
-		if is_held:
-			draw_line(Vector2(side * 40, 53), foot, fur.darkened(0.08), 17, true)
-		ellipse(foot, Vector2(24, 13 if not is_held else 19), pink, ink)
-		for j in range(2):
-			draw_line(foot + Vector2(-5 + j * 8, 3), foot + Vector2(-5 + j * 8, 9), Color("c68c7e"), 1.7, true)
-	ellipse(Vector2(0, 11), Vector2(84, 77), fur, ink)
-	ellipse(Vector2(0, 30), Vector2(58, 57), cream)
-	# Ears lag with the paw spring.
-	for side in [-1, 1]:
-		var ear = Vector2(side * 58 + paw_angle * 5, -96 + side * paw_angle * 5)
-		ellipse(ear, Vector2(26, 28), fur, ink)
-		ellipse(ear + Vector2(0, 2), Vector2(16, 17), pink)
-	# Round head with cheeks and a cream muzzle.
-	ellipse(Vector2(0, -40), Vector2(80 + chew * 2, 67), light_fur, ink)
-	ellipse(Vector2(-46, -9), Vector2(34, 29), cream)
-	ellipse(Vector2(46, -9), Vector2(34, 29), cream)
-	ellipse(Vector2(0, 0), Vector2(55, 31), cream)
-	# Forehead markings.
-	for i in [-1, 0, 1]:
-		draw_line(Vector2(i * 9, -104 + abs(i) * 3), Vector2(i * 7, -85 + abs(i) * 2), fur.darkened(0.05), 5, true)
-	var look = (get_global_mouse_position() - position) / 120.0 if is_inside_tree() else Vector2.ZERO
-	look = look.limit_length(4.0)
+		if (dance_pose > 0 or fetching) and not calm: foot.y -= maxf(0, sin((dance_phase if dance_pose > 0 else clock * 3) * TAU + side * PI / 2)) * 13
+		if is_held: draw_line(Vector2(side * 40, 53), foot, fur.darkened(0.08), 17, true)
+		var feet_color = patches if species == "panda" or appearance.pattern in ["boots", "socks"] else (pink if species == "hamster" else light_fur)
+		ellipse(foot, Vector2(24, 13 if not is_held else 19), feet_color, ink)
+		for j in range(2): draw_line(foot + Vector2(-5 + j * 8, 3), foot + Vector2(-5 + j * 8, 9), ink.lightened(0.3), 1.7, true)
+	var body_width = 88.0 if species == "panda" else (84.0 if species == "hamster" else 77.0)
+	ellipse(Vector2(0, 11), Vector2(body_width, 77), fur, ink)
+	if appearance.pattern == "stripe": ellipse(Vector2(0, 21), Vector2(23, 64), patches)
+	if appearance.pattern == "spots":
+		for spot in [Vector2(-57, 18), Vector2(48, 46), Vector2(24, -17)]: ellipse(spot, Vector2(16, 20), patches)
+	if species == "panda" and appearance.pattern != "moon": ellipse(Vector2(0, 5), Vector2(82, 37), patches)
+	if appearance.pattern != "solid": ellipse(Vector2(0, 30), Vector2(53 if species != "hamster" else 58, 57), cream)
+	if appearance.pattern == "moon": ellipse(Vector2(0, 7), Vector2(38, 19), patches)
+	for side in [-1, 1]: _ear(side, patches if species == "panda" or species == "puppy" else fur, pink, ink)
+	var head_width = 73.0 if species == "bunny" else (76.0 if species in ["kitten", "fox"] else 80.0)
+	ellipse(Vector2(0, -40), Vector2(head_width + chew * 2, 67), light_fur, ink)
+	if species == "fox":
+		_poly([Vector2(-73, -22), Vector2(-86, -4), Vector2(-32, 12), Vector2(0, -8)], cream, cream)
+		_poly([Vector2(73, -22), Vector2(86, -4), Vector2(32, 12), Vector2(0, -8)], cream, cream)
+	if appearance.pattern == "mask":
+		for side in [-1, 1]: ellipse(Vector2(side * 32, -46), Vector2(22, 26), patches)
+	elif appearance.pattern == "patches": ellipse(Vector2(-34, -48), Vector2(33, 37), patches)
+	elif appearance.pattern == "tuxedo":
+		_poly([Vector2(-26, -26), Vector2(0, -86), Vector2(26, -26)], cream, cream)
+	elif appearance.pattern == "blaze": ellipse(Vector2(0, -65), Vector2(14, 37), cream)
+	if species == "hamster":
+		ellipse(Vector2(-46, -9), Vector2(34, 29), cream)
+		ellipse(Vector2(46, -9), Vector2(34, 29), cream)
+	ellipse(Vector2(0, 0), Vector2(55 if species == "hamster" else 36, 31 if species == "hamster" else 24), cream)
+	if appearance.pattern in ["cheeks", "tabby", "stripe"]:
+		for i in [-1, 0, 1]: draw_line(Vector2(i * 10, -102 + abs(i) * 3), Vector2(i * 8, -83 + abs(i) * 2), patches, 5, true)
+		if appearance.pattern == "tabby":
+			for side in [-1, 1]:
+				for j in range(2): draw_line(Vector2(side * 72, -44 + j * 14), Vector2(side * 54, -40 + j * 12), patches, 5, true)
+	var look = ((get_global_mouse_position() - global_position) / 120).limit_length(4) if is_inside_tree() and not stage_actor else Vector2.ZERO
 	var blink = fmod(clock, 4.7) > 4.51
 	var happy = happy_time > 0 or groom_time > 0
+	var eye_color = Color(appearance.iris)
 	for side in [-1, 1]:
 		var eye = Vector2(side * 32, -46) + look
 		if happy or blink:
-			draw_arc(eye + Vector2(0, 5), 9, PI + 0.2, TAU - 0.2, 18, Color("473b32"), 3.5, true)
+			draw_arc(eye + Vector2(0, 5), 9, PI + 0.2, TAU - 0.2, 18, eye_color, 3.5, true)
 		else:
-			ellipse(eye, Vector2(7, 10 if is_held else 9), Color("423930"))
+			var radii = Vector2(7, 9)
+			if appearance.eyes == "sparkle": radii = Vector2(11, 13)
+			if appearance.eyes == "oval": radii = Vector2(8, 12)
+			if appearance.eyes == "gentle": radii = Vector2(10, 6)
+			if appearance.eyes == "cat_eye":
+				ellipse(eye, Vector2(12, 11), eye_color.lightened(0.48))
+				ellipse(eye, Vector2(4, 9), eye_color.darkened(0.35))
+			else: ellipse(eye, radii, eye_color)
 			ellipse(eye + Vector2(2, -3), Vector2(2.3, 3), Color("fffdf6"))
-		ellipse(Vector2(side * 52, -22), Vector2(15, 7), Color(0.9, 0.56, 0.49, 0.48))
-	# Nose and tiny smile.
-	ellipse(Vector2(0, -17), Vector2(8, 5.5), Color("ab7768"))
-	draw_line(Vector2(0, -13), Vector2(0, -6), ink, 2.1, true)
-	if is_held:
-		ellipse(Vector2(0, 2), Vector2(6, 7), Color("956652"))
+			if appearance.eyes == "sparkle": ellipse(eye + Vector2(-4, 4), Vector2(2, 2), Color("fffdf6"))
+		ellipse(Vector2(side * 52, -22), Vector2(15, 7), Color(pink, 0.48))
+	var nose = Color(appearance.nose_color)
+	match appearance.nose:
+		"heart":
+			draw_circle(Vector2(-4, -19), 5, nose)
+			draw_circle(Vector2(4, -19), 5, nose)
+			draw_colored_polygon(PackedVector2Array([Vector2(-9, -18), Vector2(9, -18), Vector2(0, -10)]), nose)
+		"triangle": _poly([Vector2(-9, -21), Vector2(9, -21), Vector2(0, -12)], nose, nose)
+		"snout":
+			ellipse(Vector2(0, -18), Vector2(13, 8), nose)
+			ellipse(Vector2(-3, -21), Vector2(4, 2), nose.lightened(0.25))
+		"tiny": ellipse(Vector2(0, -17), Vector2(4, 3), nose)
+		_: ellipse(Vector2(0, -17), Vector2(8, 5.5), nose)
+	draw_line(Vector2(0, -12), Vector2(0, -6), ink, 2.1, true)
+	if is_held: ellipse(Vector2(0, 2), Vector2(6, 7), ink)
+	elif appearance.mouth in ["grin", "tongue"]:
+		ellipse(Vector2(0, 2), Vector2(12, 9), ink)
+		if appearance.mouth == "tongue": ellipse(Vector2(2, 9), Vector2(7, 9), pink)
+		else: draw_line(Vector2(-7, -2), Vector2(7, -2), cream, 4, true)
+	elif appearance.mouth == "tiny": draw_line(Vector2(-4, 0), Vector2(4, 0), ink, 2, true)
 	else:
-		draw_arc(Vector2(-6, -7), 6, 0.0, PI, 18, ink, 2.2, true)
-		draw_arc(Vector2(6, -7), 6, 0.0, PI, 18, ink, 2.2, true)
-	for side in [-1, 1]:
-		for j in range(2):
-			draw_line(Vector2(side * 62, -7 + j * 9), Vector2(side * 89, -12 + j * 16), Color("a68663"), 1.5, true)
-	# Paws: dangling, tucked, washing, or holding the current snack.
+		draw_arc(Vector2(-6, -7), 6, 0, PI, 18, ink, 2.2, true)
+		draw_arc(Vector2(6, -7), 6, 0, PI, 18, ink, 2.2, true)
+		if appearance.mouth == "buck":
+			draw_rect(Rect2(-7, 1, 14, 10), Color("fffdf6"))
+			draw_line(Vector2(0, 2), Vector2(0, 11), ink, 1.4, true)
+	if species in ["hamster", "kitten", "bunny"]:
+		for side in [-1, 1]:
+			for j in range(2): draw_line(Vector2(side * 62, -7 + j * 9), Vector2(side * 89, -12 + j * 16), ink.lightened(0.25), 1.5, true)
 	for side in [-1, 1]:
 		var hand = Vector2(side * 70, 33)
-		if dance_pose == 1:
-			hand = Vector2(side*lerpf(16,58,(sin(dance_phase*TAU)+1)/2),9)
-		elif dance_pose == 2:
-			hand = Vector2(side*75,-22+(0 if calm else sin(dance_phase*TAU+side)*18))
-		elif dance_pose == 3:
-			hand = Vector2(side*86,-9)
-		elif is_held or is_falling:
-			hand += Vector2(paw_angle * 28, 15 + side * paw_angle * 8)
-		elif eating_time > 0:
-			hand = Vector2(side * 17, 9 + chew * 3)
-		elif groom_time > 0:
-			hand = Vector2(side * 35, -38 + sin(clock * 12) * 12)
-		elif happy:
-			hand = Vector2(side * 74, 15 + sin(clock * 10) * 3)
-		draw_line(Vector2(side * 70, 16), hand, fur, 22, true)
-		ellipse(hand, Vector2(14, 18), light_fur, ink, 2.0)
+		if dance_pose == 1: hand = Vector2(side * lerpf(16, 58, (sin(dance_phase * TAU) + 1) / 2), 9)
+		elif dance_pose == 2: hand = Vector2(side * 75, -22 + (0 if calm else sin(dance_phase * TAU + side) * 18))
+		elif dance_pose == 3: hand = Vector2(side * 86, -9)
+		elif is_held or is_falling: hand += Vector2(paw_angle * 28, 15 + side * paw_angle * 8)
+		elif eating_time > 0: hand = Vector2(side * 17, 9 + chew * 3)
+		elif groom_time > 0: hand = Vector2(side * 35, -38 + sin(clock * 12) * 12)
+		elif happy: hand = Vector2(side * 74, 15 + sin(clock * 10) * 3)
+		elif fetching: hand += Vector2(0, sin(clock * 14 + side * PI / 2) * 9)
+		var paw_color = patches if species == "panda" or appearance.pattern == "boots" else light_fur
+		draw_line(Vector2(side * 70, 16), hand, paw_color, 22, true)
+		ellipse(hand, Vector2(14, 18), paw_color, ink, 2)
 		ellipse(hand + Vector2(0, 5), Vector2(8, 6), pink)
 	if eating_time > 0:
 		var food_color = {"berry":Color("bc5871"), "seed":Color("b69658"), "carrot":Color("ec975a")}.get(food_kind, pink)
@@ -340,9 +436,9 @@ func _draw() -> void:
 		draw_line(Vector2(0, 0), Vector2(5, -6), Color("68835c"), 3, true)
 	draw_set_transform(Vector2.ZERO)
 	for f in floaties:
-		var p: Vector2 = f.p
+		var at: Vector2 = f.p
 		var col = Color("ce8090")
-		col.a = minf(1.0, f.life)
-		draw_circle(p + Vector2(-4, -2), 5, col)
-		draw_circle(p + Vector2(4, -2), 5, col)
-		draw_colored_polygon(PackedVector2Array([p+Vector2(-9, 0), p+Vector2(9, 0), p+Vector2(0, 10)]), col)
+		col.a = minf(1, f.life)
+		draw_circle(at + Vector2(-4, -2), 5, col)
+		draw_circle(at + Vector2(4, -2), 5, col)
+		draw_colored_polygon(PackedVector2Array([at + Vector2(-9, 0), at + Vector2(9, 0), at + Vector2(0, 10)]), col)

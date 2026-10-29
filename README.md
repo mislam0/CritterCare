@@ -1,11 +1,33 @@
 # CritterCare
 
-**Release v1.6.6 · Learn with your little friend**
+**Release v1.7.1 · Your latest branch + customizable pets**
 
 Open `project.godot` in Godot 4.7.2 and press F5, or upload the included
 `builds/CritterCare-itchio.zip` as an HTML game.
 
-## Update v1.6.6
+## Update v1.7.1
+
+The pet update is merged into your uploaded v1.6.6 branch. All ten Shop themes,
+60 purchase IDs and prices, room Decor Sets, care/reward balancing, teaching
+syntax colors, and browser text fixes are retained.
+
+- Choose **Hamster, Kitten, Bunny, Puppy, Fox, or Panda** before naming your
+  friend, or use **Style pet** in the room, Settings, or Shop. Pip is the default.
+- Customize eyes, nose, mouth, ears, markings, and six color areas with a live
+  preview. Species designs are remembered; changes stay drafts until applied.
+- **Saved looks** keeps three favorite pet designs with their owned accessories.
+  These are separate from the three full-story save slots.
+- **Ball Play** is a relaxed fetch toy. Tap the floor or press Space to throw;
+  a completed return earns 2 happiness. B opens the toy; C opens the creator.
+- The customized pet also appears in Picnic Catch, Logic Lab, and Snack Jam.
+  Existing version-9 stories remain loadable; new saves use version 10.
+
+![Pet creator](docs/pet-creator-preview.png)
+
+See [the pet guide](docs/PET_CREATOR.md) for controls and editing files, and
+[merge notes](docs/MERGE_NOTES.md) for the preserved branch changes.
+
+## Previous update v1.6.6
 
 Added syntax highlighting and fixed text for the web.
 
@@ -28,8 +50,8 @@ The teaching focus is variables, boolean logic, if-then-else conditionals, loops
 
 ## Play immediately
 
-1. **Extract the entire `CritterCare-v1.6.6` folder** from the ZIP. Do not run it inside the ZIP preview.
-2. Open **Godot 4.7.2**, choose **Import**, and select `CritterCare-v1.6.6/project.godot`.
+1. **Extract the entire `CritterCare` folder** from the ZIP. Do not run it inside the ZIP preview.
+2. Open **Godot 4.7.2**, choose **Import**, and select `CritterCare/project.godot`.
 3. Choose **Import & Edit**. Let Godot finish importing the bundled fonts and sounds, then press **F5** (Run Project).
 
 This is a standard GDScript project. You do not need .NET, additional downloads, an account, or an internet connection to play locally. The main scene is already configured. This release targets **Godot 4.7.2**, using the Compatibility renderer. Godot 3 is not supported.
@@ -40,7 +62,7 @@ On Windows, you can also drag `project.godot` into Godot's Project Manager. Open
 
 ## Confirm you opened the update
 
-The bottom-right footer should show **v1.6.6**, followed by your pet's name. If it does not, that is an older copy of the game. Extract this download into a fresh folder and import the `project.godot` from that folder rather than launching a previous Project Manager entry. New saves and Reset progress ask for a name, then start the guided tour. With an existing save, choose Settings → Replay tutorial to see it without losing progress.
+The bottom-right footer should show **v1.7.1**, followed by your pet's name. If it does not, that is an older copy of the game. Extract this download into a fresh folder and import the `project.godot` from that folder rather than launching a previous Project Manager entry. New saves and Reset progress ask for a name, then start the guided tour. With an existing save, choose Settings → Replay tutorial to see it without losing progress.
 
 The matching browser build is included as `builds/CritterCare-itchio.zip`. After future edits, use **Project → Tools → Export CritterCare for itch.io** to rebuild it. Generated browser files live in `builds/web/`; the older duplicate `critter_care_web_version/` export is not shipped.
 
@@ -58,7 +80,7 @@ See **[Snack Jam guide](docs/SNACK_JAM.md)** for controls, scoring, timing setti
 
 ## Easier-to-notice teaching terms
 
-Programming terms use **bold dark text on soft yellow** only when the pet is teaching: lesson bubbles, Knowledge quotes/explanations/code, guided lessons, educational hints, and answer explanations. Ordinary greetings, menus, game rules, quiz questions and choices, Logic Lab blocks, scores, and buttons stay plain.
+Programming terms use **category colors on the normal light teaching panels** only when the pet is teaching: lesson bubbles, Knowledge quotes/explanations/code, guided lessons, educational hints, and answer explanations. Ordinary greetings, menus, game rules, quiz questions and choices, Logic Lab blocks, scores, and buttons stay plain.
 
 This applies at every Game level. Dialogue and saved quotes remain plain strings; the UI decides whether a particular message is teaching. Long teaching speech is measured before pagination, and Knowledge and feedback remain scrollable. See [TEXT_HIGHLIGHTING.md](docs/TEXT_HIGHLIGHTING.md) for the explicit `UI.teach()` opt-in.
 
@@ -80,7 +102,7 @@ Open **Settings (···) → Save / Load** for three manual save slots. Choose *
 
 **Delete** empties only the selected slot after confirmation. It does not reset the current game. Reset progress starts the current game over, while saved slots remain available to restore or delete. Slots are local to this device/browser; native and Web saves are separate. See [SAVE_LOAD.md](docs/SAVE_LOAD.md).
 
-First play offers **Keep Pip** or **Use this name**. Names can contain up to 12 letters/numbers, spaces, apostrophes, and hyphens. **Settings → Rename pet** changes the name later. New dialogue and labels use it; previously captured Knowledge quotes keep their exact original wording.
+First play offers **Choose pet + look**, **Keep Pip**, or **Use this name**. Names can contain up to 12 letters/numbers, spaces, apostrophes, and hyphens. **Settings → Rename pet** changes the name later. New dialogue and labels use it; previously captured Knowledge quotes keep their exact original wording.
 
 ## A first-play tutorial
 
@@ -203,7 +225,7 @@ The browser build saves in that browser's storage for the game page. Browser and
 | `project.godot` | Resolution, renderer, icon, and startup scene |
 | `scenes/main.tscn` | Home scene: coordinator, room, Pip, and interface layer |
 | `scripts/main.gd` | Home UI, learning bubbles, feeding, mini games, quizzes, and rewards |
-| `scripts/hamster.gd` | Mouse input, spring motion, animation states, and Pip's procedural body artwork |
+| `scripts/hamster.gd` | Mouse input, spring motion, and all six customizable pet bodies |
 | `scripts/room.gd` | Layered PNG base room plus PNG decoration layers from the Shop catalog |
 | `scripts/ui.gd` | Shared UI styles, typography, and layout helpers |
 | `scripts/icon.gd` | PNG-backed UI and mini-game icon loader |
@@ -234,6 +256,10 @@ The browser build saves in that browser's storage for the game page. Browser and
 | `tests/verify_jam.gd` | Rhythm controls, rewards, save/reset, and full-song acceptance checks |
 | `docs/SNACK_JAM.md` | Rhythm game guide and editing locations |
 | `scripts/picnic.gd` | Picnic Catch movement, falling snacks, collisions, and round state |
+| `data/pet_looks.gd` | Species, features, palettes, and color validation |
+| `scripts/pet_creator.gd` | Live creator and three draft outfit presets |
+| `scripts/ball_play.gd` | Fetch toy movement and pause/return states |
+| `tests/verify_pets.gd` | Merged pet, preset, toy, and save compatibility checks |
 | `tests/verify.gd` | Repeatable integration checks |
 | `docs/WORKSHOP.md` | A short workshop flow and concept discovery guide |
 | `docs/VALIDATION.md` | Tested behaviors and practical limits |

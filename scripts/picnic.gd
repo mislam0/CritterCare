@@ -1,6 +1,5 @@
 extends Control
-## Optional arcade play: collect ten snacks at your own pace. No lives or countdown.
-## The coordinator owns permanent rewards; this node owns only the current round.
+
 
 signal changed
 signal caught(kind: String)
@@ -12,6 +11,7 @@ var game_level: String = "kindergarten"
 var last_outcome: int = 0
 const UI = preload("res://scripts/ui.gd")
 const Icon = preload("res://scripts/icon.gd")
+var pet_look: Dictionary = {}
 const Hamster = preload("res://scripts/hamster.gd")
 const PICNIC_BACKGROUND = preload("res://assets/minigames/picnic/background.png")
 const BASKET_TEXTURE = preload("res://assets/minigames/picnic/basket.png")
@@ -59,6 +59,7 @@ func _ready() -> void:
 	background.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(background)
 	actor = Hamster.new()
+	actor.set_appearance(pet_look)
 	actor.blocked = true
 	actor.calm = gentle
 	actor.cosmetic_items = cosmetics

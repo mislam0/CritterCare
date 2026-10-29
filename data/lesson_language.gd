@@ -1,6 +1,7 @@
 extends RefCounted
 ## Plain teaching text. Keep each beginner bubble in short, newline-separated thoughts.
 const KIDS = {
+	"ball_play": {"title": "Throw a ball!", "trigger": "Play with the ball, then put it away", "bubble": "IF you tap a spot, THEN I chase the ball!\nYour tap tells the game what to do. That is input.\nMy chase is what happens. That is output!", "body": "Tap a spot. Off goes the ball!\nYour tap is input. It tells the game what to do.\n\nI chase the ball. That is output. You can see it happen!\nWait for me to bring it back. Then throw again!", "code": "IF you throw\nTHEN I chase!", "question": "What tells the game to throw?", "choices": ["Your tap", "My paws", "My ears"], "answer": 0, "why": "Your tap tells the game what to do. We call that input."},
 	"idle": {
 		"title": "Two little choices",
 		"bubble": "IF means check. THEN means do!\nIF you hold me, THEN I dangle.\nELSE I rest. ELSE means otherwise!",
@@ -445,6 +446,7 @@ const KIDS = {
 	}
 }
 const COLLEGE = {
+	"ball_play": "A state is a named description of what the game is doing. Ball Play moves through ready, flying, chasing, returning, and celebration. The ready check is a boolean: true or false. Only a true ready check accepts another throw, so rapid clicks cannot create overlapping returns. This is a small state machine: a set of states and rules for moving between them.",
 	"idle": "State means the information the game remembers now. A branch is one possible path through a condition. Only the matching path runs.",
 	"events": "An event handler is a function that reacts to an event. The head-click handler updates happiness, then starts the visible reaction.",
 	"variables": "Assignment stores a value. A rewarded pet adds 4 to happiness only when the 30-second cooldown has finished, then caps the result at 100.",

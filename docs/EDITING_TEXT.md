@@ -39,3 +39,13 @@ Use `{pet_name}` for the chosen name and `{PET_NAME}` for uppercase headings ins
 See [SAVE_LOAD.md](SAVE_LOAD.md) for save-slot behavior. Run `tests/verify_identity.gd` and `tests/verify_save_slots.gd` with `--test-mode` after changing names or persistence.
 
 Name moderation wording is in `scripts/main.gd` → `_refresh_name_preview()` and `_refresh_slot_name()`. Edit the actual policy in `data/moderation/policy.json` and regenerate it as described in [NAME_FILTER.md](NAME_FILTER.md). Do not use the name filter on teaching content.
+
+## Pet creator and Ball Play
+
+- `data/pet_looks.gd`: pet names, feature labels, palettes, and species defaults.
+- `scripts/pet_creator.gd`: creator buttons, saved-look notices, and labels.
+- `scripts/main.gd`: first-play choice, home buttons, Ball Play status messages.
+- `data/lessons.gd` and `data/lesson_language.gd`: `ball_play` lessons and quiz.
+
+Keep all saved text plain. Teaching-only colors remain in the shared renderer;
+normal creator/Shop controls stay plain. Rebuild the Web export after editing.

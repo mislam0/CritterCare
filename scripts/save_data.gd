@@ -1,8 +1,12 @@
 extends RefCounted
-## Current local progress and the shared snapshot format for manual save slots.
-## Never decreases needs while closed. No accounts or networking.
+
 
 const SAVE_PATH = "user://crittercare_save.json"
+const Looks = preload("res://data/pet_looks.gd")
+var pet_look: Dictionary = Looks.defaults()
+var pet_designs: Dictionary = {}
+var saved_looks: Array = []
+var ball_returns: int = 0
 const Names = preload("res://scripts/pet_name.gd")
 var pet_name: String = Names.DEFAULT
 var name_chosen: bool = false
@@ -61,6 +65,10 @@ func apply_snapshot(parsed: Variant) -> bool:
 	var previous_name = str(parsed.get("pet_name",Names.DEFAULT))
 	pet_name = Names.clean(previous_name)
 	name_chosen = bool(parsed.get("name_chosen",false)) and Names.Filter.accepts(previous_name)
+	pet_look = Looks.clean(parsed.get("pet_look", {}))
+	pet_designs = Looks.designs(parsed.get("pet_designs", {}))
+	pet_designs[pet_look.species] = pet_look.duplicate(true)
+	ball_returns = clampi(int(parsed.get("ball_returns", 0)), 0, 999999)
 	jam_mode = Jam.normalize_mode(str(parsed.get("jam_mode","chill")))
 	jam_offset_ms = clampi(int(parsed.get("jam_offset_ms",0)),-200,200)
 	jam_rounds = maxi(0,int(parsed.get("jam_rounds",0)))
@@ -101,7 +109,7 @@ func apply_snapshot(parsed: Variant) -> bool:
 	games_won = maxi(0, int(parsed.get("games_won", 0)))
 	picnic_best = clampi(int(parsed.get("picnic_best", 0)), 0, 10)
 	picnic_rounds = maxi(0, int(parsed.get("picnic_rounds", 0)))
-	# Existing pre-tutorial saves belong to returning players. Replay is in Settings.
+
 	tutorial_completed = bool(parsed.get("tutorial_completed", true))
 	sound = bool(parsed.get("sound", true))
 	calm = bool(parsed.get("calm", false))
@@ -131,6 +139,7 @@ func apply_snapshot(parsed: Variant) -> bool:
 				for mode in Curriculum.MODES:
 					if wins.has(mode):
 						stage_badges[str(stage)].append(mode)
+	saved_looks = clean_looks(parsed.get("saved_looks", []))
 	practice_stage = clampi(int(parsed.get("practice_stage", 0)), 0, unlocked_stage())
 	if parsed.get("scores") is Array:
 		for entry in parsed.scores:
@@ -141,7 +150,7 @@ func apply_snapshot(parsed: Variant) -> bool:
 	return true
 
 func snapshot() -> Dictionary:
-	var payload = {"version":9, "pet_name":pet_name, "name_chosen":name_chosen, "jam_mode":jam_mode, "jam_offset_ms":jam_offset_ms, "jam_best":jam_best, "jam_rounds":jam_rounds, "lab_completed":lab_completed, "discovered":discovered, "pip_quotes":pip_quotes, "inventory":inventory, "fullness":fullness, "happiness":happiness, "pet_count":pet_count, "feed_count":feed_count, "games_won":games_won, "picnic_best":picnic_best, "picnic_rounds":picnic_rounds, "tutorial_completed":tutorial_completed, "sound":sound, "calm":calm, "game_level":game_level, "scores":scores, "coins":coins, "owned":owned, "equipped":equipped, "stage_badges":stage_badges, "practice_stage":practice_stage}
+	var payload = {"version": 10, "pet_look": Looks.clean(pet_look), "pet_designs": Looks.designs(pet_designs), "saved_looks": clean_looks(saved_looks), "ball_returns": ball_returns, "pet_name": pet_name, "name_chosen": name_chosen, "jam_mode": jam_mode, "jam_offset_ms": jam_offset_ms, "jam_best": jam_best, "jam_rounds": jam_rounds, "lab_completed": lab_completed, "discovered": discovered, "pip_quotes": pip_quotes, "inventory": inventory, "fullness": fullness, "happiness": happiness, "pet_count": pet_count, "feed_count": feed_count, "games_won": games_won, "picnic_best": picnic_best, "picnic_rounds": picnic_rounds, "tutorial_completed": tutorial_completed, "sound": sound, "calm": calm, "game_level": game_level, "scores": scores, "coins": coins, "owned": owned, "equipped": equipped, "stage_badges": stage_badges, "practice_stage": practice_stage}
 	if not Names.Filter.accepts(pet_name):
 		payload.pet_name = Names.DEFAULT
 		payload.name_chosen = false
@@ -169,6 +178,10 @@ static func write_json(path: String, payload: Dictionary) -> Error:
 func reset_progress(keep_preferences: bool = true) -> void:
 	pet_name = Names.DEFAULT
 	name_chosen = false
+	pet_look = Looks.defaults()
+	pet_designs = {}
+	saved_looks = []
+	ball_returns = 0
 	lab_completed = []
 	jam_best = {}
 	jam_rounds = 0
@@ -273,17 +286,6 @@ func cosmetics(category: String) -> Dictionary:
 func award_coins(amount: int) -> void:
 	coins = clampi(coins + maxi(0, amount), 0, 999999)
 
-func reward_petting(now_msec: int) -> bool:
-	# Keep the first pet immediately rewarding, and let subsequent successful pets
-	# animate normally without restoring happiness until 30 real seconds pass.
-	if last_pet_happiness_msec >= 0 and now_msec - last_pet_happiness_msec < PET_HAPPINESS_COOLDOWN_MSEC:
-		return false
-	if happiness >= 100.0:
-		return false
-	happiness = minf(100.0, happiness + PET_HAPPINESS_GAIN)
-	last_pet_happiness_msec = now_msec
-	return true
-
 func can_feed(kind: String) -> bool:
 	return fullness < 95.0 and int(inventory.get(kind, 0)) > 0
 
@@ -308,3 +310,42 @@ func reward(mode: String, points: int, berries: int, seeds: int, carrots: int = 
 	scores.sort_custom(func(a, b): return a.score > b.score)
 	scores = scores.slice(0, 3)
 	happiness = minf(100.0, happiness + GAME_WIN_HAPPINESS_GAIN)
+
+func clean_pet_outfit(value: Variant) -> Dictionary:
+	var result = {}
+	if value is Dictionary:
+		for slot in ["head", "face", "neck"]:
+			var id = str(value.get(slot, ""))
+			if owned.has(id) and Shop.ITEMS.has(id) and Shop.slot_key(id) == "pet:" + slot:
+				result[slot] = id
+	return result
+
+func clean_looks(value: Variant) -> Array:
+	var result = []
+	for i in range(3):
+		var entry = value[i] if value is Array and i < value.size() else {}
+		if entry is Dictionary and entry.get("appearance") is Dictionary:
+			result.append({"appearance": Looks.clean(entry.appearance), "outfit": clean_pet_outfit(entry.get("outfit", {}))})
+		else: result.append({})
+	return result
+
+func apply_pet_style(appearance: Dictionary, designs: Dictionary, looks: Array, outfit: Dictionary) -> void:
+	pet_look = Looks.clean(appearance)
+	pet_designs = Looks.designs(designs)
+	pet_designs[pet_look.species] = pet_look.duplicate(true)
+	saved_looks = clean_looks(looks)
+	for slot in ["pet:head", "pet:face", "pet:neck"]: equipped.erase(slot)
+	var safe_outfit = clean_pet_outfit(outfit)
+	for slot in safe_outfit: equipped["pet:" + slot] = safe_outfit[slot]
+
+func reward_petting(now_msec: int) -> bool:
+	# Keep the first pet immediately rewarding, and let subsequent successful pets
+	# animate normally without restoring happiness until 30 real seconds pass.
+	if last_pet_happiness_msec >= 0 and now_msec - last_pet_happiness_msec < PET_HAPPINESS_COOLDOWN_MSEC:
+		return false
+	if happiness >= 100.0:
+		return false
+	happiness = minf(100.0, happiness + PET_HAPPINESS_GAIN)
+	last_pet_happiness_msec = now_msec
+	return true
+

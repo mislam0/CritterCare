@@ -32,10 +32,11 @@ func read_slot(index: int) -> Dictionary:
 	if not data is Dictionary or data.get("slot_version") != 1 or not data.get("progress") is Dictionary:
 		return {"state":"damaged"}
 	var payload: Dictionary = data.progress
-	# Refuse incompatible or malformed slots before touching the active game.
-	if payload.get("version") != 9: return {"state":"damaged"}
+
+	if payload.get("version") != 9 and payload.get("version") != 10: return {"state": "damaged"}
 	var defaults = SaveData.new().snapshot()
 	for key in defaults:
+		if payload.version == 9 and key in ["pet_look", "pet_designs", "saved_looks", "ball_returns"]: continue
 		if not payload.has(key): return {"state":"damaged"}
 		var value = payload[key]
 		if defaults[key] is int or defaults[key] is float:
