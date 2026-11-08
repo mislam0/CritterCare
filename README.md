@@ -1,11 +1,18 @@
 # CritterCare
 
-**Release v1.7.1 · Your latest branch + customizable pets**
+**Release v1.7.2 · Style your pet from the name screen**
 
 Open `project.godot` in Godot 4.7.2 and press F5, or upload the included
 `builds/CritterCare-itchio.zip` as an HTML game.
 
-## Update v1.7.1
+## Update v1.7.2
+
+The opening name-choice screen now has a green **Style pet** button next to
+the pet preview. Choose a species, face, and colors, then return to naming.
+Applying or cancelling keeps any name you already typed. The same button is
+available after Reset progress and in Settings → Rename pet.
+
+## Previous update v1.7.1
 
 The pet update is merged into your uploaded v1.6.6 branch. All ten Shop themes,
 60 purchase IDs and prices, room Decor Sets, care/reward balancing, teaching
@@ -62,7 +69,7 @@ On Windows, you can also drag `project.godot` into Godot's Project Manager. Open
 
 ## Confirm you opened the update
 
-The bottom-right footer should show **v1.7.1**, followed by your pet's name. If it does not, that is an older copy of the game. Extract this download into a fresh folder and import the `project.godot` from that folder rather than launching a previous Project Manager entry. New saves and Reset progress ask for a name, then start the guided tour. With an existing save, choose Settings → Replay tutorial to see it without losing progress.
+The bottom-right footer should show **v1.7.2**, followed by your pet's name. If it does not, that is an older copy of the game. Extract this download into a fresh folder and import the `project.godot` from that folder rather than launching a previous Project Manager entry. New saves and Reset progress ask for a name, then start the guided tour. With an existing save, choose Settings → Replay tutorial to see it without losing progress.
 
 The matching browser build is included as `builds/CritterCare-itchio.zip`. After future edits, use **Project → Tools → Export CritterCare for itch.io** to rebuild it. Generated browser files live in `builds/web/`; the older duplicate `critter_care_web_version/` export is not shipped.
 
@@ -102,7 +109,7 @@ Open **Settings (···) → Save / Load** for three manual save slots. Choose *
 
 **Delete** empties only the selected slot after confirmation. It does not reset the current game. Reset progress starts the current game over, while saved slots remain available to restore or delete. Slots are local to this device/browser; native and Web saves are separate. See [SAVE_LOAD.md](docs/SAVE_LOAD.md).
 
-First play offers **Choose pet + look**, **Keep Pip**, or **Use this name**. Names can contain up to 12 letters/numbers, spaces, apostrophes, and hyphens. **Settings → Rename pet** changes the name later. New dialogue and labels use it; previously captured Knowledge quotes keep their exact original wording.
+First play offers **Style pet**, **Keep Pip**, or **Use this name**. Names can contain up to 12 letters/numbers, spaces, apostrophes, and hyphens. **Settings → Rename pet** changes the name later. New dialogue and labels use it; previously captured Knowledge quotes keep their exact original wording.
 
 ## A first-play tutorial
 

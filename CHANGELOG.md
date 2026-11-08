@@ -1,5 +1,11 @@
 # Changelog
 
+## Update v1.7.2
+
+- Made Style pet a clearly labeled green button on the opening name-choice screen, beside the pet preview.
+- Kept name drafts when applying or cancelling customization; the button is also available after Reset progress and while renaming.
+- Rebuilt the matching browser export.
+
 ## Update v1.7.1
 
 - Merged six customizable pets, first-play pet selection, remembered species designs, three saved looks, and Ball Play into the uploaded v1.6.6 branch.

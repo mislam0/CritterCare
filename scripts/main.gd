@@ -1727,7 +1727,9 @@ func open_name_prompt(first_choice: bool = true) -> void:
 	portrait.position = Vector2(511, 283)
 	portrait.scale = Vector2.ONE * 0.25
 	overlay.add_child(portrait)
-	UI.button(overlay, Looks.title(progress.pet_look) + " · Choose pet + look", Rect2(552, 250, 384, 48), func(): open_pet_creator("name_pet")).name = "ChoosePet"
+	var style_pet = UI.button(overlay, "Style pet", Rect2(552, 250, 384, 48), func(): open_pet_creator("name_pet"), true)
+	style_pet.name = "ChoosePet"
+	style_pet.tooltip_text = "Choose a pet and change its face, ears, fur pattern, and colors."
 	UI.label(overlay,"What should we call him?",Rect2(310,316,660,45),30,UI.INK,true)
 	name_input = LineEdit.new()
 	name_input.name = "PetNameInput"
@@ -1750,7 +1752,7 @@ func open_name_prompt(first_choice: bool = true) -> void:
 	UI.button(overlay,"Keep Pip",Rect2(316,548,304,48),func(): _complete_pet_name("Pip")).name = "KeepPip"
 	UI.button(overlay,"Use this name",Rect2(659,548,304,48),func(): _complete_pet_name(name_input.text),true).name = "UsePetName"
 	_refresh_name_preview(name_input.text)
-	UI.label(overlay, "Change your pet, look, or name anytime in Settings.", Rect2(314, 637, 652, 40), 19, UI.GREEN, true)
+	UI.label(overlay, "Style pet: pick a pet, try a face, and add colors!", Rect2(314, 637, 652, 40), 19, UI.GREEN, true)
 	name_input.grab_focus()
 	name_input.select_all()
 

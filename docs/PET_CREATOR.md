@@ -1,9 +1,9 @@
-# Pets, saved looks, and Ball Play — v1.7.1
+# Pets, saved looks, and Ball Play — v1.7.2
 
 ## Choose your friend
 
 Pip the hamster is still the default. On the first name screen, choose
-**Hamster · Choose pet + look** to open the creator before starting the tutorial.
+the green **Style pet** button next to the pet preview to open the creator before starting the tutorial.
 Choose **Hamster, Kitten, Bunny, Puppy, Fox, or Panda**. Keep the name Pip or use
 the existing name field. The friendly-name filter still applies.
 

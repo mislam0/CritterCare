@@ -1,9 +1,9 @@
-CritterCare — v1.7.1 merged branch
+CritterCare — v1.7.2
 
-Six customizable pets, three saved looks, and Ball Play now run on your latest v1.6.6 branch.
-The ten Shop themes, new room sets, balanced rewards, and browser/text fixes are retained.
+The opening name-choice screen has a green Style pet button beside the pet preview.
+Customize your pet, then return to choosing a name without losing what you typed.
+The button also appears after Reset progress and when renaming in Settings.
 
 Open project.godot in Godot 4.7.2 and press F5.
 For itch.io, upload builds/CritterCare-itchio.zip as an HTML game.
-The footer should show v1.7.1.
-See docs/PET_CREATOR.md and docs/MERGE_NOTES.md.
+The footer should show v1.7.2.
