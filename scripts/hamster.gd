@@ -75,7 +75,11 @@ func set_cosmetics(items: Dictionary) -> void:
 		var source_width := maxf(1.0, float(sprite.texture.get_width()))
 		sprite.scale = Vector2.ONE * (float(layout.width) / source_width)
 		# Preserve hard-edged user-authored pixel art on the Pixel Knight set.
-		sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST if item.theme == "pixel_knight" else CanvasItem.TEXTURE_FILTER_LINEAR
+		sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST if item.theme in ["pixel_knight", "golden_knight"] else CanvasItem.TEXTURE_FILTER_LINEAR
+		if item.theme == "golden_knight":
+			var material := ShaderMaterial.new()
+			material.shader = load("res://assets/shop/golden_knight.gdshader")
+			sprite.material = material
 		costumes.add_child(sprite)
 	_update_costume_pose()
 

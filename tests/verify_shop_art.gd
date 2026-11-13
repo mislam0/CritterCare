@@ -66,7 +66,7 @@ func run() -> void:
 		check(game.pip.costumes.get_child_count() == 3, theme + ": three pet pieces")
 		check(not room.furniture.visible, theme + ": complete set replaces base silhouettes")
 		for sprite in game.pip.costumes.get_children():
-			check(sprite.texture.get_size() == Vector2(640, 640), theme + ": pet canvas")
+			check(sprite.texture.get_size() == (Vector2(350, 350) if theme in ["sweetheart", "lucky_clover", "midnight_celebration", "spring_celebration"] else Vector2(640, 640)), theme + ": pet canvas")
 			if theme == "pixel_knight":
 				check(sprite.texture_filter == CanvasItem.TEXTURE_FILTER_NEAREST, "Pixel pet filtering")
 		for piece in ["main_wall", "left_shelf", "side_hanging", "window", "right_plant", "food_bowl", "floor_cushion"]:

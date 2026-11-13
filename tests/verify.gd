@@ -350,14 +350,15 @@ func verify_additions() -> void:
 	check(not game.progress.buy("leaf_hat") and game.progress.coins == 0, "Insufficient coins cannot buy an item or create debt")
 	check(not game.progress.toggle_equip("scholar_cap"), "Unowned items cannot be equipped")
 	# Ten complete sets must scroll and equip through the same Shop code paths.
-	check(Shop.THEME_ORDER.size() == 10 and Shop.ITEMS.size() == 60, "Shop provides ten complete six-item theme sets")
+	check(Shop.THEME_ORDER.size() == 15 and Shop.ITEMS.size() == 90, "Shop provides fifteen complete six-item theme sets")
 	for theme_id in Shop.THEME_ORDER:
 		check(Shop.theme_items(theme_id, "pet").size() == 3 and Shop.theme_items(theme_id, "room").size() == 3, "Each Shop theme has three pet and three room items: " + theme_id)
 	for new_id in ["thanksgiving_turkey_hat", "thanksgiving_cornucopia", "bear_spirit_hood", "bear_spirit_rug"]:
 		check(Shop.ITEMS.has(new_id), "New themed item is registered: " + new_id)
 	for id in Shop.ITEMS:
 		var texture = Shop.ITEMS[id].texture
-		check(texture is Texture2D and texture.resource_path.ends_with(".png"), "Shop item uses a PNG asset: " + str(id))
+		var png_backed: bool = texture is Texture2D and (texture.resource_path.ends_with(".png") or (texture is AtlasTexture and texture.atlas != null and texture.atlas.resource_path.ends_with(".png")))
+		check(png_backed, "Shop item uses a PNG asset: " + str(id))
 	# The OR, NOT, ELIF, freshness, and boundary cases have independently specified outcomes.
 	check(Curriculum.sort_answer(1, 0, "button") == 0, "OR accepts a red non-berry")
 	check(Curriculum.sort_answer(1, 0, "blueberry") == 0, "OR accepts a non-red berry")

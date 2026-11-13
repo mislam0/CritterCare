@@ -339,7 +339,15 @@ func _input(event: InputEvent) -> void:
 			else: ball_play.throw_to(Vector2(900 if ball_play.home_x < 650 else 360, 550))
 			get_viewport().set_input_as_handled()
 			return
-		if modal_name not in ["name_pet", "save_slot"]: _track_secret_sequence(event.keycode)
+		# Only track the code on the home screen, away from text fields and games.
+		if modal_name.is_empty() and not _ball_active() and not _tutorial_active():
+			var before := secret_sequence_index
+			_track_secret_sequence(event.keycode)
+			# The final B and A belong to the code, not the Ball Play shortcut.
+			if before >= 8 and event.keycode in [KEY_B, KEY_A]:
+				get_viewport().set_input_as_handled()
+		else:
+			secret_sequence_index = 0
 
 func _track_secret_sequence(keycode: int) -> void:
 	if keycode == int(SECRET_SEQUENCE[secret_sequence_index]):
@@ -1644,7 +1652,12 @@ func _add_shop_card(grid: GridContainer, id: String) -> void:
 	var preview = TextureRect.new()
 	preview.name = "Preview"
 	preview.texture = _shop_preview(item.texture)
-	preview.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST if item.theme == "pixel_knight" else CanvasItem.TEXTURE_FILTER_LINEAR
+	preview.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST if item.theme in ["pixel_knight", "golden_knight"] else CanvasItem.TEXTURE_FILTER_LINEAR
+	if item.theme == "golden_knight":
+		var material := ShaderMaterial.new()
+		material.shader = load("res://assets/shop/golden_knight.gdshader")
+		material.set_shader_parameter("animate_shine", item.category == "pet")
+		preview.material = material
 	preview.custom_minimum_size = Vector2(78,78)
 	preview.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	preview.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
@@ -2016,6 +2029,9 @@ func _drain_needs(delta: float) -> void:
 	progress.happiness = maxf(0.0, progress.happiness - delta * (HAPPINESS_DRAIN_PER_MINUTE / 60.0))
 
 func _shop_preview(texture: Texture2D) -> Texture2D:
+	# Holiday items are already isolated by their atlas region.
+	if texture is AtlasTexture:
+		return texture
 	var key := texture.resource_path
 	if shop_preview_cache.has(key):
 		return shop_preview_cache[key]

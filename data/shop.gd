@@ -34,15 +34,22 @@ const DECOR_SET_LAYOUT = {
 static func decor_set_piece_path(theme: String, piece: String) -> String:
 	if not THEMES.has(theme) or piece == "main_wall" or not DECOR_SET_LAYOUT.has(piece):
 		return ""
-	return "res://assets/shop/room/decor_sets/%s/%s.png" % [theme, piece]
+	if theme in ["sweetheart", "lucky_clover", "midnight_celebration", "spring_celebration"]:
+		return "res://assets/shop/holiday/%s/%s.tres" % [theme, piece]
+	return "res://assets/shop/room/decor_sets/%s/%s.png" % ["pixel_knight" if theme == "golden_knight" else theme, piece]
 
-const THEME_ORDER = ["nature", "study", "smart_casual", "bear_spirit", "easter", "halloween", "thanksgiving", "christmas", "brainrot", "pixel_knight"]
+const THEME_ORDER = ["nature", "study", "smart_casual", "bear_spirit", "easter", "halloween", "thanksgiving", "christmas", "brainrot", "pixel_knight", "golden_knight", "sweetheart", "lucky_clover", "midnight_celebration", "spring_celebration"]
 const THEMES = {
+	"sweetheart":{"name":"Sweetheart", "tagline":"Hearts and cozy pink details."},
+	"lucky_clover":{"name":"Lucky Clover", "tagline":"A little green and gold luck."},
+	"midnight_celebration":{"name":"Midnight Celebration", "tagline":"Stars and confetti for the new year."},
+	"spring_celebration":{"name":"Spring Celebration", "tagline":"Lanterns and blossoms for Lunar New Year."},
 	"nature":{"name":"Nature", "tagline":"Soft greens and little garden details."},
 	"study":{"name":"Study", "tagline":"A tidy look for learning with {pet_name}."},
 	"smart_casual":{"name":"Smart Casual", "tagline":"Clean, cool, and a little dressed up."},
 	"halloween":{"name":"Halloween", "tagline":"Pumpkins, bats, and cozy spooky colors."},
 	"christmas":{"name":"Christmas", "tagline":"Warm holiday colors and winter cheer."},
+	"golden_knight":{"name":"Golden Pixel Knight", "tagline":"A gleaming golden knight set."},
 	"pixel_knight":{"name":"Pixel Knight", "tagline":"A tiny retro adventure set."},
 	"easter":{"name":"Easter", "tagline":"Cracked eggs and springtime colors."},
 	"brainrot":{"name":"Brainrot", "tagline":"Propellers, 67, and Tung Tung silliness."},
@@ -51,6 +58,30 @@ const THEMES = {
 }
 
 const ITEMS = {
+	"sweetheart_head":{"name":"Heart Headband", "theme":"sweetheart", "category":"pet", "slot":"head", "price":225, "description":"Heart Headband for your pet.", "texture":preload("res://assets/shop/holiday/sweetheart/head.tres")},
+	"sweetheart_face":{"name":"Heart Glasses", "theme":"sweetheart", "category":"pet", "slot":"face", "price":235, "description":"Heart Glasses for your pet.", "texture":preload("res://assets/shop/holiday/sweetheart/face.tres")},
+	"sweetheart_neck":{"name":"Sweetheart Bow", "theme":"sweetheart", "category":"pet", "slot":"neck", "price":245, "description":"Sweetheart Bow for your pet.", "texture":preload("res://assets/shop/holiday/sweetheart/neck.tres")},
+	"sweetheart_wall":{"name":"Sweetheart Pattern", "theme":"sweetheart", "category":"room", "slot":"wall", "price":245, "description":"Sweetheart Pattern for your room.", "texture":preload("res://assets/shop/holiday/sweetheart/wallpaper.png")},
+	"sweetheart_decor":{"name":"Valentine Decor Set", "theme":"sweetheart", "category":"room", "slot":"decor", "price":260, "description":"Valentine Decor Set for your room.", "texture":preload("res://assets/shop/holiday/sweetheart/decor.tres")},
+	"sweetheart_rug":{"name":"Heart Rug", "theme":"sweetheart", "category":"room", "slot":"rug", "price":255, "description":"Heart Rug for your room.", "texture":preload("res://assets/shop/holiday/sweetheart/rug.tres")},
+	"lucky_clover_head":{"name":"Clover Hat", "theme":"lucky_clover", "category":"pet", "slot":"head", "price":225, "description":"Clover Hat for your pet.", "texture":preload("res://assets/shop/holiday/lucky_clover/head.tres")},
+	"lucky_clover_face":{"name":"Clover Glasses", "theme":"lucky_clover", "category":"pet", "slot":"face", "price":235, "description":"Clover Glasses for your pet.", "texture":preload("res://assets/shop/holiday/lucky_clover/face.tres")},
+	"lucky_clover_neck":{"name":"Lucky Bow Tie", "theme":"lucky_clover", "category":"pet", "slot":"neck", "price":245, "description":"Lucky Bow Tie for your pet.", "texture":preload("res://assets/shop/holiday/lucky_clover/neck.tres")},
+	"lucky_clover_wall":{"name":"Clover Pattern", "theme":"lucky_clover", "category":"room", "slot":"wall", "price":245, "description":"Clover Pattern for your room.", "texture":preload("res://assets/shop/holiday/lucky_clover/wallpaper.png")},
+	"lucky_clover_decor":{"name":"Lucky Clover Decor Set", "theme":"lucky_clover", "category":"room", "slot":"decor", "price":260, "description":"Lucky Clover Decor Set for your room.", "texture":preload("res://assets/shop/holiday/lucky_clover/decor.tres")},
+	"lucky_clover_rug":{"name":"Clover Rug", "theme":"lucky_clover", "category":"room", "slot":"rug", "price":255, "description":"Clover Rug for your room.", "texture":preload("res://assets/shop/holiday/lucky_clover/rug.tres")},
+	"midnight_celebration_head":{"name":"Celebration Hat", "theme":"midnight_celebration", "category":"pet", "slot":"head", "price":225, "description":"Celebration Hat for your pet.", "texture":preload("res://assets/shop/holiday/midnight_celebration/head.tres")},
+	"midnight_celebration_face":{"name":"Star Glasses", "theme":"midnight_celebration", "category":"pet", "slot":"face", "price":235, "description":"Star Glasses for your pet.", "texture":preload("res://assets/shop/holiday/midnight_celebration/face.tres")},
+	"midnight_celebration_neck":{"name":"Midnight Bow Tie", "theme":"midnight_celebration", "category":"pet", "slot":"neck", "price":245, "description":"Midnight Bow Tie for your pet.", "texture":preload("res://assets/shop/holiday/midnight_celebration/neck.tres")},
+	"midnight_celebration_wall":{"name":"Midnight Confetti", "theme":"midnight_celebration", "category":"room", "slot":"wall", "price":245, "description":"Midnight Confetti for your room.", "texture":preload("res://assets/shop/holiday/midnight_celebration/wallpaper.png")},
+	"midnight_celebration_decor":{"name":"Countdown Decor Set", "theme":"midnight_celebration", "category":"room", "slot":"decor", "price":260, "description":"Countdown Decor Set for your room.", "texture":preload("res://assets/shop/holiday/midnight_celebration/decor.tres")},
+	"midnight_celebration_rug":{"name":"Celebration Rug", "theme":"midnight_celebration", "category":"room", "slot":"rug", "price":255, "description":"Celebration Rug for your room.", "texture":preload("res://assets/shop/holiday/midnight_celebration/rug.tres")},
+	"spring_celebration_head":{"name":"Blossom Headpiece", "theme":"spring_celebration", "category":"pet", "slot":"head", "price":225, "description":"Blossom Headpiece for your pet.", "texture":preload("res://assets/shop/holiday/spring_celebration/head.tres")},
+	"spring_celebration_face":{"name":"Gold-Rimmed Glasses", "theme":"spring_celebration", "category":"pet", "slot":"face", "price":235, "description":"Gold-Rimmed Glasses for your pet.", "texture":preload("res://assets/shop/holiday/spring_celebration/face.tres")},
+	"spring_celebration_neck":{"name":"Celebration Bow", "theme":"spring_celebration", "category":"pet", "slot":"neck", "price":245, "description":"Celebration Bow for your pet.", "texture":preload("res://assets/shop/holiday/spring_celebration/neck.tres")},
+	"spring_celebration_wall":{"name":"Spring Celebration Pattern", "theme":"spring_celebration", "category":"room", "slot":"wall", "price":245, "description":"Spring Celebration Pattern for your room.", "texture":preload("res://assets/shop/holiday/spring_celebration/wallpaper.png")},
+	"spring_celebration_decor":{"name":"Lantern Decor Set", "theme":"spring_celebration", "category":"room", "slot":"decor", "price":260, "description":"Lantern Decor Set for your room.", "texture":preload("res://assets/shop/holiday/spring_celebration/decor.tres")},
+	"spring_celebration_rug":{"name":"Blossom Rug", "theme":"spring_celebration", "category":"room", "slot":"rug", "price":255, "description":"Blossom Rug for your room.", "texture":preload("res://assets/shop/holiday/spring_celebration/rug.tres")},
 	# Nature
 	"leaf_hat":{"name":"Leaf Hat", "theme":"nature", "category":"pet", "slot":"head", "price":25, "description":"Overlapping green leaves make a little woodland hat.", "texture":preload("res://assets/shop/pet/head/leaf_hat.png")},
 	"flower_clip":{"name":"Leaf Glasses", "theme":"nature", "category":"pet", "slot":"face", "price":35, "description":"Green leaf spectacles for a nature-loving {pet_name}.", "texture":preload("res://assets/shop/pet/face/leaf_glasses.png")},
@@ -98,6 +129,13 @@ const ITEMS = {
 	"pixel_brick_wallpaper":{"name":"Pixel Brick Wallpaper", "theme":"pixel_knight", "category":"room", "slot":"wall", "price":405, "description":"Gray castle stones with little blue and gold banners.", "texture":preload("res://assets/shop/room/wall/pixel_brick_wallpaper.png")},
 	"pixel_castle_banner":{"name":"Pixel Knight Decor Set", "theme":"pixel_knight", "category":"room", "slot":"decor", "price":420, "description":"A heraldic banner, castle window, shield shelf, star shield plaque, pixel plant, crest bowl, and cushion.", "texture":preload("res://assets/shop/room/decor/pixel_castle_banner.png")},
 	"pixel_tile_rug":{"name":"Pixel Tile Rug", "theme":"pixel_knight", "category":"room", "slot":"rug", "price":415, "description":"A blue and cream pixel rug with a gold shield crest.", "texture":preload("res://assets/shop/room/rug/pixel_tile_rug.png")},
+	# Golden Pixel Knight: same artwork and layout, rendered with a gold shimmer.
+	"golden_pixel_knight_helmet":{"name":"Golden Pixel Knight Helmet", "theme":"golden_knight", "category":"pet", "slot":"face", "price":395, "description":"A crisp golden pixel helmet with a dark visor and gold rivets.", "texture":preload("res://assets/shop/pet/face/pixel_knight_helmet.png")},
+	"golden_pixel_visor":{"name":"Golden Pixel Knight Plume", "theme":"golden_knight", "category":"pet", "slot":"head", "price":385, "description":"A bright red pixel plume for the little knight helmet.", "texture":preload("res://assets/shop/pet/head/pixel_knight_plume.png")},
+	"golden_pixel_chestplate":{"name":"Golden Pixel Knight Chest", "theme":"golden_knight", "category":"pet", "slot":"neck", "price":405, "description":"Golden pixel armor with a gold edge and little crest.", "texture":preload("res://assets/shop/pet/neck/pixel_knight_chest.png")},
+	"golden_pixel_brick_wallpaper":{"name":"Golden Pixel Brick Wallpaper", "theme":"golden_knight", "category":"room", "slot":"wall", "price":405, "description":"Golden castle stones with little blue and gold banners.", "texture":preload("res://assets/shop/room/wall/pixel_brick_wallpaper.png")},
+	"golden_pixel_castle_banner":{"name":"Golden Pixel Knight Decor Set", "theme":"golden_knight", "category":"room", "slot":"decor", "price":420, "description":"A heraldic banner, castle window, shield shelf, star shield plaque, pixel plant, crest bowl, and cushion.", "texture":preload("res://assets/shop/room/decor/pixel_castle_banner.png")},
+	"golden_pixel_tile_rug":{"name":"Golden Pixel Tile Rug", "theme":"golden_knight", "category":"room", "slot":"rug", "price":415, "description":"A blue and cream pixel rug with a gold shield crest.", "texture":preload("res://assets/shop/room/rug/pixel_tile_rug.png")},
 	# Easter
 	"bunny_ears":{"name":"Cracked Egg Headpiece", "theme":"easter", "category":"pet", "slot":"head", "price":185, "description":"A pastel eggshell headpiece decorated with a little flower.", "texture":preload("res://assets/shop/pet/head/cracked_egg_head.png")},
 	"egg_cheek_sticker":{"name":"Carrot Glasses", "theme":"easter", "category":"pet", "slot":"face", "price":195, "description":"Bright orange spring glasses with leafy accents.", "texture":preload("res://assets/shop/pet/face/carrot_glasses.png")},

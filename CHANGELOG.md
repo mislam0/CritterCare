@@ -1,5 +1,9 @@
 # Changelog
 
+## Update v1.7.3
+
+- Added Golden Pixel Knight, Sweetheart, Lucky Clover, Midnight Celebration, and Spring Celebration shop sets.
+
 ## Update v1.7.2
 
 - Made Style pet a clearly labeled green button on the opening name-choice screen, beside the pet preview.

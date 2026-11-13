@@ -1,11 +1,15 @@
 # CritterCare
 
-**Release v1.7.2 · Style your pet from the name screen**
+**Release v1.7.3 · New Shop Sets**
 
 Open `project.godot` in Godot 4.7.2 and press F5, or upload the included
 `builds/CritterCare-itchio.zip` as an HTML game.
 
-## Update v1.7.2
+## Update v1.7.3
+
+Added Golden Pixel Knight, Sweetheart, Lucky Clover, Midnight Celebration, and Spring Celebration shop sets.
+
+## Previous update v1.7.2
 
 The opening name-choice screen now has a green **Style pet** button next to
 the pet preview. Choose a species, face, and colors, then return to naming.
@@ -69,7 +73,7 @@ On Windows, you can also drag `project.godot` into Godot's Project Manager. Open
 
 ## Confirm you opened the update
 
-The bottom-right footer should show **v1.7.2**, followed by your pet's name. If it does not, that is an older copy of the game. Extract this download into a fresh folder and import the `project.godot` from that folder rather than launching a previous Project Manager entry. New saves and Reset progress ask for a name, then start the guided tour. With an existing save, choose Settings → Replay tutorial to see it without losing progress.
+The bottom-right footer should show **v1.7.3**, followed by your pet's name. If it does not, that is a different copy of the game. Extract this download into a fresh folder and import the `project.godot` from that folder rather than launching a previous Project Manager entry. New saves and Reset progress ask for a name, then start the guided tour. With an existing save, choose Settings → Replay tutorial to see it without losing progress.
 
 The matching browser build is included as `builds/CritterCare-itchio.zip`. After future edits, use **Project → Tools → Export CritterCare for itch.io** to rebuild it. Generated browser files live in `builds/web/`; the older duplicate `critter_care_web_version/` export is not shipped.
 

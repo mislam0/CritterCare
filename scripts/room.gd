@@ -81,14 +81,17 @@ func _room_item(slot: String) -> Dictionary:
 
 func _apply_cosmetics() -> void:
 	var wall_item := _room_item("wall")
+	wallpaper.material = _gold_material(wall_item)
 	wallpaper.texture = DEFAULT_WALLPAPER if wall_item.is_empty() else wall_item.texture
-	wallpaper.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST if not wall_item.is_empty() and wall_item.get("theme", "") == "pixel_knight" else CanvasItem.TEXTURE_FILTER_LINEAR
+	wallpaper.stretch_mode = TextureRect.STRETCH_SCALE
+	wallpaper.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST if not wall_item.is_empty() and wall_item.get("theme", "") in ["pixel_knight", "golden_knight"] else CanvasItem.TEXTURE_FILTER_LINEAR
 	wallpaper.position = Vector2(40, 138)
 	wallpaper.size = Vector2(1200, 525)
 	wallpaper.visible = true
 
 	var rug_item := _room_item("rug")
 	if rug_item.is_empty():
+		rug.material = null
 		rug.texture = DEFAULT_RUG
 		rug.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 		rug.position = Vector2(320, 500)
@@ -105,6 +108,8 @@ func _apply_decor_set(item: Dictionary) -> void:
 	# bundles replace all five base pieces so old silhouettes cannot show through.
 	for piece_name in decor_pieces:
 		var layer: TextureRect = decor_pieces[piece_name]
+		# Preserve the original window scene's cloud and landscape colors.
+		layer.material = null if piece_name == "window" else _gold_material(item)
 		if item.is_empty():
 			layer.texture = null
 			layer.visible = false
@@ -120,7 +125,7 @@ func _apply_decor_set(item: Dictionary) -> void:
 		var image: Texture2D = load(path) as Texture2D
 		layer.texture = image
 		layer.visible = image != null
-		layer.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST if item.get("theme", "") == "pixel_knight" else CanvasItem.TEXTURE_FILTER_LINEAR
+		layer.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST if item.get("theme", "") in ["pixel_knight", "golden_knight"] else CanvasItem.TEXTURE_FILTER_LINEAR
 		var rect: Rect2 = Shop.DECOR_SET_LAYOUT[piece_name].rect
 		layer.position = rect.position
 		layer.size = rect.size
@@ -132,6 +137,7 @@ func _apply_decor_set(item: Dictionary) -> void:
 	furniture.visible = not replaces_furniture
 
 func _apply_item(node: TextureRect, slot: String, item: Dictionary) -> void:
+	node.material = _gold_material(item)
 	var layout: Dictionary = Shop.room_layout(slot, str(item.get("id", "")))
 	if layout.is_empty():
 		node.texture = null
@@ -139,7 +145,15 @@ func _apply_item(node: TextureRect, slot: String, item: Dictionary) -> void:
 		return
 	node.texture = item.texture
 	# Pixel art must not be blurred by bilinear filtering at different UI scales.
-	node.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST if item.get("theme", "") == "pixel_knight" else CanvasItem.TEXTURE_FILTER_LINEAR
+	node.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST if item.get("theme", "") in ["pixel_knight", "golden_knight"] else CanvasItem.TEXTURE_FILTER_LINEAR
 	node.position = layout.rect.position
 	node.size = layout.rect.size
 	node.visible = true
+
+func _gold_material(item: Dictionary) -> ShaderMaterial:
+	if item.get("theme", "") != "golden_knight":
+		return null
+	var result := ShaderMaterial.new()
+	result.shader = load("res://assets/shop/golden_knight.gdshader")
+	result.set_shader_parameter("animate_shine", false)
+	return result
